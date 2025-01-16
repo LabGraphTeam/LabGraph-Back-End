@@ -42,6 +42,16 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
             @PageableDefault(sort = "date", direction = Sort.Direction.DESC) Pageable pageable) {
         return this.getAllAnalyticsWithLinks(names, pageable);
     }
+    @Override
+    @GetMapping("/level-date-range")
+    public ResponseEntity<List<AnalyticsRecord>> getAllAnalyticsByLevelDateRange(
+            @RequestParam String level,
+            @RequestParam("startDate") LocalDateTime startDate,
+            @RequestParam("endDate") LocalDateTime endDate,
+            Pageable pageable) {
+        return ResponseEntity.ok(biochemistryAnalyticsService
+                .findAnalyticsByNameInByLevel(names, level, startDate, endDate, pageable));
+    }
 
     @Override
     @GetMapping("/date-range")
@@ -49,7 +59,7 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate) {
         List<AnalyticsRecord> resultsList = biochemistryAnalyticsService
-                .getAllByNameInAndDateBetween(names, startDate, endDate);
+                .findAnalyticsByNameInAndDateBetween(names, startDate, endDate);
         return ResponseEntity.ok(resultsList);
     }
 
@@ -69,8 +79,11 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate) {
         return ResponseEntity.ok(biochemistryAnalyticsService
-                .findAllAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate));
+                .findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate));
     }
+
+
+
 
     @Override
     @GetMapping("/mean-standard-deviation")

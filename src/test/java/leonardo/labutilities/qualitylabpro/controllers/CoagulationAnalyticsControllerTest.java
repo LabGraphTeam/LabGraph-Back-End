@@ -52,7 +52,24 @@ public class CoagulationAnalyticsControllerTest {
 
 	@Autowired
 	private JacksonTester<List<AnalyticsRecord>> jacksonGenericValuesRecord;
+	@Test
+	@DisplayName("It should return a list of all analytics by level")
+	void getAllAnalytics_by_level_return_list() throws Exception {
+		List<AnalyticsRecord> records = createSampleRecordList();
 
+		when(coagulationAnalyticsService
+				.findAnalyticsByNameInByLevel(anyList(),any(),any(),any(), any(Pageable.class)))
+				.thenReturn(records);
+
+		mockMvc.perform(get("/coagulation-analytics/level-date-range")
+						.param("level", "PCCC1")
+						.param("startDate", "2025-01-01 00:00:00")
+						.param("endDate", "2025-01-05 00:00:00"))
+				.andExpect(status().isOk());
+
+		verify(coagulationAnalyticsService, times(1))
+				.findAnalyticsByNameInByLevel(anyList(),any(), any(),any(), any(Pageable.class));
+	}
 	@Test
 	@DisplayName("It should return HTTP code 201 when analytics records are saved")
 	void analytics_post_return_201() throws Exception {
@@ -69,7 +86,7 @@ public class CoagulationAnalyticsControllerTest {
 		List<AnalyticsRecord> records = createSampleRecordList();
 		Page<AnalyticsRecord> page = new PageImpl<>(records);
 
-		when(coagulationAnalyticsService.getAllPagedByNameIn(anyList(), any(Pageable.class)))
+		when(coagulationAnalyticsService.findAnalyticsPagedByNameIn(anyList(), any(Pageable.class)))
 				.thenReturn(page);
 
 		mockMvc.perform(get("/coagulation-analytics")
@@ -78,7 +95,7 @@ public class CoagulationAnalyticsControllerTest {
 				.andExpect(status().isOk());
 
 		verify(coagulationAnalyticsService, times(1))
-				.getAllPagedByNameIn(anyList(), any(Pageable.class));
+				.findAnalyticsPagedByNameIn(anyList(), any(Pageable.class));
 	}
 
 	@Test
@@ -101,14 +118,14 @@ public class CoagulationAnalyticsControllerTest {
 	void getAnalyticsByDateRange_return_analytics() throws Exception {
 		List<AnalyticsRecord> records = createSampleRecordList();
 
-		when(coagulationAnalyticsService.getAllByNameInAndDateBetween(anyList(), any(), any()))
+		when(coagulationAnalyticsService.findAnalyticsByNameInAndDateBetween(anyList(), any(), any()))
 				.thenReturn(records);
 
 		mockMvc.perform(get("/coagulation-analytics/date-range")
 				.param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00"))
 				.andExpect(status().isOk());
 
-		verify(coagulationAnalyticsService, times(1)).getAllByNameInAndDateBetween(anyList(), any(),
+		verify(coagulationAnalyticsService, times(1)).findAnalyticsByNameInAndDateBetween(anyList(), any(),
 				any());
 	}
 

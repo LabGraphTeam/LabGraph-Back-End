@@ -18,6 +18,11 @@ public class CoagulationAnalyticsService extends AbstractAnalyticsService {
 		super(analyticsRepository);
 	}
 
+	public List<AnalyticsRecord> findAnalyticsByNameInByLevel(List<String> names, String level,
+															  LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+		return this.findAnalyticsByNameInByLevelBaseMethod(names, this.convertLevel(level),
+				startDate, endDate, pageable);
+	}
 	@Override
 	@Cacheable(cacheNames = "analytics-cache",
 			key = "#name + '-' + #level + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
@@ -31,8 +36,8 @@ public class CoagulationAnalyticsService extends AbstractAnalyticsService {
 	@Override
 	@Cacheable(cacheNames = "analytics-cache",
 			key = "#name + '-' + #level + '-' + #dateStart.toString() + '-' + #dateEnd.toString()")
-	public List<AnalyticsRecord> findAllAnalyticsByNameAndLevelAndDate(String name,
-																	   String level, LocalDateTime dateStart, LocalDateTime dateEnd) {
+	public List<AnalyticsRecord> findAnalyticsByNameAndLevelAndDate(String name,
+																	String level, LocalDateTime dateStart, LocalDateTime dateEnd) {
 		this.ensureNameExists(name);
 		return this.findAnalyticsByNameLevelAndDate(name.toUpperCase(), this.convertLevel(level),
 				dateStart, dateEnd);

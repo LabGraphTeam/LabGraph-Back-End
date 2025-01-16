@@ -16,7 +16,7 @@ public interface AnalyticsRepository extends JpaRepository<Analytics, Long> {
 	boolean existsByName(String name);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name = ?1")
-	List<Analytics> findAllByName(String name, Pageable pageable);
+	List<Analytics> findByName(String name, Pageable pageable);
 
 	boolean existsByDateAndLevelAndName(LocalDateTime date, String level, String value);
 	@Transactional
@@ -25,32 +25,35 @@ public interface AnalyticsRepository extends JpaRepository<Analytics, Long> {
 	void updateMeanByNameAndLevelAndLevelLot(String name, String level, String levelLot, double mean);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name = ?1 AND ga.level = ?2")
-	List<Analytics> findAllByNameAndLevel(Pageable pageable, String name, String level);
+	List<Analytics> findByNameAndLevel(Pageable pageable, String name, String level);
+
+	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) AND ga.level = ?2 AND ga.date BETWEEN ?3 AND ?4")
+	List<Analytics> findByNameInAndLevelAndDateBetween(List<String> names, String level, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name = ?1 AND ga.level = ?2 AND ga.levelLot = ?3")
-	List<Analytics> findAllByNameAndLevelAndLevelLot(Pageable pageable, String name, String level, String levelLot);
+	List<Analytics> findByNameAndLevelAndLevelLot(Pageable pageable, String name, String level, String levelLot);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) AND ga.date BETWEEN ?2 AND ?3")
-	List<Analytics> findAllByNameInAndDateBetween(List<String> names,
-														LocalDateTime startDate, LocalDateTime endDate);
+	List<Analytics> findByNameInAndDateBetween(List<String> names,
+											   LocalDateTime startDate, LocalDateTime endDate);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) ORDER BY ga.date ASC")
-	List<Analytics> findAllByNameIn(List<String> names, Pageable pageable);
+	List<Analytics> findByNameIn(List<String> names, Pageable pageable);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) ORDER BY ga.date ASC")
-	Page<AnalyticsRecord> findAllByNameInPaged(List<String> names, Pageable pageable);
+	Page<AnalyticsRecord> findByNameInPaged(List<String> names, Pageable pageable);
 
 	@Query("SELECT ga FROM generic_analytics ga ORDER BY ga.date ASC")
-	Page<AnalyticsRecord> findAllPaged(Pageable pageable);
+	Page<AnalyticsRecord> findPaged(Pageable pageable);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name = ?1 AND ga.level = ?2 AND ga.date BETWEEN ?3 AND ?4 ORDER BY ga.date ASC")
-	List<Analytics> findAllByNameAndLevelAndDateBetween(String name, String level,
-															  LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+	List<Analytics> findByNameAndLevelAndDateBetween(String name, String level,
+													 LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.date BETWEEN ?1 AND ?2 ORDER BY ga.date DESC")
-	List<Analytics> findAllByDateBetween(LocalDateTime startDate, LocalDateTime endDate);
+	List<Analytics> findByDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name = ?1 AND ga.date BETWEEN ?2 AND ?3 GROUP BY ga.level, ga.id ORDER BY ga.date ASC")
-	List<Analytics> findAllByNameAndDateBetweenGroupByLevel(String name,
-																  LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+	List<Analytics> findByNameAndDateBetweenGroupByLevel(String name,
+														 LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 }

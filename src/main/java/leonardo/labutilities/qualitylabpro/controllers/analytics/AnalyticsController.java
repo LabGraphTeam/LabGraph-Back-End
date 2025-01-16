@@ -38,6 +38,15 @@ public abstract class AnalyticsController {
         this.analyticsHelperService = analyticsHelperService;
     }
 
+
+    @GetMapping("/level-date-range")
+    public abstract ResponseEntity<List<AnalyticsRecord>> getAllAnalyticsByLevelDateRange(
+            @RequestParam String level,
+            @RequestParam("startDate") LocalDateTime startDate,
+            @RequestParam("endDate") LocalDateTime endDate,
+            Pageable pageable);
+
+
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<Void> deleteAnalyticsResultById(@PathVariable Long id) {
@@ -47,8 +56,9 @@ public abstract class AnalyticsController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AnalyticsRecord> getAnalyticsById(@PathVariable Long id) {
-        return ResponseEntity.ok(analyticsHelperService.findById(id));
+        return ResponseEntity.ok(analyticsHelperService.findOneById(id));
     }
+
 
     @PostMapping
     @Transactional
@@ -59,7 +69,7 @@ public abstract class AnalyticsController {
     }
 
     public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAllAnalyticsWithLinks(List<String> names, Pageable pageable) {
-        Page<AnalyticsRecord> resultsList = analyticsHelperService.getAllPagedByNameIn(names, pageable);
+        Page<AnalyticsRecord> resultsList = analyticsHelperService.findAnalyticsPagedByNameIn(names, pageable);
 
         // Create EntityModel for each record with its own self link
         var entityModels = resultsList.getContent().stream()
@@ -75,7 +85,7 @@ public abstract class AnalyticsController {
     @GetMapping()
     public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAllAnalytics(
             @PageableDefault(sort = "date", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<AnalyticsRecord> resultsList = analyticsHelperService.findAll(pageable);
+        Page<AnalyticsRecord> resultsList = analyticsHelperService.findAnalytics(pageable);
         var model = pagedResourcesAssembler.toModel(resultsList);
 
         return ResponseEntity.ok(model);
@@ -199,6 +209,8 @@ public abstract class AnalyticsController {
             @RequestParam String name, @RequestParam String level,
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate);
+
+
 
     @GetMapping("/mean-standard-deviation")
     public abstract ResponseEntity<MeanAndStdDeviationRecord> getMeanAndStandardDeviation(

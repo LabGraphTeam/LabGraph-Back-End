@@ -49,7 +49,7 @@ public class CoagulationAnalyticsController extends AnalyticsController {
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate) {
         List<AnalyticsRecord> resultsList =
-                coagulationAnalyticsService.getAllByNameInAndDateBetween(names, startDate, endDate);
+                coagulationAnalyticsService.findAnalyticsByNameInAndDateBetween(names, startDate, endDate);
         return ResponseEntity.ok(resultsList);
     }
 
@@ -60,7 +60,18 @@ public class CoagulationAnalyticsController extends AnalyticsController {
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate) {
         return ResponseEntity.ok(coagulationAnalyticsService
-                .findAllAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate));
+                .findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate));
+    }
+
+    @Override
+    @GetMapping("/level-date-range")
+    public ResponseEntity<List<AnalyticsRecord>> getAllAnalyticsByLevelDateRange(
+            @RequestParam String level,
+            @RequestParam("startDate") LocalDateTime startDate,
+            @RequestParam("endDate") LocalDateTime endDate,
+            Pageable pageable) {
+        return ResponseEntity.ok(coagulationAnalyticsService
+                .findAnalyticsByNameInByLevel(names, level, startDate, endDate, pageable));
     }
 
     @Override

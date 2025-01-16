@@ -26,6 +26,15 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 		this.analyticsRepository = analyticsRepository;
 	}
 
+	public List<AnalyticsRecord> findAnalyticsByNameInByLevelBaseMethod(List<String> names, String level,
+																		LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+		List<AnalyticsRecord> results = analyticsRepository
+				.findByNameInAndLevelAndDateBetween(names, level, startDate, endDate, pageable)
+				.stream().map(AnalyticsMapper::toRecord).toList();
+		validateResultsNotEmpty(results, "No analytics found for the given parameters");
+		return results;
+	}
+
 	@Override
 	public void deleteAnalyticsById(Long id) {
 		if (!analyticsRepository.existsById(id)) {
@@ -111,7 +120,7 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 	public List<GroupedValuesByLevel> findGroupedAnalyticsByLevel(String name,
 			LocalDateTime startDate, LocalDateTime endDate) {
 		List<AnalyticsRecord> records = analyticsRepository
-				.findAllByNameAndDateBetweenGroupByLevel(name, startDate, endDate, pageable)
+				.findByNameAndDateBetweenGroupByLevel(name, startDate, endDate, pageable)
 				.stream().map(AnalyticsMapper::toRecord).toList();
 		validateResultsNotEmpty(records, "No analytics found for the given parameters");
 
@@ -139,7 +148,7 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 
 	@Override
 	@Cacheable(cacheNames = "analytics-cache", key = "#records.hashCode()")
-	public List<GroupedMeanAndStdRecordByLevel> getMeanAndStandardDeviationForGroups(
+	public List<GroupedMeanAndStdRecordByLevel> returnMeanAndStandardDeviationForGroups(
 			List<GroupedValuesByLevel> records) {
 		return records.stream()
 				.map(group -> new GroupedMeanAndStdRecordByLevel(group.level(), Collections
@@ -152,7 +161,7 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 	public MeanAndStdDeviationRecord calculateMeanAndStandardDeviation(String name, String level,
 			LocalDateTime dateStart, LocalDateTime dateEnd) {
 		List<AnalyticsRecord> values =
-				findAllAnalyticsByNameAndLevelAndDate(name, level, dateStart, dateEnd).stream()
+				findAnalyticsByNameAndLevelAndDate(name, level, dateStart, dateEnd).stream()
 						.filter(this::isRecordValid).toList();
 		return computeStatistics(extractRecordValues(values));
 	}
@@ -162,36 +171,36 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 	public List<GroupedMeanAndStdRecordByLevel> calculateGroupedMeanAndStandardDeviation(
 			String name, LocalDateTime startDate, LocalDateTime endDate) {
 		List<AnalyticsRecord> records = analyticsRepository
-				.findAllByNameAndDateBetweenGroupByLevel(name, startDate, endDate, pageable)
+				.findByNameAndDateBetweenGroupByLevel(name, startDate, endDate, pageable)
 				.stream().map((AnalyticsMapper::toRecord)).toList();
 		var values = records.stream().collect(Collectors.groupingBy(AnalyticsRecord::level))
 				.entrySet().stream()
 				.map(entry -> new GroupedValuesByLevel(entry.getKey(), entry.getValue())).toList();
 
-		return getMeanAndStandardDeviationForGroups(values);
+		return returnMeanAndStandardDeviationForGroups(values);
 	}
 
 	@Override
 	@Cacheable(cacheNames = "analytics-cache",
 			key = "#names.hashCode() + '-' + #dateStart.toString() + '-' + #dateEnd.toString()")
-	public List<AnalyticsRecord> getAllByNameInAndDateBetween(List<String> names,
-															  LocalDateTime dateStart, LocalDateTime dateEnd) {
-		return analyticsRepository.findAllByNameInAndDateBetween(names, dateStart, dateEnd)
+	public List<AnalyticsRecord> findAnalyticsByNameInAndDateBetween(List<String> names,
+																	 LocalDateTime dateStart, LocalDateTime dateEnd) {
+		return analyticsRepository.findByNameInAndDateBetween(names, dateStart, dateEnd)
 				.stream().map((AnalyticsMapper::toRecord)).toList();
 	}
 
 	@Cacheable(cacheNames = "analytics-cache",
 			key = "#names.hashCode() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
-	public List<AnalyticsRecord> getAllByNameIn(List<String> names, Pageable pageable) {
+	public List<AnalyticsRecord> findAnalyticsByNameIn(List<String> names, Pageable pageable) {
 		return analyticsRepository
-				.findAllByNameIn(names, pageable).stream().map((AnalyticsMapper::toRecord)).toList();
+				.findByNameIn(names, pageable).stream().map((AnalyticsMapper::toRecord)).toList();
 	}
 
 	@Cacheable(cacheNames = "analytics-cache",
 			key = "#names.hashCode() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
-	public Page<AnalyticsRecord> getAllPagedByNameIn(List<String> names, Pageable pageable) {
+	public Page<AnalyticsRecord> findAnalyticsPagedByNameIn(List<String> names, Pageable pageable) {
 		return analyticsRepository
-				.findAllByNameInPaged(names, pageable);
+				.findByNameInPaged(names, pageable);
 	}
 
 
@@ -214,8 +223,8 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 
 	@Override
 	@Cacheable(value = "name")
-	public Page<AnalyticsRecord> findAll(Pageable pageable) {
-		return analyticsRepository.findAllPaged(pageable);
+	public Page<AnalyticsRecord> findAnalytics(Pageable pageable) {
+		return analyticsRepository.findPaged(pageable);
 	}
 
 
@@ -226,14 +235,14 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 																   String name) {
 		List<AnalyticsRecord> analyticsList =
 				analyticsRepository
-						.findAllByName(name.toUpperCase(), pageable).stream().map(AnalyticsMapper::toRecord).toList();
+						.findByName(name.toUpperCase(), pageable).stream().map(AnalyticsMapper::toRecord).toList();
 		validateResultsNotEmpty(analyticsList, "No analytics found with the given name");
 		return analyticsList;
 	}
 
 	@Override
 	@Cacheable(cacheNames = "analytics-cache", key = "#id")
-	public AnalyticsRecord findById(Long id) {
+	public AnalyticsRecord findOneById(Long id) {
 		return AnalyticsMapper.toRecord(analyticsRepository.findById(id)
 				.orElseThrow(() -> new CustomGlobalErrorHandling.ResourceNotFoundException(
 						"AnalyticsRecord by id not found")));
@@ -243,7 +252,7 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 			key = "#name + '-' + #level + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
 	public List<AnalyticsRecord> findAnalyticsByNameAndLevelWithPagination(Pageable pageable, String name, String level) {
 		List<AnalyticsRecord> analyticsList = analyticsRepository
-				.findAllByNameAndLevel(pageable, name.toUpperCase(), level)
+				.findByNameAndLevel(pageable, name.toUpperCase(), level)
 				.stream().map(AnalyticsMapper::toRecord).toList();
 		validateResultsNotEmpty(analyticsList, "No analytics found for the given name and level");
 		return analyticsList;
@@ -254,7 +263,7 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 	public List<AnalyticsRecord> findAnalyticsByNameLevelAndDate(String name, String level,
 														  LocalDateTime dateStart, LocalDateTime dateEnd) {
 		List<AnalyticsRecord> results = analyticsRepository
-				.findAllByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd, pageable)
+				.findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd, pageable)
 				.stream().map(AnalyticsMapper::toRecord).toList();
 		validateResultsNotEmpty(results, "No analytics found for the given parameters");
 		return results;
@@ -263,9 +272,9 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 	@Override
 	@Cacheable(cacheNames = "analytics-cache",
 			key = "#dateStart.toString() + '-' + #dateEnd.toString()")
-	public List<AnalyticsRecord> findAllAnalyticsByDate(LocalDateTime dateStart, LocalDateTime dateEnd) {
+	public List<AnalyticsRecord> findAnalyticsByDate(LocalDateTime dateStart, LocalDateTime dateEnd) {
 		List<AnalyticsRecord> results =
-				analyticsRepository.findAllByDateBetween(dateStart, dateEnd)
+				analyticsRepository.findByDateBetween(dateStart, dateEnd)
 						.stream().map(AnalyticsMapper::toRecord).toList();
 		validateResultsNotEmpty(results, "No analytics found for the given date range");
 		return results;

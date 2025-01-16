@@ -1,5 +1,6 @@
 package leonardo.labutilities.qualitylabpro.services;
 
+import leonardo.labutilities.qualitylabpro.constants.AvailableBiochemistryAnalytics;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedValuesByLevel;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanRecord;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -34,24 +36,28 @@ class AnalyticsHelperServiceTests {
 
 	@Mock
 	private AnalyticsHelperService analyticsHelperService;
+	@Autowired
+	private static final List<String> ANALYTICS_NAME_LIST = new AvailableBiochemistryAnalytics().availableBioAnalytics();
+
 
 	@BeforeEach
 	void setUp() {
 		try (AutoCloseable closeable = MockitoAnnotations.openMocks(this)) {
 			analyticsHelperService =
 					new AnalyticsHelperService(analyticsRepository) {
+
 						@Override
 						public List<AnalyticsRecord> findAnalyticsByNameAndLevel
 								(Pageable pageable, String name, String level) {
-							return analyticsRepository.findAllByNameAndLevel(pageable, name,
+							return analyticsRepository.findByNameAndLevel(pageable, name,
 									level).stream().map(AnalyticsMapper::toRecord).toList();
 						}
 
 						@Override
-						public List<AnalyticsRecord> findAllAnalyticsByNameAndLevelAndDate(
+						public List<AnalyticsRecord> findAnalyticsByNameAndLevelAndDate(
 								String name, String level, LocalDateTime dateStart,
 								LocalDateTime dateEnd) {
-							return analyticsRepository.findAllByNameAndLevelAndDateBetween(name,
+							return analyticsRepository.findByNameAndLevelAndDateBetween(name,
 											level, dateStart, dateEnd, PageRequest.of(0, 200))
 									.stream().map(AnalyticsMapper::toRecord).toList();
 						}
@@ -59,6 +65,23 @@ class AnalyticsHelperServiceTests {
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to initialize mocks", e);
 		}
+	}
+
+	@Test
+	public void findAllAnalyticsByLevel() {
+		var mockPageable = PageRequest.of(0, 10);
+		var mockLevel = "PCCC1";
+		var mockList = ANALYTICS_NAME_LIST;
+		LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
+		LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
+
+		List<Analytics> expectedRecords = createDateRangeRecords().stream().map(AnalyticsMapper::toEntity).toList();
+
+		when(analyticsRepository.findByNameInAndLevelAndDateBetween(mockList, mockLevel, startDate, endDate, mockPageable))
+				.thenReturn(expectedRecords);
+
+		analyticsHelperService.findAnalyticsByNameInByLevelBaseMethod(mockList, mockLevel, startDate, endDate, mockPageable);
+		verify(analyticsRepository).findByNameInAndLevelAndDateBetween(mockList, mockLevel, startDate, endDate, mockPageable);
 	}
 
 	@Test
@@ -112,7 +135,7 @@ class AnalyticsHelperServiceTests {
 		Analytics analytics = new Analytics();
 		when(analyticsRepository.findById(id)).thenReturn(Optional.of(analytics));
 
-		Analytics result = AnalyticsMapper.toEntity(analyticsHelperService.findById(id));
+		Analytics result = AnalyticsMapper.toEntity(analyticsHelperService.findOneById(id));
 
 		assertNotNull(result);
 		assertEquals(analytics, result);
@@ -124,7 +147,7 @@ class AnalyticsHelperServiceTests {
 		when(analyticsRepository.findById(id)).thenReturn(Optional.empty());
 
 		assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
-				() -> analyticsHelperService.findById(id));
+				() -> analyticsHelperService.findOneById(id));
 	}
 
 	@Test
@@ -136,14 +159,14 @@ class AnalyticsHelperServiceTests {
 				.filter(r -> r.name().equals(name) && r.level().equals(level)).toList()
 				.stream().map(AnalyticsMapper::toEntity).toList();
 
-		when(analyticsRepository.findAllByNameAndLevel(pageable, name, level))
+		when(analyticsRepository.findByNameAndLevel(pageable, name, level))
 				.thenReturn(expectedRecords);
 
 		List<AnalyticsRecord> result =
 				analyticsHelperService.findAnalyticsByNameAndLevel(pageable, name, level);
 
 		assertEquals(expectedRecords.size(), result.size());
-		verify(analyticsRepository).findAllByNameAndLevel(pageable, name, level);
+		verify(analyticsRepository).findByNameAndLevel(pageable, name, level);
 	}
 
 	@Test
@@ -154,11 +177,11 @@ class AnalyticsHelperServiceTests {
 		LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
 		List<Analytics> expectedRecords = createDateRangeRecords().stream().map(AnalyticsMapper::toEntity).toList();
 
-		when(analyticsRepository.findAllByNameAndLevelAndDateBetween(eq(name), eq(level),
+		when(analyticsRepository.findByNameAndLevelAndDateBetween(eq(name), eq(level),
 				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(expectedRecords);
 
 		List<AnalyticsRecord> result = analyticsHelperService
-				.findAllAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate);
+				.findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate);
 
 		assertNotNull(result);
 		assertEquals(expectedRecords.size(), result.size());
@@ -243,7 +266,7 @@ class AnalyticsHelperServiceTests {
 		LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
 		List<Analytics> records = createSampleRecordList().stream().map(AnalyticsMapper::toEntity).toList();
 
-		when(analyticsRepository.findAllByNameAndDateBetweenGroupByLevel(eq(name),
+		when(analyticsRepository.findByNameAndDateBetweenGroupByLevel(eq(name),
 				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(records);
 
 		List<GroupedValuesByLevel> result =
@@ -251,7 +274,7 @@ class AnalyticsHelperServiceTests {
 
 		assertNotNull(result);
 		assertFalse(result.isEmpty());
-		verify(analyticsRepository).findAllByNameAndDateBetweenGroupByLevel(eq(name),
+		verify(analyticsRepository).findByNameAndDateBetweenGroupByLevel(eq(name),
 				eq(startDate), eq(endDate), any(Pageable.class));
 	}
 }

@@ -20,8 +20,8 @@ public abstract class AbstractAnalyticsService extends AnalyticsHelperService {
 
 	@Override
 	public abstract List<AnalyticsRecord>
-	findAllAnalyticsByNameAndLevelAndDate(String name,
-										  String level, LocalDateTime dateStart, LocalDateTime dateEnd);
+	findAnalyticsByNameAndLevelAndDate(String name,
+									   String level, LocalDateTime dateStart, LocalDateTime dateEnd);
 
 	public abstract String convertLevel(String level);
 }
