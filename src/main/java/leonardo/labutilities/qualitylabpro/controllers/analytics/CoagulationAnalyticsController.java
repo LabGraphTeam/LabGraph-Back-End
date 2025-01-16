@@ -3,6 +3,7 @@ package leonardo.labutilities.qualitylabpro.controllers.analytics;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import leonardo.labutilities.qualitylabpro.constants.AvailableCoagulationAnalytics;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.DefaultMeanAndStdRecord;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationRecord;
 import leonardo.labutilities.qualitylabpro.services.analytics.CoagulationAnalyticsService;
 import org.springframework.data.domain.Pageable;
@@ -83,11 +84,11 @@ public class CoagulationAnalyticsController extends AnalyticsController {
 
     @Override
     @GetMapping("/mean-standard-deviation")
-    public ResponseEntity<MeanAndStdDeviationRecord> getMeanAndStandardDeviation(
+    public ResponseEntity<DefaultMeanAndStdRecord> getMeanAndStandardDeviation(
             @RequestParam String name, @RequestParam String level,
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate) {
-        return ResponseEntity.ok(coagulationAnalyticsService.calculateMeanAndStandardDeviation(name,
-                level, startDate, endDate));
+        return ResponseEntity.ok(new DefaultMeanAndStdRecord(0.0, 0.0));
+
     }
 }
