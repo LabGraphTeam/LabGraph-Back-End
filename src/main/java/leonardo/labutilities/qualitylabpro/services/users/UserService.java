@@ -1,5 +1,9 @@
 package leonardo.labutilities.qualitylabpro.services.users;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Service;
+
 import leonardo.labutilities.qualitylabpro.dtos.authentication.TokenJwtRecord;
 import leonardo.labutilities.qualitylabpro.dtos.email.EmailRecord;
 import leonardo.labutilities.qualitylabpro.dtos.email.RecoveryEmailRecord;
@@ -13,9 +17,6 @@ import leonardo.labutilities.qualitylabpro.utils.components.PasswordRecoveryToke
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -65,7 +66,7 @@ public class UserService {
 		var user = new User(login, BCryptEncoderComponent.encrypt(password), email, UserRoles.USER);
 
 		if (userRepository.existsByEmail(email)) {
-			throw new CustomGlobalErrorHandling.DataIntegrityViolationException();
+			throw new CustomGlobalErrorHandling.UserAlreadyExistException();
 		}
 		return userRepository.save(user);
 	}

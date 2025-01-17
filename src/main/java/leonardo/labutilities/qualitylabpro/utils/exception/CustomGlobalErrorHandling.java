@@ -1,7 +1,8 @@
 package leonardo.labutilities.qualitylabpro.utils.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -11,8 +12,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Map;
-import java.util.stream.Collectors;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
 @Slf4j
@@ -61,6 +62,14 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
 	}
 
+	@ExceptionHandler(UserAlreadyExistException.class)
+	public ResponseEntity<ApiError> handleUserAllReadyExist(UserAlreadyExistException ex, HttpServletRequest request) {
+		ApiError apiError = new ApiError (HttpStatus.BAD_REQUEST, "Username or Email are invalids", request.getRequestURI());
+
+		log.error("Username or Email are invalids at {}: {}", request.getRequestURI(), ex.getMessage());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+	}
+
 	@ExceptionHandler(DataIntegrityViolationException.class)
 	public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex,
 			HttpServletRequest request) {
@@ -99,5 +108,9 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 		public DataIntegrityViolationException() {
 			super();
 		}
+	}
+
+	public static class UserAlreadyExistException extends RuntimeException {
+		public UserAlreadyExistException() { super(); }
 	}
 }
