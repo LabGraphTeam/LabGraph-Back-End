@@ -21,51 +21,54 @@ The API efficiently manages package insert values and test values, offering simp
 
 ## Project Structure
 ```
-src
-├── main
-│   ├── java
-│   │   └── leonardo
-│   │       └── labutilities
-│   │           └── qualitylabpro
-│   │               ├── ControlApplication.java
-│   │               ├── configs
-│   │               ├── constants
-│   │               ├── controllers
-│   │               ├── dtos
-│   │               ├── entities
-│   │               ├── enums
-│   │               ├── repositories
-│   │               ├── services
-│   │               └── utils
-│   └── resources
-│       ├── META-INF
-│       │   └── spring.factories
-│       ├── aplication-local.properties
-│       ├── application-dev.properties
-│       ├── application-prod.properties
-│       ├── application-test.properties
-│       ├── application.properties
-│       └── db
-│           └── migrations
-└── test
-    └── java
-        └── leonardo
-            └── labutilities
-                └── qualitylabpro
-                    ├── ControlApplicationTests.java
-                    └── controllers
-                    └── repositories
-                    └── services
+.
+├── .github/workflows     # GitHub Actions workflow configurations
+├── src
+│   ├── main
+│   │   ├── java/leonardo/labutilities/qualitylabpro
+│   │   │   ├── configs           # Application configurations
+│   │   │   │   ├── date         # Date/time configurations
+│   │   │   │   ├── docs         # API documentation configs
+│   │   │   │   ├── rest         # REST configurations
+│   │   │   │   └── security     # Security configurations
+│   │   │   ├── constants        # Constant definitions
+│   │   │   ├── controllers      # REST controllers
+│   │   │   ├── dtos            # Data Transfer Objects
+│   │   │   ├── entities        # Domain entities
+│   │   │   ├── enums           # Enumerations
+│   │   │   ├── repositories    # Data access layer
+│   │   │   ├── services       # Business logic
+│   │   │   └── utils          # Utility classes
+│   │   └── resources
+│   │       ├── db/migration    # Flyway migrations
+│   │       └── application*.properties
+│   └── test
+│       └── java               # Test classes
+├── database                   # Database scripts
+├── nginx                      # Nginx configurations
+└── docker-compose*.yml        # Docker compose files
 ```
 
-### Key Directories:
-- `config/`: Configuration classes
-- `controller/`: REST API endpoints
-- `domain/`: Core business logic and data structures
-- `infra/`: Infrastructure components like security and exception handling
-- `service/`: Business service implementations
-- `resources/`: Application properties and database migrations
-- `test/`: Unit and integration tests
+### Key Components:
+- `configs/`: Configuration classes for security, documentation, and more
+- `controllers/`: REST API endpoints organized by domain
+- `services/`: Business logic implementations
+- `dtos/`: Data Transfer Objects for API requests/responses
+- `entities/`: Domain model classes
+- `repositories/`: Database access layer
+- `utils/`: Helper classes and utilities
+- `.github/workflows/`: CI/CD pipeline configurations
+
+## Continuous Integration
+
+This project uses GitHub Actions for automated testing and deployment. Our CI/CD pipeline includes:
+
+- Automated build and test execution
+- Code quality checks
+- Docker image building
+- Automated deployment to staging/production environments
+
+You can view the workflow configurations in the `.github/workflows` directory.
 
 ## Requirements
 * [Java 21](https://www.oracle.com/br/java/technologies/javase/jdk21-archive-downloads.html)
