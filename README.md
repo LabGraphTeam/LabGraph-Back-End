@@ -97,6 +97,30 @@ docker-compose up or docker compose up
 http://localhost:8080/swagger-ui.html
 ```
 
+## Running Tests
+
+### With Maven
+To run tests with detailed output:
+```bash
+./mvnw test -Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG
+```
+
+For even more detailed test output:
+```bash
+./mvnw test -X
+```
+
+### With Docker
+When running with docker-compose, you can view test output in real-time:
+```bash
+docker-compose logs -f app
+```
+
+To see test execution during build:
+```bash
+docker-compose up --build --force-recreate
+```
+
 ## Services
 
 ### CoagulationAnalyticsService
