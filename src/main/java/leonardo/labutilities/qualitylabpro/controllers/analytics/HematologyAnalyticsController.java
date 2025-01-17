@@ -84,10 +84,11 @@ public class HematologyAnalyticsController extends AnalyticsController {
 
     @Override
     @GetMapping("/mean-standard-deviation")
-    public ResponseEntity<DefaultMeanAndStdRecord> getMeanAndStandardDeviation(
+    public ResponseEntity<MeanAndStdDeviationRecord> getMeanAndStandardDeviation(
             @RequestParam String name, @RequestParam String level,
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate) {
-        return ResponseEntity.ok(new DefaultMeanAndStdRecord(0.0, 0.0));
+        return ResponseEntity.ok(hematologyAnalyticsService.calculateMeanAndStandardDeviation(
+                name, level, startDate, endDate));
     }
 }

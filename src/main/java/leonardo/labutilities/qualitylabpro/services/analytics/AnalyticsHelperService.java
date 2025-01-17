@@ -156,14 +156,14 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 				.toList();
 	}
 
-	@Cacheable(cacheNames = "analytics-cache",
-			key = "#name + '-' + #level + '-' + #dateStart.toString() + '-' + #dateEnd.toString()")
 	public MeanAndStdDeviationRecord calculateMeanAndStandardDeviation(String name, String level,
 			LocalDateTime dateStart, LocalDateTime dateEnd) {
 		List<AnalyticsRecord> values =
 				findAnalyticsByNameAndLevelAndDate(name, level, dateStart, dateEnd).stream()
 						.filter(this::isRecordValid).toList();
-		return computeStatistics(extractRecordValues(values));
+		var result = computeStatistics(extractRecordValues(values));
+		System.out.printf(result.toString());
+		return result;
 	}
 
 	@Cacheable(cacheNames = "analytics-cache",

@@ -213,7 +213,7 @@ public abstract class AnalyticsController {
 
 
     @GetMapping("/mean-standard-deviation")
-    public abstract ResponseEntity<DefaultMeanAndStdRecord> getMeanAndStandardDeviation(
+    public abstract ResponseEntity<MeanAndStdDeviationRecord> getMeanAndStandardDeviation(
             @RequestParam String name, @RequestParam String level,
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate);
