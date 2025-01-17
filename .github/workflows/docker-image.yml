@@ -24,6 +24,18 @@ jobs:
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
       - name: Build and push Docker image
+        env:
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_DATABASE_TEST: ${{ secrets.DB_DATABASE_TEST }}
+          DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+          DB_LOCAL_PORT: ${{ secrets.DB_LOCAL_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_DOCKER_PORT: ${{ secrets.DB_DOCKER_PORT }}
+          SERVER_LOCAL_PORT: ${{ secrets.SERVER_LOCAL_PORT }}
+          SERVER_DOCKER_PORT: ${{ secrets.SERVER_DOCKER_PORT }}
+          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ISSUER: ${{ secrets.ISSUER }}
         run: |
           docker-compose -f docker-compose.build.yml build
           docker-compose -f docker-compose.build.yml push
@@ -37,6 +49,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Deploy
+        env:
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_DATABASE_TEST: ${{ secrets.DB_DATABASE_TEST }}
+          DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+          DB_LOCAL_PORT: ${{ secrets.DB_LOCAL_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_DOCKER_PORT: ${{ secrets.DB_DOCKER_PORT }}
+          SERVER_LOCAL_PORT: ${{ secrets.SERVER_LOCAL_PORT }}
+          SERVER_DOCKER_PORT: ${{ secrets.SERVER_DOCKER_PORT }}
+          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ISSUER: ${{ secrets.ISSUER }}
         run: |
           docker-compose pull
           docker-compose up -d
