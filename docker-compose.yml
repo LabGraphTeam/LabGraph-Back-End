@@ -2,7 +2,6 @@ services:
   mariadb:
     image: mariadb:latest
     restart: always
-    env_file: ./.env
     environment:
       MARIADB_DATABASE: ${DB_DATABASE}
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
@@ -19,7 +18,6 @@ services:
     image: leonardomeireles55/quality-lab-pro-back-end:latest
     working_dir: /usr/src/app
     container_name: quality-lab-pro
-    env_file: ./.env
     ports:
       - ${SERVER_LOCAL_PORT}:${SERVER_DOCKER_PORT}
     environment:
