@@ -24,6 +24,7 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_ROOT_PASSWORD}
+      SERVER_PORT: ${SERVER_DOCKER_PORT}
     command: ["java", "-jar", "-Dspring.profiles.active=prod", "app.jar"]
     networks:
       - qualitylab-net
