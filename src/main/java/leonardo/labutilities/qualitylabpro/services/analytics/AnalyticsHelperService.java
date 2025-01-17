@@ -103,7 +103,6 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 	}
 
 	@Override
-	@Cacheable(cacheNames = "analytics-cache", key = "#records.hashCode()")
 	public List<GroupedValuesByLevel> findFilteredGroupedAnalytics(
 			List<GroupedValuesByLevel> records) {
 		return records.stream().filter(this::isGroupedRecordValid)
@@ -115,8 +114,6 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 
 
 	@Override
-	@Cacheable(cacheNames = "analytics-cache",
-			key = "#name + '-' + #startDate.toString() + '-' + #endDate.toString() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
 	public List<GroupedValuesByLevel> findGroupedAnalyticsByLevel(String name,
 			LocalDateTime startDate, LocalDateTime endDate) {
 		List<AnalyticsRecord> records = analyticsRepository
@@ -129,8 +126,6 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 				.map(entry -> new GroupedValuesByLevel(entry.getKey(), entry.getValue())).toList();
 	}
 
-	@Cacheable(cacheNames = "analytics-cache",
-			key = "#name + '-' + #startDate.toString() + '-' + #endDate.toString()")
 	public List<GroupedResultsByLevel> findAnalyticsWithGroupedResults(String name,
 			LocalDateTime startDate, LocalDateTime endDate) {
 		List<GroupedValuesByLevel> analytics =
@@ -147,7 +142,6 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 	}
 
 	@Override
-	@Cacheable(cacheNames = "analytics-cache", key = "#records.hashCode()")
 	public List<GroupedMeanAndStdRecordByLevel> returnMeanAndStandardDeviationForGroups(
 			List<GroupedValuesByLevel> records) {
 		return records.stream()
@@ -166,8 +160,7 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 		return result;
 	}
 
-	@Cacheable(cacheNames = "analytics-cache",
-			key = "#name + '-' + #startDate.toString() + '-' + #endDate.toString()")
+
 	public List<GroupedMeanAndStdRecordByLevel> calculateGroupedMeanAndStandardDeviation(
 			String name, LocalDateTime startDate, LocalDateTime endDate) {
 		List<AnalyticsRecord> records = analyticsRepository
@@ -181,23 +174,17 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 	}
 
 	@Override
-	@Cacheable(cacheNames = "analytics-cache",
-			key = "#names.hashCode() + '-' + #dateStart.toString() + '-' + #dateEnd.toString()")
 	public List<AnalyticsRecord> findAnalyticsByNameInAndDateBetween(List<String> names,
 																	 LocalDateTime dateStart, LocalDateTime dateEnd) {
 		return analyticsRepository.findByNameInAndDateBetween(names, dateStart, dateEnd)
 				.stream().map((AnalyticsMapper::toRecord)).toList();
 	}
 
-	@Cacheable(cacheNames = "analytics-cache",
-			key = "#names.hashCode() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
 	public List<AnalyticsRecord> findAnalyticsByNameIn(List<String> names, Pageable pageable) {
 		return analyticsRepository
 				.findByNameIn(names, pageable).stream().map((AnalyticsMapper::toRecord)).toList();
 	}
 
-	@Cacheable(cacheNames = "analytics-cache",
-			key = "#names.hashCode() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
 	public Page<AnalyticsRecord> findAnalyticsPagedByNameIn(List<String> names, Pageable pageable) {
 		return analyticsRepository
 				.findByNameInPaged(names, pageable);
@@ -222,15 +209,12 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 	}
 
 	@Override
-	@Cacheable(value = "name")
 	public Page<AnalyticsRecord> findAnalytics(Pageable pageable) {
 		return analyticsRepository.findPaged(pageable);
 	}
 
 
 	@Override
-	@Cacheable(cacheNames = "analytics-cache",
-			key = "#name + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
 	public List<AnalyticsRecord> findAnalyticsByNameWithPagination(Pageable pageable,
 																   String name) {
 		List<AnalyticsRecord> analyticsList =
@@ -248,8 +232,6 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 						"AnalyticsRecord by id not found")));
 	}
 
-	@Cacheable(cacheNames = "analytics-cache",
-			key = "#name + '-' + #level + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
 	public List<AnalyticsRecord> findAnalyticsByNameAndLevelWithPagination(Pageable pageable, String name, String level) {
 		List<AnalyticsRecord> analyticsList = analyticsRepository
 				.findByNameAndLevel(pageable, name.toUpperCase(), level)
@@ -258,10 +240,9 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 		return analyticsList;
 	}
 
-	@Cacheable(cacheNames = "analytics-cache",
-			key = "#name + '-' + #level + '-' + #dateStart.toString() + '-' + #dateEnd.toString()")
 	public List<AnalyticsRecord> findAnalyticsByNameLevelAndDate(String name, String level,
 														  LocalDateTime dateStart, LocalDateTime dateEnd) {
+		ensureNameExists(name);
 		List<AnalyticsRecord> results = analyticsRepository
 				.findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd, pageable)
 				.stream().map(AnalyticsMapper::toRecord).toList();
@@ -270,8 +251,6 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 	}
 
 	@Override
-	@Cacheable(cacheNames = "analytics-cache",
-			key = "#dateStart.toString() + '-' + #dateEnd.toString()")
 	public List<AnalyticsRecord> findAnalyticsByDate(LocalDateTime dateStart, LocalDateTime dateEnd) {
 		List<AnalyticsRecord> results =
 				analyticsRepository.findByDateBetween(dateStart, dateEnd)

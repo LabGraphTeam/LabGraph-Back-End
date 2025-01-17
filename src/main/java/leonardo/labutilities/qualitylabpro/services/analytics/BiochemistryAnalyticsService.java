@@ -37,9 +37,7 @@ public class BiochemistryAnalyticsService extends AbstractAnalyticsService {
 	@Override
 	@Cacheable(cacheNames = "analytics-cache",
 			key = "#name + '-' + #level + '-' + #dateStart.toString() + '-' + #dateEnd.toString()")
-	public List<AnalyticsRecord> findAnalyticsByNameAndLevelAndDate(String name,
-																	String level, LocalDateTime dateStart, LocalDateTime dateEnd) {
-		ensureNameExists(name);
+	public List<AnalyticsRecord> findAnalyticsByNameAndLevelAndDate(String name, String level, LocalDateTime dateStart, LocalDateTime dateEnd) {
 		return findAnalyticsByNameLevelAndDate(name, convertLevel(level), dateStart, dateEnd);
 	}
 

@@ -36,8 +36,7 @@ public interface IAnalyticsHelperService {
 
 	List<AnalyticsRecord> findAnalyticsByNameInByLevelBaseMethod(List<String> names, String level, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-	List<AnalyticsRecord> findAnalyticsByDate(LocalDateTime dateStart,
-											  LocalDateTime dateEnd);
+	List<AnalyticsRecord> findAnalyticsByDate(LocalDateTime dateStart, LocalDateTime dateEnd);
 
 	List<AnalyticsRecord> findAnalyticsByNameInAndDateBetween(List<String> names,
 															  LocalDateTime startDate, LocalDateTime endDate);

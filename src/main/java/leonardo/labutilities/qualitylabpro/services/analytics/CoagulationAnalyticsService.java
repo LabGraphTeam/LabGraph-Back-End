@@ -24,8 +24,6 @@ public class CoagulationAnalyticsService extends AbstractAnalyticsService {
 				startDate, endDate, pageable);
 	}
 	@Override
-	@Cacheable(cacheNames = "analytics-cache",
-			key = "#name + '-' + #level + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
 	public List<AnalyticsRecord> findAnalyticsByNameAndLevel(Pageable pageable, String name,
 															 String level) {
 		this.ensureNameExists(name);
@@ -34,11 +32,8 @@ public class CoagulationAnalyticsService extends AbstractAnalyticsService {
 	}
 
 	@Override
-	@Cacheable(cacheNames = "analytics-cache",
-			key = "#name + '-' + #level + '-' + #dateStart.toString() + '-' + #dateEnd.toString()")
 	public List<AnalyticsRecord> findAnalyticsByNameAndLevelAndDate(String name,
 																	String level, LocalDateTime dateStart, LocalDateTime dateEnd) {
-		this.ensureNameExists(name);
 		return this.findAnalyticsByNameLevelAndDate(name.toUpperCase(), this.convertLevel(level),
 				dateStart, dateEnd);
 	}
