@@ -1,0 +1,14 @@
+services:
+  mariadb:
+    image: mariadb:latest
+
+  quality-lab-pro:
+    restart: on-failure
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: leonardomeireles55/quality-lab-pro-back-end:latest
+
+  nginx:
+    restart: always
+    image: nginx:latest
