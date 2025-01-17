@@ -16,7 +16,7 @@ services:
 
   quality-lab-pro:
     restart: on-failure
-    # image: quality-lab-pro
+    image: leonardomeireles55/quality-lab-pro-back-end:latest
     build:
       context: ./ 
       dockerfile: Dockerfile

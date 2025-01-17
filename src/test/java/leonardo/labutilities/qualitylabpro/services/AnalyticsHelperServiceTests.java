@@ -16,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -36,9 +35,8 @@ class AnalyticsHelperServiceTests {
 
 	@Mock
 	private AnalyticsHelperService analyticsHelperService;
-	@Autowired
-	private static final List<String> ANALYTICS_NAME_LIST = new AvailableBiochemistryAnalytics().availableBioAnalytics();
 
+	private static final List<String> ANALYTICS_NAME_LIST = new AvailableBiochemistryAnalytics().availableBioAnalytics();
 
 	@BeforeEach
 	void setUp() {
