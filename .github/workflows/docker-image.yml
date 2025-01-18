@@ -36,6 +36,8 @@ jobs:
           SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           ISSUER: ${{ secrets.ISSUER }}
+          API_SECURITY_ISSUER: ${{ secrets.API_SECURITY_ISSUER }}
+          API_SECURITY_TOKEN_SECRET: ${{ secrets.API_SECURITY_TOKEN_SECRET }}
         run: |
           docker-compose -f docker-compose.build.yml build
           docker-compose -f docker-compose.build.yml push
@@ -61,6 +63,8 @@ jobs:
           SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           ISSUER: ${{ secrets.ISSUER }}
+          API_SECURITY_ISSUER: ${{ secrets.API_SECURITY_ISSUER }}
+          API_SECURITY_TOKEN_SECRET: ${{ secrets.API_SECURITY_TOKEN_SECRET }}
         run: |
           docker-compose pull
           docker-compose up -d
