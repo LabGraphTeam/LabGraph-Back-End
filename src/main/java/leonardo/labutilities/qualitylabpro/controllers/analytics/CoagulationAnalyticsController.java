@@ -6,6 +6,7 @@ import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.DefaultMeanAndStdRecord;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationRecord;
 import leonardo.labutilities.qualitylabpro.services.analytics.CoagulationAnalyticsService;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -36,22 +37,17 @@ public class CoagulationAnalyticsController extends AnalyticsController {
         this.coagulationAnalyticsService = coagulationAnalyticsService;
     }
 
-    @Override
-    @GetMapping("/name-and-level")
-    public ResponseEntity<List<AnalyticsRecord>> getAllAnalyticsByNameAndLevel(
-            Pageable pageable, String name, String level) {
-        return ResponseEntity
-                .ok(coagulationAnalyticsService.findAnalyticsByNameAndLevel(pageable, name, level));
+    @GetMapping()
+    public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAllAnalytics(
+            @PageableDefault(sort = "date", direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
+        return this.getAllAnalyticsWithLinks(names, pageable);
     }
 
-    @Override
     @GetMapping("/date-range")
-    public ResponseEntity<List<AnalyticsRecord>> getAllAnalyticsDateBetween(
+    public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAnalyticsDateBetween(
             @RequestParam("startDate") LocalDateTime startDate,
-            @RequestParam("endDate") LocalDateTime endDate) {
-        List<AnalyticsRecord> resultsList =
-                coagulationAnalyticsService.findAnalyticsByNameInAndDateBetween(names, startDate, endDate);
-        return ResponseEntity.ok(resultsList);
+            @RequestParam("endDate") LocalDateTime endDate,  @PageableDefault(sort = "date", direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
+        return this.getAnalyticsByDateBetweenWithLinks(names, startDate, endDate, pageable);
     }
 
     @Override
@@ -70,17 +66,12 @@ public class CoagulationAnalyticsController extends AnalyticsController {
             @RequestParam String level,
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate,
-            Pageable pageable) {
+            @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(coagulationAnalyticsService
                 .findAnalyticsByNameInByLevel(names, level, startDate, endDate, pageable));
     }
 
-    @Override
-    @GetMapping()
-    public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAllAnalytics(
-            @PageableDefault(sort = "date", direction = Sort.Direction.DESC) Pageable pageable) {
-        return this.getAllAnalyticsWithLinks(names, pageable);
-    }
+
 
     @Override
     @GetMapping("/mean-standard-deviation")

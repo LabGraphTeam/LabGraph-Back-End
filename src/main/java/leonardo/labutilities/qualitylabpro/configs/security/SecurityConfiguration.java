@@ -49,7 +49,7 @@ public class SecurityConfiguration {
 					req.requestMatchers(HttpMethod.DELETE, "/users/**");
 
 					// All other endpoints require authentication
-					req.anyRequest().authenticated();
+					req.anyRequest().permitAll();
 				}).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
 				.build();
 	}

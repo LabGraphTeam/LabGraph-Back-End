@@ -17,6 +17,9 @@ public interface IAnalyticsHelperService {
 	List<GroupedMeanAndStdRecordByLevel> returnMeanAndStandardDeviationForGroups(
 			List<GroupedValuesByLevel> records);
 
+	public Page<AnalyticsRecord> findAnalyticsByNameInAndDateBetweenWithLinks
+			(List<String> names, LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable);
+
 	List<GroupedValuesByLevel> findFilteredGroupedAnalytics(List<GroupedValuesByLevel> records);
 
 	void updateAnalyticsMeanByNameAndLevelAndLevelLot(String name, String level, String levelLot,

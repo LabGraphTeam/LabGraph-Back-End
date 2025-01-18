@@ -14,10 +14,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class TokenService {
 		
-    @Value("${API_SECURITY_TOKEN_SECRET}")
+    @Value("${api.security.token.secret}")
     private String SECRET;
 
-    @Value("${API_SECURITY_ISSUER}")
+    @Value("${api.security.issuer}")
     private String ISSUER;
 
 	public String generateToken(User user) {

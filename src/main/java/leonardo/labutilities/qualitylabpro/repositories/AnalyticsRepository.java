@@ -11,7 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface AnalyticsRepository extends JpaRepository<Analytics, Long> {
 	boolean existsByName(String name);
 
@@ -36,6 +38,10 @@ public interface AnalyticsRepository extends JpaRepository<Analytics, Long> {
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) AND ga.date BETWEEN ?2 AND ?3")
 	List<Analytics> findByNameInAndDateBetween(List<String> names,
 											   LocalDateTime startDate, LocalDateTime endDate);
+
+	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) AND ga.date BETWEEN ?2 AND ?3")
+	Page<AnalyticsRecord> findByNameInAndDateBetweenPaged(List<String> names,
+											   LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) ORDER BY ga.date ASC")
 	List<Analytics> findByNameIn(List<String> names, Pageable pageable);

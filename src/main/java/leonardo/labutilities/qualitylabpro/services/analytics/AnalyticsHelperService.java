@@ -180,6 +180,12 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 				.stream().map((AnalyticsMapper::toRecord)).toList();
 	}
 
+	@Override
+	public Page<AnalyticsRecord> findAnalyticsByNameInAndDateBetweenWithLinks
+			(List<String> names, LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
+		return analyticsRepository.findByNameInAndDateBetweenPaged(names, dateStart, dateEnd, pageable);
+	}
+
 	public List<AnalyticsRecord> findAnalyticsByNameIn(List<String> names, Pageable pageable) {
 		return analyticsRepository
 				.findByNameIn(names, pageable).stream().map((AnalyticsMapper::toRecord)).toList();
