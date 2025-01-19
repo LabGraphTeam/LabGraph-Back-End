@@ -23,10 +23,11 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex,
-															   HttpServletRequest request) {
+			HttpServletRequest request) {
 		Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
 				.collect(Collectors.toMap(FieldError::getField,
-						error -> error.getDefaultMessage() != null ? error.getDefaultMessage() : "invalid args"));
+						error -> error.getDefaultMessage() != null ? error.getDefaultMessage()
+								: "invalid args"));
 
 		ApiError apiError =
 				new ApiError(HttpStatus.BAD_REQUEST, "Validation failed", request.getRequestURI());
@@ -69,10 +70,13 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 
 	@ExceptionHandler(UserAlreadyExistException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public ResponseEntity<ApiError> handleUserAllReadyExist(UserAlreadyExistException ex, HttpServletRequest request) {
-		ApiError apiError = new ApiError (HttpStatus.BAD_REQUEST, "Username or Email are invalids", request.getRequestURI());
+	public ResponseEntity<ApiError> handleUserAllReadyExist(UserAlreadyExistException ex,
+			HttpServletRequest request) {
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Username or Email are invalids",
+				request.getRequestURI());
 
-		log.error("Username or Email are invalids at {}: {}", request.getRequestURI(), ex.getMessage());
+		log.error("Username or Email are invalids at {}: {}", request.getRequestURI(),
+				ex.getMessage());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 	}
 
@@ -119,6 +123,8 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 	}
 
 	public static class UserAlreadyExistException extends RuntimeException {
-		public UserAlreadyExistException() { super(); }
+		public UserAlreadyExistException() {
+			super();
+		}
 	}
 }
