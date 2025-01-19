@@ -46,6 +46,24 @@ public class SecurityConfiguration {
 							.hasRole("ADMIN");
 					req.requestMatchers(HttpMethod.DELETE, "/coagulation-analytics/**")
 							.hasRole("ADMIN");
+
+					// Add PUT and PATCH restrictions for admin
+					req.requestMatchers(HttpMethod.PUT, "/generic-analytics/**").hasRole("ADMIN");
+					req.requestMatchers(HttpMethod.PUT, "/biochemistry-analytics/**")
+							.hasRole("ADMIN");
+					req.requestMatchers(HttpMethod.PUT, "/hematology-analytics/**")
+							.hasRole("ADMIN");
+					req.requestMatchers(HttpMethod.PUT, "/coagulation-analytics/**")
+							.hasRole("ADMIN");
+
+					req.requestMatchers(HttpMethod.PATCH, "/generic-analytics/**").hasRole("ADMIN");
+					req.requestMatchers(HttpMethod.PATCH, "/biochemistry-analytics/**")
+							.hasRole("ADMIN");
+					req.requestMatchers(HttpMethod.PATCH, "/hematology-analytics/**")
+							.hasRole("ADMIN");
+					req.requestMatchers(HttpMethod.PATCH, "/coagulation-analytics/**")
+							.hasRole("ADMIN");
+
 					req.requestMatchers(HttpMethod.DELETE, "/users/**");
 
 					// All other endpoints require authentication
