@@ -1,6 +1,9 @@
 package leonardo.labutilities.qualitylabpro.utils;
 
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -94,6 +97,10 @@ public class AnalyticsHelperMocks {
 				"LYM#", "HIGH", 3.8, 3.0, 0.2, "10^3/µL", "+2s", "Failed"));
 
 		return records;
+	}
+	public static Page<AnalyticsRecord> createAnalyticsRecordPage(Pageable pageable) {
+		List<AnalyticsRecord> records = createSampleRecordList();
+		return new PageImpl<>(records, pageable, records.size());
 	}
 
 	public static List<AnalyticsRecord> createSampleRecordList() {

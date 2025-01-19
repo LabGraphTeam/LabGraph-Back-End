@@ -8,7 +8,6 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -51,6 +50,9 @@ public class AnalyticsHelperController {
         Page<AnalyticsRecord> analyticsRecordPaged = analyticsHelperService
                 .findAnalyticsByNameInAndDateBetweenWithLinks(names, startDate, endDate, pageable);
 
+        if (analyticsRecordPaged == null) {
+            return ResponseEntity.noContent().build();
+        }
         // Create EntityModel for each record with its own self link
         var entityModels = analyticsRecordPaged.getContent().stream()
                 .map(record -> EntityModel.of(record,
