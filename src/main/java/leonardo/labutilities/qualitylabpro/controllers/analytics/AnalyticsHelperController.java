@@ -37,15 +37,11 @@ public class AnalyticsHelperController {
 		Page<AnalyticsRecord> resultsList =
 				analyticsHelperService.findAnalyticsPagedByNameIn(names, pageable);
 
-		// Create EntityModel for each record with its own self link
 		var entityModels = resultsList.getContent().stream()
-				.map(record -> EntityModel.of(record,
-						linkTo(methodOn(getClass()).getAnalyticsById(record.id())).withSelfRel()))
-				.collect(Collectors.toList());
+				.map(record -> createEntityModel(record, pageable)).collect(Collectors.toList());
 
 		var result = addPaginationLinks(CollectionModel.of(entityModels), resultsList, pageable);
 		return ResponseEntity.ok(result);
-
 	}
 
 	public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAnalyticsByDateBetweenWithLinks(
@@ -57,25 +53,21 @@ public class AnalyticsHelperController {
 		if (analyticsRecordPaged == null) {
 			return ResponseEntity.noContent().build();
 		}
-		// Create EntityModel for each record with its own self link
+
 		var entityModels = analyticsRecordPaged.getContent().stream()
-				.map(record -> EntityModel.of(record,
-						linkTo(methodOn(getClass()).getAnalyticsById(record.id())).withSelfRel()))
-				.collect(Collectors.toList());
+				.map(record -> createEntityModel(record, pageable)).collect(Collectors.toList());
 
-		// Create the collection model with the entity models
 		var collectionModel = CollectionModel.of(entityModels);
-
-
-		// Add pagination links
 		var result = addPaginationLinks(collectionModel, analyticsRecordPaged, pageable);
 
 		return ResponseEntity.ok(result);
 	}
 
 	EntityModel<AnalyticsRecord> createEntityModel(AnalyticsRecord record, Pageable pageable) {
-		return EntityModel.of(record,
-				linkTo(methodOn(getClass()).getAnalyticsById(record.id())).withSelfRel());
+		return EntityModel.of(record, Link.of(ServletUriComponentsBuilder.fromCurrentContextPath()
+				.path("/backend-api")
+				.path(linkTo(methodOn(getClass()).getAnalyticsById(record.id())).toUri().getPath())
+				.toUriString()).withSelfRel());
 	}
 
 	private CollectionModel<EntityModel<AnalyticsRecord>> addPaginationLinks(
