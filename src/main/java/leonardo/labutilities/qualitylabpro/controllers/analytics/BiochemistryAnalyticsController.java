@@ -6,6 +6,8 @@ import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.DefaultMeanAndStdRecord;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationRecord;
 import leonardo.labutilities.qualitylabpro.services.analytics.BiochemistryAnalyticsService;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -37,40 +39,34 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
         this.biochemistryAnalyticsService = biochemistryAnalyticsService;
     }
 
-    @Override
     @GetMapping()
     public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAllAnalytics(
-            @PageableDefault(sort = "date", direction = Sort.Direction.DESC) Pageable pageable) {
-        return this.getAllAnalyticsWithLinks(names, pageable);
+            @RequestParam(value = "startDate", required = false) LocalDateTime startDate,
+            @RequestParam(value = "endDate", required = false) LocalDateTime endDate,
+            @PageableDefault(sort = "date", direction = Sort.Direction.DESC)
+            @ParameterObject Pageable pageable) {
+
+        return (startDate == null || endDate == null)
+                ? this.getAllAnalyticsWithLinks(names, pageable)
+                : this.getAnalyticsByDateBetweenWithLinks(names, startDate, endDate, pageable);
     }
+
+    @GetMapping("/date-range")
+    public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAnalyticsDateBetween(
+            @RequestParam("startDate") LocalDateTime startDate,
+            @RequestParam("endDate") LocalDateTime endDate,  @PageableDefault(sort = "date", direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
+        return this.getAnalyticsByDateBetweenWithLinks(names, startDate, endDate, pageable);
+    }
+
     @Override
     @GetMapping("/level-date-range")
     public ResponseEntity<List<AnalyticsRecord>> getAllAnalyticsByLevelDateRange(
             @RequestParam String level,
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate,
-            Pageable pageable) {
+            @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(biochemistryAnalyticsService
                 .findAnalyticsByNameInByLevel(names, level, startDate, endDate, pageable));
-    }
-
-    @Override
-    @GetMapping("/date-range")
-    public ResponseEntity<List<AnalyticsRecord>> getAllAnalyticsDateBetween(
-            @RequestParam("startDate") LocalDateTime startDate,
-            @RequestParam("endDate") LocalDateTime endDate) {
-        List<AnalyticsRecord> resultsList = biochemistryAnalyticsService
-                .findAnalyticsByNameInAndDateBetween(names, startDate, endDate);
-        return ResponseEntity.ok(resultsList);
-    }
-
-
-    @Override
-    @GetMapping("/name-and-level")
-    public ResponseEntity<List<AnalyticsRecord>> getAllAnalyticsByNameAndLevel(
-            Pageable pageable, @RequestParam String name, @RequestParam String level) {
-        return ResponseEntity.ok(
-                biochemistryAnalyticsService.findAnalyticsByNameAndLevel(pageable, name, level));
     }
 
     @Override

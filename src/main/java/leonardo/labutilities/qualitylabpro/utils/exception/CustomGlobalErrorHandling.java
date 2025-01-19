@@ -10,6 +10,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomGlobalErrorHandling extends RuntimeException {
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex,
 															   HttpServletRequest request) {
 		Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
@@ -35,6 +37,7 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 	}
 
 	@ExceptionHandler({ResourceNotFoundException.class})
+	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public ResponseEntity<ApiError> handleNotFound(Exception ex, HttpServletRequest request) {
 		ApiError apiError =
 				new ApiError(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
@@ -44,6 +47,7 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 	}
 
 	@ExceptionHandler({BadCredentialsException.class, PasswordNotMatchesException.class})
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
 	public ResponseEntity<ApiError> handleAuthenticationErrors(Exception ex,
 			HttpServletRequest request) {
 		ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, "Authentication failed",
@@ -54,6 +58,7 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 	}
 
 	@ExceptionHandler(AccessDeniedException.class)
+	@ResponseStatus(HttpStatus.FORBIDDEN)
 	public ResponseEntity<ApiError> handleAccessDenied(HttpServletRequest request) {
 		ApiError apiError =
 				new ApiError(HttpStatus.FORBIDDEN, "Access denied", request.getRequestURI());
@@ -63,6 +68,7 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 	}
 
 	@ExceptionHandler(UserAlreadyExistException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ResponseEntity<ApiError> handleUserAllReadyExist(UserAlreadyExistException ex, HttpServletRequest request) {
 		ApiError apiError = new ApiError (HttpStatus.BAD_REQUEST, "Username or Email are invalids", request.getRequestURI());
 
@@ -71,6 +77,7 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 	}
 
 	@ExceptionHandler(DataIntegrityViolationException.class)
+	@ResponseStatus(HttpStatus.CONFLICT)
 	public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex,
 			HttpServletRequest request) {
 		ApiError apiError = new ApiError(HttpStatus.CONFLICT,
@@ -81,6 +88,7 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 	}
 
 	@ExceptionHandler(Exception.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ResponseEntity<ApiError> handleAllUncaughtException(Exception ex,
 			HttpServletRequest request) {
 		ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR,
