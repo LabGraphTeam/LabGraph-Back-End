@@ -24,7 +24,6 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 
 	private final AnalyticsRepository analyticsRepository;
 	private final EmailService emailService;
-
 	private final Pageable pageable = PageRequest.of(0, 200);
 
 	public AnalyticsHelperService(AnalyticsRepository analyticsRepository, EmailService emailService) {

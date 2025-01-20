@@ -28,6 +28,8 @@ services:
       SERVER_PORT: ${SERVER_DOCKER_PORT}
       API_SECURITY_TOKEN_SECRET: ${API_SECURITY_TOKEN_SECRET}
       API_SECURITY_ISSUER: ${API_SECURITY_ISSUER}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
     command: ["java", "-jar", "-Dspring.profiles.active=prod", "app.jar"]
     networks:
       - qualitylab-net
