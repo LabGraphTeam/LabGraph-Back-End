@@ -49,6 +49,7 @@ public class SecurityConfiguration {
 
 					// Add PUT and PATCH restrictions for admin
 					req.requestMatchers(HttpMethod.PUT, "/generic-analytics/**").hasRole("ADMIN");
+
 					req.requestMatchers(HttpMethod.PUT, "/biochemistry-analytics/**")
 							.hasRole("ADMIN");
 					req.requestMatchers(HttpMethod.PUT, "/hematology-analytics/**")
@@ -57,6 +58,7 @@ public class SecurityConfiguration {
 							.hasRole("ADMIN");
 
 					req.requestMatchers(HttpMethod.PATCH, "/generic-analytics/**").hasRole("ADMIN");
+
 					req.requestMatchers(HttpMethod.PATCH, "/biochemistry-analytics/**")
 							.hasRole("ADMIN");
 					req.requestMatchers(HttpMethod.PATCH, "/hematology-analytics/**")
