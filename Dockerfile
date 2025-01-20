@@ -1,12 +1,13 @@
-FROM maven:3.9.8-eclipse-temurin-21 AS build
+FROM eclipse-temurin:21-jdk-alpine AS build
 
 COPY src /app/src
 COPY pom.xml /app
 
 WORKDIR /app
-RUN mvn clean package -DskipTests -U
+RUN mvn clean package -DskipTests -U \
+    && rm -rf /root/.m2
 
-FROM openjdk:21
-WORKDIR /usr/src/app
+FROM eclipse-temurin:21-jre-alpine
 
-COPY --from=build app/target/QualityLabPro-0.7.jar app.jar
+WORKDIR /app
+COPY --from=build /app/target/QualityLabPro-0.7.jar app.jar
