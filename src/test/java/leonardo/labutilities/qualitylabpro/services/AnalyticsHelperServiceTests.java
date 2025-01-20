@@ -7,6 +7,7 @@ import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanRec
 import leonardo.labutilities.qualitylabpro.entities.Analytics;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticsHelperService;
+import leonardo.labutilities.qualitylabpro.services.email.EmailService;
 import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorComponent;
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticsMapper;
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -37,13 +37,16 @@ class AnalyticsHelperServiceTests {
 	@Mock
 	private AnalyticsHelperService analyticsHelperService;
 
+	@Mock
+	private EmailService emailService;
+
 	private static final List<String> ANALYTICS_NAME_LIST = new AvailableBiochemistryAnalytics().availableBioAnalytics();
 
 	@BeforeEach
 	void setUp() {
 		try (AutoCloseable closeable = MockitoAnnotations.openMocks(this)) {
 			analyticsHelperService =
-					new AnalyticsHelperService(analyticsRepository) {
+					new AnalyticsHelperService(analyticsRepository, emailService) {
 
 						@Override
 						public List<AnalyticsRecord> findAnalyticsByNameAndLevel

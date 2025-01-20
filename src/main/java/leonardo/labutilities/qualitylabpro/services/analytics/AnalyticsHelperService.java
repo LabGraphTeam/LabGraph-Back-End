@@ -1,11 +1,14 @@
 package leonardo.labutilities.qualitylabpro.services.analytics;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import leonardo.labutilities.qualitylabpro.dtos.analytics.*;
+import leonardo.labutilities.qualitylabpro.dtos.email.EmailRecord;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
+import leonardo.labutilities.qualitylabpro.services.email.EmailService;
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticsMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +23,13 @@ import org.springframework.stereotype.Service;
 public abstract class AnalyticsHelperService implements IAnalyticsHelperService {
 
 	private final AnalyticsRepository analyticsRepository;
+	private final EmailService emailService;
+
 	private final Pageable pageable = PageRequest.of(0, 200);
 
-	public AnalyticsHelperService(AnalyticsRepository analyticsRepository) {
+	public AnalyticsHelperService(AnalyticsRepository analyticsRepository, EmailService emailService) {
 		this.analyticsRepository = analyticsRepository;
+		this.emailService = emailService;
 	}
 
 	@Override
@@ -76,7 +82,12 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 	@Override
 	public boolean isRecordValid(AnalyticsRecord record) {
 		String rules = record.rules();
-		return (!Objects.equals(rules, "+3s") && !Objects.equals(rules, "-3s"));
+		return (!Objects.equals(rules, "+3s") || !Objects.equals(rules, "-3s"));
+	}
+
+	public boolean isRecordStd3s(AnalyticsRecord record) {
+		String rules = record.rules();
+		return (Objects.equals(rules, "+3s") || Objects.equals(rules, "-3s"));
 	}
 
 	@Override
@@ -209,7 +220,22 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 		if (newAnalytics.isEmpty()) {
 			throw new CustomGlobalErrorHandling.DataIntegrityViolationException();
 		}
-		analyticsRepository.saveAll(newAnalytics);
+
+		var analyticsList = analyticsRepository.saveAll(newAnalytics);
+		log.info("New analytics records saved: {}...", analyticsList.get(0).toString());
+		var notPassedList = analyticsList.stream()
+				.map(AnalyticsMapper::toRecord).filter(this::isRecordStd3s).toList();
+		if (!notPassedList.isEmpty()) {
+			String formattedList = notPassedList.stream()
+					.map(record -> String.format(
+							"name: %s:, level: %s, value: %s, expected value: %s, rules: %s, status: %s,  at: %s\n  Recommendation: Please review the test procedures and ensure all equipment is calibrated.",
+							record.name(), record.level(), record.value().toString(), record.mean().toString(), record.rules(), record.description(), record.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))))
+					.collect(Collectors.joining("\n"));
+			String emailBody = String.format(
+					"Dear Team,\n\nThe following analytics records did not pass the standard deviation criteria:\n\n%s\n\nPlease take the necessary actions to address these issues.",
+					formattedList);
+			emailService.sendEmail(new EmailRecord("leomeireles55@outlook.com", "Warning: Analytics Not Passed", emailBody));
+		}
 	}
 
 	@Override

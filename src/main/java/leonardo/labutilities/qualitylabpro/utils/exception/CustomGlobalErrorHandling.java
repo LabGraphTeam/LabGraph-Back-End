@@ -51,10 +51,10 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)
 	public ResponseEntity<ApiError> handleAuthenticationErrors(Exception ex,
 			HttpServletRequest request) {
-		ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, "Authentication failed",
+		ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, "Authentication failed or Username and Password not accepted.",
 				request.getRequestURI());
 
-		log.error("Authentication failed at {}", request.getRequestURI());
+		log.error("Authentication failed or Username and Password not accepted. at {}", request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
 	}
 
@@ -72,10 +72,10 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ResponseEntity<ApiError> handleUserAllReadyExist(UserAlreadyExistException ex,
 			HttpServletRequest request) {
-		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Username or Email are invalids",
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Username or Email are invalids or already exists",
 				request.getRequestURI());
 
-		log.error("Username or Email are invalids at {}: {}", request.getRequestURI(),
+		log.error("Username or Email are invalids or already exists at {}: {}", request.getRequestURI(),
 				ex.getMessage());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 	}

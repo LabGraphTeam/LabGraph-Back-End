@@ -73,10 +73,12 @@ public class UserService {
 
 	public TokenJwtRecord signIn(String email, String password) {
 
-		final var authToken = new UsernamePasswordAuthenticationToken(email,
-				password);
+		final var authToken = new UsernamePasswordAuthenticationToken(email, password);
 		final var auth = authenticationManager.authenticate(authToken);
 		final var user = (User) auth.getPrincipal();
+		String message = String.format("Hello!,\n\nYou have successfully logged in on %s.", java.time.LocalDateTime.now()
+				.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+		emailService.sendEmail(new EmailRecord(user.getEmail(), "Login Notification", message));
 
 		return new TokenJwtRecord(tokenService.generateToken(user));
 	}

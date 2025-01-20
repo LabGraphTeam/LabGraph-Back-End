@@ -6,12 +6,13 @@ import java.util.List;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
 
+import leonardo.labutilities.qualitylabpro.services.email.EmailService;
 import org.springframework.data.domain.Pageable;
 
 public abstract class AbstractAnalyticsService extends AnalyticsHelperService {
 
-	public AbstractAnalyticsService(AnalyticsRepository analyticsRepository) {
-		super(analyticsRepository);
+	public AbstractAnalyticsService(AnalyticsRepository analyticsRepository, EmailService emailService) {
+		super(analyticsRepository, emailService);
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import java.util.List;
 
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
+import leonardo.labutilities.qualitylabpro.services.email.EmailService;
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 
 import org.springframework.cache.annotation.Cacheable;
@@ -15,8 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class CoagulationAnalyticsService extends AbstractAnalyticsService {
 
-	public CoagulationAnalyticsService(AnalyticsRepository analyticsRepository) {
-		super(analyticsRepository);
+	public CoagulationAnalyticsService(AnalyticsRepository analyticsRepository, EmailService emailService) {
+		super(analyticsRepository, emailService);
 	}
 
 	public Page<AnalyticsRecord> findAnalyticsByNameInByLevel(List<String> names, String level,

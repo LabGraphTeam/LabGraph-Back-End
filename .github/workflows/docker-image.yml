@@ -50,6 +50,8 @@ jobs:
           SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
           API_SECURITY_ISSUER: ${{ secrets.API_SECURITY_ISSUER }}
           API_SECURITY_TOKEN_SECRET: ${{ secrets.API_SECURITY_TOKEN_SECRET }}
+          SPRING_MAIL_USERNAME: ${{ secrets.SPRING_MAIL_USERNAME }}
+          SPRING_MAIL_PASSWORD: ${{ secrets.SPRING_MAIL_PASSWORD }}
         run: |
           docker-compose pull
           docker-compose up -d
