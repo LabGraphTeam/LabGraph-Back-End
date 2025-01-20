@@ -61,9 +61,9 @@ public class UserService {
 				BCryptEncoderComponent.encrypt(newPassword));
 	}
 
-    public User signUp(String login, String password, String email) {
+    public User signUp(String username, String email, String password) {
 
-		var user = new User(login, BCryptEncoderComponent.encrypt(password), email, UserRoles.USER);
+		var user = new User(username, BCryptEncoderComponent.encrypt(password), email, UserRoles.USER);
 
 		if (userRepository.existsByEmail(email)) {
 			throw new CustomGlobalErrorHandling.UserAlreadyExistException();

@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Validated
 @SecurityRequirement(name = "bearer-key")
@@ -83,21 +81,6 @@ public abstract class AnalyticsController extends AnalyticsHelperController {
         List<GroupedMeanAndStdRecordByLevel> groupedData = analyticsHelperService
                 .calculateGroupedMeanAndStandardDeviation(name, startDate, endDate);
         return ResponseEntity.ok(groupedData);
-    }
-
-    @GetMapping("/name")
-    public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAllAnalyticsByName(
-            @RequestParam String name, Pageable pageable) {
-        List<AnalyticsRecord> resultsList = analyticsHelperService.findAnalyticsByNameWithPagination(pageable, name);
-
-        List<EntityModel<AnalyticsRecord>> resultModels = resultsList.stream()
-                .map(result -> createEntityModel(result, pageable))
-                .toList();
-
-        CollectionModel<EntityModel<AnalyticsRecord>> collectionModel = CollectionModel.of(resultModels,
-                linkTo(methodOn(getClass()).getAllAnalyticsByName(name, pageable)).withSelfRel());
-
-        return ResponseEntity.ok(collectionModel);
     }
 
     @GetMapping("/date-range")

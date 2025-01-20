@@ -1,6 +1,6 @@
 package leonardo.labutilities.qualitylabpro.entities;
 
-
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -8,6 +8,8 @@ import java.util.Objects;
 import jakarta.persistence.*;
 import leonardo.labutilities.qualitylabpro.enums.UserRoles;
 import lombok.Getter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,6 +29,14 @@ public class User implements UserDetails {
 
 	@Column(name = "user_roles")
 	private UserRoles userRoles;
+
+	@CreationTimestamp
+	@Column(name = "created_at", updatable = false)
+	private LocalDateTime createdAt;
+
+	@UpdateTimestamp
+	@Column(name = "updated_at")
+	private LocalDateTime updatedAt;
 
 	protected User() {}
 
@@ -101,7 +111,7 @@ public class User implements UserDetails {
 	public final int hashCode() {
 		return this instanceof HibernateProxy
 				? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
-						.hashCode()
+				.hashCode()
 				: getClass().hashCode();
 	}
 }

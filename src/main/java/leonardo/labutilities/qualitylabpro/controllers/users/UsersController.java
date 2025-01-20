@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import leonardo.labutilities.qualitylabpro.dtos.authentication.LoginUserRecord;
 import leonardo.labutilities.qualitylabpro.dtos.authentication.TokenJwtRecord;
 import leonardo.labutilities.qualitylabpro.dtos.users.RecoverPasswordRecord;
+import leonardo.labutilities.qualitylabpro.dtos.users.SignUpUsersRecord;
 import leonardo.labutilities.qualitylabpro.dtos.users.UpdatePasswordRecord;
 import leonardo.labutilities.qualitylabpro.dtos.users.UsersRecord;
 import leonardo.labutilities.qualitylabpro.entities.User;
@@ -59,20 +60,16 @@ public class UsersController {
 
     @Transactional
     @PostMapping("/sign-up")
-    public ResponseEntity<UsersRecord> signUp(@Valid @RequestBody final UsersRecord UsersRecord,
-                                              final UriComponentsBuilder uriComponentsBuilder) {
-        final var user = userService.signUp(UsersRecord.username(), UsersRecord.password(),
-                UsersRecord.email());
-        final var uri =
-                uriComponentsBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri();
-
-        return ResponseEntity.created(uri).body(UsersRecord);
+    public ResponseEntity<Void> signUp(@Valid @RequestBody final SignUpUsersRecord signUpUsersRecord) {
+        userService.signUp(signUpUsersRecord.username(),signUpUsersRecord.email(), signUpUsersRecord.password());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/sign-in")
     public ResponseEntity<TokenJwtRecord> singIn(
             @RequestBody @Valid final LoginUserRecord loginUserRecord) {
-        final var token = userService.signIn(loginUserRecord.email(), loginUserRecord.password());
+        final var token = userService.signIn(loginUserRecord.email(),
+                loginUserRecord.password());
         return ResponseEntity.ok(token);
     }
 }
