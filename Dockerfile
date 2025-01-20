@@ -1,3 +1,7 @@
+FROM eclipse-temurin:21-jdk-alpine AS build
+
+RUN apk add --no-cache maven
+
 COPY src /app/src
 COPY pom.xml /app
 
