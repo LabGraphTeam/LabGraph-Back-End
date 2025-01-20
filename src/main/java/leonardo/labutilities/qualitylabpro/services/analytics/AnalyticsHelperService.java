@@ -26,8 +26,6 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 		this.analyticsRepository = analyticsRepository;
 	}
 
-
-
 	@Override
 	public void deleteAnalyticsById(Long id) {
 		if (!analyticsRepository.existsById(id)) {
