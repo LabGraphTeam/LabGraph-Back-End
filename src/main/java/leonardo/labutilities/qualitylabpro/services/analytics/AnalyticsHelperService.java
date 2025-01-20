@@ -26,14 +26,7 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 		this.analyticsRepository = analyticsRepository;
 	}
 
-	public List<AnalyticsRecord> findAnalyticsByNameInByLevelBaseMethod(List<String> names, String level,
-																		LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-		List<AnalyticsRecord> results = analyticsRepository
-				.findByNameInAndLevelAndDateBetween(names, level, startDate, endDate, pageable)
-				.stream().map(AnalyticsMapper::toRecord).toList();
-		validateResultsNotEmpty(results, "No analytics found for the given parameters");
-		return results;
-	}
+
 
 	@Override
 	public void deleteAnalyticsById(Long id) {
@@ -42,6 +35,14 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 					"AnalyticsRecord by id not found");
 		}
 		analyticsRepository.deleteById(id);
+	}
+
+	public Page<AnalyticsRecord> findAnalyticsByNameInByLevelBaseMethod(List<String> names, String level,
+																		LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+		Page<AnalyticsRecord> results = analyticsRepository
+				.findByNameInAndLevelAndDateBetween(names, level, startDate, endDate, pageable);
+		validateResultsNotEmpty(results.getContent(), "No analytics found for the given parameters");
+		return results;
 	}
 
 	public void updateAnalyticsMeanByNameAndLevelAndLevelLot(String name, String level,
@@ -174,10 +175,9 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 	}
 
 	@Override
-	public List<AnalyticsRecord> findAnalyticsByNameInAndDateBetween(List<String> names,
-																	 LocalDateTime dateStart, LocalDateTime dateEnd) {
-		return analyticsRepository.findByNameInAndDateBetween(names, dateStart, dateEnd)
-				.stream().map((AnalyticsMapper::toRecord)).toList();
+	public Page<AnalyticsRecord> findAnalyticsByNameInAndDateBetween(List<String> names,
+																	 LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
+		return analyticsRepository.findByNameInAndDateBetween(names, dateStart, dateEnd, pageable);
 	}
 
 	@Override

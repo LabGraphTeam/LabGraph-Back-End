@@ -7,6 +7,7 @@ import leonardo.labutilities.qualitylabpro.dtos.analytics.DefaultMeanAndStdRecor
 import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationRecord;
 import leonardo.labutilities.qualitylabpro.services.analytics.CoagulationAnalyticsService;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -36,7 +37,7 @@ public class CoagulationAnalyticsController extends AnalyticsController {
         super(coagulationAnalyticsService);
         this.coagulationAnalyticsService = coagulationAnalyticsService;
     }
-
+    @Override
     @GetMapping()
     public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAllAnalytics(
             @PageableDefault(sort = "date", direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
@@ -44,10 +45,12 @@ public class CoagulationAnalyticsController extends AnalyticsController {
     }
 
     @GetMapping("/date-range")
-    public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAnalyticsDateBetween(
+    public ResponseEntity<Page<AnalyticsRecord>> getAnalyticsDateBetween(
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate,  @PageableDefault(sort = "date", direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
-        return this.getAnalyticsByDateBetweenWithLinks(names, startDate, endDate, pageable);
+        return ResponseEntity.ok
+                (coagulationAnalyticsService
+                        .findAnalyticsByNameInAndDateBetween(names, startDate, endDate, pageable));
     }
 
     @Override
@@ -62,7 +65,7 @@ public class CoagulationAnalyticsController extends AnalyticsController {
 
     @Override
     @GetMapping("/level-date-range")
-    public ResponseEntity<List<AnalyticsRecord>> getAllAnalyticsByLevelDateRange(
+    public ResponseEntity<Page<AnalyticsRecord>> getAllAnalyticsByLevelDateRange(
             @RequestParam String level,
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate,

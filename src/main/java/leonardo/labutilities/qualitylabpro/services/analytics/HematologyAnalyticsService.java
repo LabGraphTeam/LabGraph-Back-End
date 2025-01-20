@@ -8,6 +8,7 @@ import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class HematologyAnalyticsService extends AbstractAnalyticsService {
 		super(analyticsRepository);
 	}
 
-	public List<AnalyticsRecord> findAnalyticsByNameInByLevel(List<String> names, String level,
+	public Page<AnalyticsRecord> findAnalyticsByNameInByLevel(List<String> names, String level,
 															  LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
 		return this.findAnalyticsByNameInByLevelBaseMethod(names, this.convertLevel(level),
 				startDate, endDate, pageable);

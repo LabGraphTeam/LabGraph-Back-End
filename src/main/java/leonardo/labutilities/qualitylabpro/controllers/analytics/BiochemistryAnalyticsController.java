@@ -38,29 +38,26 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
         super(biochemistryAnalyticsService);
         this.biochemistryAnalyticsService = biochemistryAnalyticsService;
     }
-
+    @Override
     @GetMapping()
     public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAllAnalytics(
-            @RequestParam(value = "startDate", required = false) LocalDateTime startDate,
-            @RequestParam(value = "endDate", required = false) LocalDateTime endDate,
             @PageableDefault(sort = "date", direction = Sort.Direction.DESC)
             @ParameterObject Pageable pageable) {
-
-        return (startDate == null || endDate == null)
-                ? this.getAllAnalyticsWithLinks(names, pageable)
-                : this.getAnalyticsByDateBetweenWithLinks(names, startDate, endDate, pageable);
+        return this.getAllAnalyticsWithLinks(names, pageable);
     }
 
     @GetMapping("/date-range")
-    public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAnalyticsDateBetween(
+    public ResponseEntity<Page<AnalyticsRecord>> getAnalyticsDateBetween(
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate,  @PageableDefault(sort = "date", direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
-        return this.getAnalyticsByDateBetweenWithLinks(names, startDate, endDate, pageable);
+        return ResponseEntity.ok
+                (biochemistryAnalyticsService
+                        .findAnalyticsByNameInAndDateBetween(names, startDate, endDate, pageable));
     }
 
     @Override
     @GetMapping("/level-date-range")
-    public ResponseEntity<List<AnalyticsRecord>> getAllAnalyticsByLevelDateRange(
+    public ResponseEntity<Page<AnalyticsRecord>> getAllAnalyticsByLevelDateRange(
             @RequestParam String level,
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate,

@@ -30,14 +30,14 @@ public interface AnalyticsRepository extends JpaRepository<Analytics, Long> {
 	List<Analytics> findByNameAndLevel(Pageable pageable, String name, String level);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) AND ga.level = ?2 AND ga.date BETWEEN ?3 AND ?4")
-	List<Analytics> findByNameInAndLevelAndDateBetween(List<String> names, String level, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+	Page<AnalyticsRecord> findByNameInAndLevelAndDateBetween(List<String> names, String level, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name = ?1 AND ga.level = ?2 AND ga.levelLot = ?3")
 	List<Analytics> findByNameAndLevelAndLevelLot(Pageable pageable, String name, String level, String levelLot);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) AND ga.date BETWEEN ?2 AND ?3")
-	List<Analytics> findByNameInAndDateBetween(List<String> names,
-											   LocalDateTime startDate, LocalDateTime endDate);
+	Page<AnalyticsRecord> findByNameInAndDateBetween(List<String> names,
+											   LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
 	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) AND ga.date BETWEEN ?2 AND ?3")
 	Page<AnalyticsRecord> findByNameInAndDateBetweenPaged(List<String> names,

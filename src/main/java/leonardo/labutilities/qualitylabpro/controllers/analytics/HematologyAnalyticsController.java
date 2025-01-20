@@ -7,6 +7,7 @@ import leonardo.labutilities.qualitylabpro.dtos.analytics.DefaultMeanAndStdRecor
 import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationRecord;
 import leonardo.labutilities.qualitylabpro.services.analytics.HematologyAnalyticsService;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -37,24 +38,25 @@ public class HematologyAnalyticsController extends AnalyticsController {
         this.hematologyAnalyticsService = hematologyAnalyticsService;
     }
 
-    @GetMapping()
+    @Override
     public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAllAnalytics(
             @PageableDefault(sort = "date", direction = Sort.Direction.DESC)
-
             @ParameterObject Pageable pageable) {
         return this.getAllAnalyticsWithLinks(names, pageable);
     }
 
     @GetMapping("/date-range")
-    public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAnalyticsDateBetween(
+    public ResponseEntity<Page<AnalyticsRecord>> getAnalyticsDateBetween(
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate,  @PageableDefault(sort = "date", direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
-        return this.getAnalyticsByDateBetweenWithLinks(names, startDate, endDate, pageable);
+        return ResponseEntity.ok
+                (hematologyAnalyticsService
+                        .findAnalyticsByNameInAndDateBetween(names, startDate, endDate, pageable));
     }
 
     @Override
     @GetMapping("/level-date-range")
-    public ResponseEntity<List<AnalyticsRecord>> getAllAnalyticsByLevelDateRange(
+    public ResponseEntity<Page<AnalyticsRecord>>  getAllAnalyticsByLevelDateRange(
             @RequestParam String level,
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate,

@@ -56,10 +56,11 @@ public class CoagulationAnalyticsControllerTest {
 	@DisplayName("It should return a list of all analytics by level")
 	void getAllAnalytics_by_level_return_list() throws Exception {
 		List<AnalyticsRecord> records = createSampleRecordList();
+		Page<AnalyticsRecord> page = new PageImpl<>(records);
 
 		when(coagulationAnalyticsService
 				.findAnalyticsByNameInByLevel(anyList(),any(),any(),any(), any(Pageable.class)))
-				.thenReturn(records);
+				.thenReturn(page);
 
 		mockMvc.perform(get("/coagulation-analytics/level-date-range")
 						.param("level", "PCCC1")
@@ -98,21 +99,6 @@ public class CoagulationAnalyticsControllerTest {
 				.findAnalyticsPagedByNameIn(anyList(), any(Pageable.class));
 	}
 
-//	@Test
-//	@DisplayName("It should return analytics records by level and name")
-//	void getAnalyticsByLevel_return_analytics() throws Exception {
-//		List<AnalyticsRecord> records = createSampleRecordList();
-//		when(coagulationAnalyticsService.findAnalyticsByNameAndLevel(any(), any(), any()))
-//				.thenReturn(records);
-//
-//		mockMvc.perform(get("/coagulation-analytics/name-and-level").param("name", "Glucose")
-//				.param("level", "Normal").param("page", "0").param("size", "10"))
-//				.andExpect(status().isOk());
-//
-//		verify(coagulationAnalyticsService, times(1)).findAnalyticsByNameAndLevel(any(), any(),
-//				any());
-//	}
-
 	@Test
 	@DisplayName("It should return analytics records for a date range")
 	void getAnalyticsByDateRange_return_analytics() throws Exception {
@@ -120,7 +106,7 @@ public class CoagulationAnalyticsControllerTest {
 		Page<AnalyticsRecord> page = new PageImpl<>(records);
 
 
-		when(coagulationAnalyticsService.findAnalyticsByNameInAndDateBetweenWithLinks(anyList(), any(), any(), any()))
+		when(coagulationAnalyticsService.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any()))
 				.thenReturn(page);
 
 		mockMvc.perform(get("/coagulation-analytics/date-range")
@@ -128,7 +114,7 @@ public class CoagulationAnalyticsControllerTest {
 				.andExpect(status().isOk());
 
 		verify(coagulationAnalyticsService, times(1))
-				.findAnalyticsByNameInAndDateBetweenWithLinks(anyList(), any(), any(), any());
+				.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any());
 	}
 
 	@Test

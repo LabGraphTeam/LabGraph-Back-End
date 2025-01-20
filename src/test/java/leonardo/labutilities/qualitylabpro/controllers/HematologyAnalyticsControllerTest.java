@@ -57,10 +57,11 @@ public class HematologyAnalyticsControllerTest {
 	@DisplayName("It should return a list of all analytics by level")
 	void getAllAnalytics_by_level_return_list() throws Exception {
 		List<AnalyticsRecord> records = createSampleRecordList();
+		Page<AnalyticsRecord> page = new PageImpl<>(records);
 
 		when(hematologyAnalyticsService
 				.findAnalyticsByNameInByLevel(anyList(),any(),any(),any(), any(Pageable.class)))
-				.thenReturn(records);
+				.thenReturn(page);
 
 		mockMvc.perform(get("/hematology-analytics/level-date-range")
 						.param("level", "PCCC1")
@@ -100,20 +101,6 @@ public class HematologyAnalyticsControllerTest {
 				.findAnalyticsPagedByNameIn(anyList(), any(Pageable.class));
 	}
 
-//	@Test
-//	@DisplayName("It should return analytics records by level and name")
-//	void getAnalyticsByLevel_return_analytics() throws Exception {
-//		List<AnalyticsRecord> records = createSampleRecordList();
-//		when(hematologyAnalyticsService.findAnalyticsByNameAndLevel(any(), any(), any()))
-//				.thenReturn(records);
-//
-//		mockMvc.perform(get("/hematology-analytics/name-and-level").param("name", "Hemoglobin")
-//				.param("level", "High").param("page", "0").param("size", "10"))
-//				.andExpect(status().isOk());
-//
-//		verify(hematologyAnalyticsService, times(1)).findAnalyticsByNameAndLevel(any(), any(),
-//				any());
-//	}
 
 	@Test
 	@DisplayName("It should return analytics records for a date range")
@@ -121,7 +108,7 @@ public class HematologyAnalyticsControllerTest {
 		List<AnalyticsRecord> records = createSampleRecordList();
 		Page<AnalyticsRecord> page = new PageImpl<>(records);
 
-		when(hematologyAnalyticsService.findAnalyticsByNameInAndDateBetweenWithLinks(anyList(), any(), any(), any()))
+		when(hematologyAnalyticsService.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any()))
 				.thenReturn(page);
 
 		mockMvc.perform(get("/hematology-analytics/date-range")
@@ -129,7 +116,7 @@ public class HematologyAnalyticsControllerTest {
 				.andExpect(status().isOk());
 
 		verify(hematologyAnalyticsService, times(1))
-				.findAnalyticsByNameInAndDateBetweenWithLinks(anyList(), any(), any(), any());
+				.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any());
 	}
 
 	@Test

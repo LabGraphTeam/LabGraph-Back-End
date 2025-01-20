@@ -1,15 +1,22 @@
 package leonardo.labutilities.qualitylabpro.controllers.analytics;
 
+import jakarta.validation.Valid;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedMeanAndStdRecordByLevel;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedResultsByLevel;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanRecord;
 import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticsHelperService;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -30,6 +37,51 @@ public class AnalyticsHelperController {
 	@GetMapping("/{id}")
 	public ResponseEntity<AnalyticsRecord> getAnalyticsById(@PathVariable Long id) {
 		return ResponseEntity.ok(analyticsHelperService.findOneById(id));
+	}
+
+	@DeleteMapping("/{id}")
+	@Transactional
+	public ResponseEntity<Void> deleteAnalyticsResultById(@PathVariable Long id) {
+		analyticsHelperService.deleteAnalyticsById(id);
+		return ResponseEntity.noContent().build();
+	}
+
+	@PostMapping
+	@Transactional
+	public ResponseEntity<List<AnalyticsRecord>> postAnalytics(
+			@Valid @RequestBody List<@Valid AnalyticsRecord> values) {
+		analyticsHelperService.saveNewAnalyticsRecords(values);
+		return ResponseEntity.status(201).build();
+	}
+
+	@PatchMapping()
+	public ResponseEntity<Void>
+	updateAnalyticsMean(@Valid @RequestBody UpdateAnalyticsMeanRecord updateAnalyticsMeanRecord) {
+		analyticsHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(
+				updateAnalyticsMeanRecord.name(),
+				updateAnalyticsMeanRecord.level(),
+				updateAnalyticsMeanRecord.levelLot(),
+				updateAnalyticsMeanRecord.mean());
+		return ResponseEntity.noContent().build();
+	}
+
+	@GetMapping("/grouped-by-level")
+	public ResponseEntity<List<GroupedResultsByLevel>> getGroupedByLevel
+			(@RequestParam String name,
+			 @RequestParam("startDate") LocalDateTime startDate,
+			 @RequestParam("endDate") LocalDateTime endDate) {
+		List<GroupedResultsByLevel> groupedData =
+				analyticsHelperService.findAnalyticsWithGroupedResults(name, startDate, endDate);
+		return ResponseEntity.ok(groupedData);
+	}
+
+	@GetMapping("/grouped-by-level/mean-deviation")
+	public ResponseEntity<List<GroupedMeanAndStdRecordByLevel>> getMeanAndDeviationGrouped(
+			@RequestParam String name, @RequestParam("startDate") LocalDateTime startDate,
+			@RequestParam("endDate") LocalDateTime endDate) {
+		List<GroupedMeanAndStdRecordByLevel> groupedData = analyticsHelperService
+				.calculateGroupedMeanAndStandardDeviation(name, startDate, endDate);
+		return ResponseEntity.ok(groupedData);
 	}
 
 	public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAllAnalyticsWithLinks(

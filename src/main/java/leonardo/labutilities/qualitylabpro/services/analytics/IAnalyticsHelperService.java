@@ -37,12 +37,12 @@ public interface IAnalyticsHelperService {
 
 	List<AnalyticsRecord> findAnalyticsByNameWithPagination(Pageable pageable, String name);
 
-	List<AnalyticsRecord> findAnalyticsByNameInByLevelBaseMethod(List<String> names, String level, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+	Page<AnalyticsRecord> findAnalyticsByNameInByLevelBaseMethod(List<String> names, String level, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
 	List<AnalyticsRecord> findAnalyticsByDate(LocalDateTime dateStart, LocalDateTime dateEnd);
 
-	List<AnalyticsRecord> findAnalyticsByNameInAndDateBetween(List<String> names,
-															  LocalDateTime startDate, LocalDateTime endDate);
+	Page<AnalyticsRecord> findAnalyticsByNameInAndDateBetween(List<String> names,
+															  LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
 	List<AnalyticsRecord> findAnalyticsByNameAndLevel(Pageable pageable, String name,
 													  String level);

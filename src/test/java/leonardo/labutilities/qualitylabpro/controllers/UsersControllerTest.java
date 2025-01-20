@@ -72,8 +72,8 @@ class UsersControllerTest {
     private JacksonTester<RecoverPasswordRecord> recoverPasswordRecordJacksonTester;
 
     @Test
-    @DisplayName("Should return 201 when signing up a new user")
-    void signUp_return_201() throws Exception {
+    @DisplayName("Should return 204 when signing up a new user")
+    void signUp_return_204() throws Exception {
         UsersRecord usersRecord = new UsersRecord("testUser", "Marmota2024@", "test@example.com");
         User user = new User("testUser", "password", "test@example.com", UserRoles.USER);
 
@@ -82,7 +82,7 @@ class UsersControllerTest {
         mockMvc.perform(post("/users/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(usersRecordJacksonTester.write(usersRecord).getJson()))
-                .andExpect(status().isCreated())
+                .andExpect(status().isNoContent())
                 .andExpect(jsonPath("$.username").value("testUser"))
                 .andExpect(jsonPath("$.email").value("test@example.com"));
 

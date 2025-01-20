@@ -21,7 +21,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
@@ -64,7 +66,7 @@ class AnalyticsRepositoryTest {
 		List<AnalyticsRecord> results = repository
 				.findByNameInAndLevelAndDateBetween(ANALYTICS_NAME_LIST,
 						"PCCC1",testDate.minusDays(1), testDate.plusDays(1), pageable)
-				.stream().map(AnalyticsMapper::toRecord).toList();
+				.stream().toList();
 		assertThat(results).isNotEmpty();
 		assertThat(results.getFirst().level()).isEqualTo("PCCC1");
 	}
@@ -126,11 +128,11 @@ class AnalyticsRepositoryTest {
 		setupTestData();
 		List<String> names = List.of("ALB2");
 
-		List<AnalyticsRecord> results = repository.findByNameInAndDateBetween(names,
-				testDate.minusDays(1), testDate.plusDays(1)).stream().map(AnalyticsMapper::toRecord).toList();
+		Page<AnalyticsRecord> results = repository.findByNameInAndDateBetween(names,
+				testDate.minusDays(1), testDate.plusDays(1), Pageable.unpaged());
 
 		assertThat(results).isNotEmpty();
-		assertThat(results.getFirst().name()).isEqualTo("ALB2");
+		assertThat(results.getContent().get(0).name()).isEqualTo("ALB2");
 	}
 
 	@Test
