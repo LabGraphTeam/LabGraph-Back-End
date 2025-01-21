@@ -1,5 +1,5 @@
 # QualityLab Pro-API RESTful for internal laboratory quality control.
-
+[![Docker Image CI/CD](https://github.com/LabGraphTeam/LabGraph-Back-End/actions/workflows/docker-image.yml/badge.svg?branch=master)](https://github.com/LabGraphTeam/LabGraph-Back-End/actions/workflows/docker-image.yml)
 <p align="center">
 <img src="https://img.shields.io/static/v1?label=STATUS&message=In%20progress&color=RED&style=for-the-badge" alt="Em desenvolvimento"/>
 </p>
