@@ -6,11 +6,8 @@ import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedMeanAndStdRecor
 import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedResultsByLevel;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanRecord;
 import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticsHelperService;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -55,21 +52,18 @@ public class AnalyticsHelperController {
 	}
 
 	@PatchMapping()
-	public ResponseEntity<Void>
-	updateAnalyticsMean(@Valid @RequestBody UpdateAnalyticsMeanRecord updateAnalyticsMeanRecord) {
+	public ResponseEntity<Void> updateAnalyticsMean(
+			@Valid @RequestBody UpdateAnalyticsMeanRecord updateAnalyticsMeanRecord) {
 		analyticsHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(
-				updateAnalyticsMeanRecord.name(),
-				updateAnalyticsMeanRecord.level(),
-				updateAnalyticsMeanRecord.levelLot(),
-				updateAnalyticsMeanRecord.mean());
+				updateAnalyticsMeanRecord.name(), updateAnalyticsMeanRecord.level(),
+				updateAnalyticsMeanRecord.levelLot(), updateAnalyticsMeanRecord.mean());
 		return ResponseEntity.noContent().build();
 	}
 
 	@GetMapping("/grouped-by-level")
-	public ResponseEntity<List<GroupedResultsByLevel>> getGroupedByLevel
-			(@RequestParam String name,
-			 @RequestParam("startDate") LocalDateTime startDate,
-			 @RequestParam("endDate") LocalDateTime endDate) {
+	public ResponseEntity<List<GroupedResultsByLevel>> getGroupedByLevel(@RequestParam String name,
+			@RequestParam("startDate") LocalDateTime startDate,
+			@RequestParam("endDate") LocalDateTime endDate) {
 		List<GroupedResultsByLevel> groupedData =
 				analyticsHelperService.findAnalyticsWithGroupedResults(name, startDate, endDate);
 		return ResponseEntity.ok(groupedData);
