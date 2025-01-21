@@ -1,7 +1,6 @@
 package leonardo.labutilities.qualitylabpro.services.analytics;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -211,31 +210,30 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 
 	@Override
 	public void saveNewAnalyticsRecords(List<AnalyticsRecord> valuesOfLevelsList) {
-		List<leonardo.labutilities.qualitylabpro.entities.Analytics> newAnalytics =
-				valuesOfLevelsList.stream().filter(this::isAnalyticsNonExistent)
-						.map(AnalyticsMapper::toEntity)
-						.collect(Collectors.toList());
+		var newAnalytics = valuesOfLevelsList.stream()
+				.filter(this::isAnalyticsNonExistent)
+				.map(AnalyticsMapper::toEntity)
+				.collect(Collectors.toList());
 
 		if (newAnalytics.isEmpty()) {
+			log.warn("No new analytics records to save.");
 			throw new CustomGlobalErrorHandling.DataIntegrityViolationException();
 		}
 
 		var analyticsList = analyticsRepository.saveAll(newAnalytics);
 		log.info("New analytics records saved: {}...", analyticsList.get(0).toString());
+
 		var notPassedList = analyticsList.stream()
-				.map(AnalyticsMapper::toRecord).filter(this::isRecordStd3s).toList();
+				.map(AnalyticsMapper::toRecord)
+				.filter(this::isRecordStd3s)
+				.toList();
+
 		if (!notPassedList.isEmpty()) {
-			String formattedList = notPassedList.stream()
-					.map(record -> String.format(
-							"name: %s:, level: %s, value: %s, expected value: %s, rules: %s, status: %s,  at: %s\n  Recommendation: Please review the test procedures and ensure all equipment is calibrated.",
-							record.name(), record.level(), record.value().toString(), record.mean().toString(), record.rules(), record.description(), record.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))))
-					.collect(Collectors.joining("\n"));
-			String emailBody = String.format(
-					"Dear Team,\n\nThe following analytics records did not pass the standard deviation criteria:\n\n%s\n\nPlease take the necessary actions to address these issues.",
-					formattedList);
-			emailService.sendEmail(new EmailRecord("leomeireles55@outlook.com", "Warning: Analytics Not Passed", emailBody));
+			String emailBody = emailService.generateAnalyticsFailedEmailBody(notPassedList);
+			emailService.sendHtmlEmail(new EmailRecord("leomeireles55@outlook.com", "Warning: Analytics Not Passed", emailBody));
 		}
 	}
+
 
 	@Override
 	public Page<AnalyticsRecord> findAnalytics(Pageable pageable) {

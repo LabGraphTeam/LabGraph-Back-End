@@ -35,7 +35,7 @@ public class UserService {
 				"Dear user,\n\nUse the following temporary password to recover your account: %s\n\nBest regards,\nYour Team",
 				recoveryEmailRecord.temporaryPassword());
 		log.info("Sending recovery email to: {}", recoveryEmailRecord.email());
-		emailService.sendEmail(new EmailRecord(recoveryEmailRecord.email(), subject, message));
+		emailService.sendPlainTextEmail(new EmailRecord(recoveryEmailRecord.email(), subject, message));
 	}
 
 	public void recoverPassword(String username, String email) {
@@ -76,9 +76,9 @@ public class UserService {
 		final var authToken = new UsernamePasswordAuthenticationToken(email, password);
 		final var auth = authenticationManager.authenticate(authToken);
 		final var user = (User) auth.getPrincipal();
-		String message = String.format("Hello!,\n\nYou have successfully logged in on %s.", java.time.LocalDateTime.now()
+		String message = String.format("Hello There!\nYou have successfully logged on %s.", java.time.LocalDateTime.now()
 				.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
-		emailService.sendEmail(new EmailRecord(user.getEmail(), "Login Notification", message));
+		emailService.sendPlainTextEmail(new EmailRecord(user.getEmail(), "Login Notification", message));
 
 		return new TokenJwtRecord(tokenService.generateToken(user));
 	}
