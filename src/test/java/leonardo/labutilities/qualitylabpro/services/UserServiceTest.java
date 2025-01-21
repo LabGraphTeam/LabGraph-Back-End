@@ -27,85 +27,101 @@ import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHand
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
+	@Mock
+	private UserRepository userRepository;
 
-    @Mock
-    private PasswordRecoveryTokenManager passwordRecoveryTokenManager;
+	@Mock
+	private PasswordRecoveryTokenManager passwordRecoveryTokenManager;
 
-    @Mock
-    private EmailService emailService;
+	@Mock
+	private EmailService emailService;
 
-    @InjectMocks
-    private UserService userService;
+	@InjectMocks
+	private UserService userService;
 
-    @Test
-    void testRecoverPassword_UserExists() {
-        when(userRepository.existsByUsernameAndEmail(anyString(), anyString())).thenReturn(true);
-        when(passwordRecoveryTokenManager.generateTemporaryPassword()).thenReturn("tempPassword");
+	@Test
+	void testRecoverPassword_UserExists() {
+		when(userRepository.existsByUsernameAndEmail(anyString(), anyString())).thenReturn(true);
+		when(passwordRecoveryTokenManager.generateTemporaryPassword()).thenReturn("tempPassword");
 
-        userService.recoverPassword("username", "email@example.com");
+		userService.recoverPassword("username", "email@example.com");
 
-        verify(passwordRecoveryTokenManager).generateAndStoreToken("email@example.com", "tempPassword");
-        verify(emailService).sendEmail(any());
-    }
+		verify(passwordRecoveryTokenManager).generateAndStoreToken("email@example.com",
+				"tempPassword");
+		verify(emailService).sendPlainTextEmail(any());
+	}
 
-    @Test
-    void testRecoverPassword_UserDoesNotExist() {
-        when(userRepository.existsByUsernameAndEmail(anyString(), anyString())).thenReturn(false);
+	@Test
+	void testRecoverPassword_UserDoesNotExist() {
+		when(userRepository.existsByUsernameAndEmail(anyString(), anyString())).thenReturn(false);
 
-        assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class, () -> userService.recoverPassword("username", "email@example.com"));
-    }
+		assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
+				() -> userService.recoverPassword("username", "email@example.com"));
+	}
 
-    @Test
-    void testChangePassword_ValidToken() {
-        User user = new User("username", BCryptEncoderComponent.encrypt("newPassword"), "email@example.com", UserRoles.USER);
-        when(passwordRecoveryTokenManager.isRecoveryTokenValid(anyString(), anyString())).thenReturn(true);
-        userService.changePassword("email@example.com", "tempPassword", "newPassword");
-        assertThat(passwordRecoveryTokenManager.isRecoveryTokenValid("tempPassword", "email@example.com")).isTrue();
-    }
+	@Test
+	void testChangePassword_ValidToken() {
+		User user = new User("username", BCryptEncoderComponent.encrypt("newPassword"),
+				"email@example.com", UserRoles.USER);
+		when(passwordRecoveryTokenManager.isRecoveryTokenValid(anyString(), anyString()))
+				.thenReturn(true);
+		userService.changePassword("email@example.com", "tempPassword", "newPassword");
+		assertThat(passwordRecoveryTokenManager.isRecoveryTokenValid("tempPassword",
+				"email@example.com")).isTrue();
+	}
 
-    @Test
-    void testChangePassword_InvalidToken() {
-        when(passwordRecoveryTokenManager.isRecoveryTokenValid(anyString(), anyString())).thenReturn(false);
+	@Test
+	void testChangePassword_InvalidToken() {
+		when(passwordRecoveryTokenManager.isRecoveryTokenValid(anyString(), anyString()))
+				.thenReturn(false);
 
-        assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class, () -> userService.changePassword("email@example.com", "tempPassword", "newPassword"));
-    }
+		assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class, () -> userService
+				.changePassword("email@example.com", "tempPassword", "newPassword"));
+	}
 
-    @Test
-    void testSignUp_UserAlreadyExists() {
-        when(userRepository.existsByEmail(anyString())).thenReturn(true);
+	@Test
+	void testSignUp_UserAlreadyExists() {
+		when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
-        assertThrows(CustomGlobalErrorHandling.UserAlreadyExistException.class, () -> userService.signUp("username", "password", "email@example.com"));
-    }
+		assertThrows(CustomGlobalErrorHandling.UserAlreadyExistException.class,
+				() -> userService.signUp("username", "password", "email@example.com"));
+	}
 
-    @Test
-    void testSignUp_NewUser() {
-        when(userRepository.existsByEmail(anyString())).thenReturn(false);
-        when(userRepository.save(any(User.class))).thenReturn(new User("username", "encryptedPassword", "email@example.com", UserRoles.USER));
+	@Test
+	void testSignUp_NewUser() {
+		when(userRepository.existsByEmail(anyString())).thenReturn(false);
+		when(userRepository.save(any(User.class))).thenReturn(
+				new User("username", "encryptedPassword", "email@example.com", UserRoles.USER));
 
-        User user = userService.signUp("username", "password", "email@example.com");
+		User user = userService.signUp("username", "password", "email@example.com");
 
-        assertNotNull(user);
-        assertEquals("username", user.getUsername());
-        assertEquals("email@example.com", user.getEmail());
-    }
+		assertNotNull(user);
+		assertEquals("username", user.getUsername());
+		assertEquals("email@example.com", user.getEmail());
+	}
 
-    @Test
-    void should_return_error_with_testUpdateUserPassword_PasswordMatches() {
-        User user = new User("username", BCryptEncoderComponent.encrypt("newPassword"), "email@example.com", UserRoles.USER);
+	@Test
+	void should_return_error_with_testUpdateUserPassword_PasswordMatches() {
+		User user = new User("username", BCryptEncoderComponent.encrypt("newPassword"),
+				"email@example.com", UserRoles.USER);
 
-        when(userRepository.getReferenceByUsernameAndEmail(anyString(), anyString())).thenReturn(user);
+		when(userRepository.getReferenceByUsernameAndEmail(anyString(), anyString()))
+				.thenReturn(user);
 
-        assertThrows(CustomGlobalErrorHandling.PasswordNotMatchesException.class, () -> userService.updateUserPassword("username", "email@example.com", "oldPassword", "newPassword"));
-        verify(userRepository, never()).setPasswordWhereByUsername(anyString(), anyString());
-    }
+		assertThrows(CustomGlobalErrorHandling.PasswordNotMatchesException.class, () -> userService
+				.updateUserPassword("username", "email@example.com", "oldPassword", "newPassword"));
+		verify(userRepository, never()).setPasswordWhereByUsername(anyString(), anyString());
+	}
 
-    @Test
-    void testUpdateUserPassword_PasswordDoesNotMatch() {
-        User user = new User("username", BCryptEncoderComponent.encrypt("oldPassword"), "email@example.com", UserRoles.USER);
-        when(userRepository.getReferenceByUsernameAndEmail(anyString(), anyString())).thenReturn(user);
+	@Test
+	void testUpdateUserPassword_PasswordDoesNotMatch() {
+		User user = new User("username", BCryptEncoderComponent.encrypt("oldPassword"),
+				"email@example.com", UserRoles.USER);
+		when(userRepository.getReferenceByUsernameAndEmail(anyString(), anyString()))
+				.thenReturn(user);
 
-        assertThrows(CustomGlobalErrorHandling.PasswordNotMatchesException.class, () -> userService.updateUserPassword("username", "email@example.com", "wrongPassword", "newPassword"));
-    }
+		assertThrows(CustomGlobalErrorHandling.PasswordNotMatchesException.class,
+				() -> userService.updateUserPassword("username", "email@example.com",
+						"wrongPassword", "newPassword"));
+	}
 }
