@@ -1,9 +1,13 @@
 package leonardo.labutilities.qualitylabpro.services.email;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
 import leonardo.labutilities.qualitylabpro.dtos.email.EmailRecord;
+import leonardo.labutilities.qualitylabpro.utils.decoratos.InjectEmailList;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -13,8 +17,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -28,49 +34,50 @@ public class EmailService {
 	private final JavaMailSender javaMailSender;
 
 	@Value("${spring.mail.username}")
-	private String emailFrom;
+	String emailFrom;
+	@InjectEmailList
+	List<String> emailList;
 
-	/**
-	 * Sends a plain text email.
-	 *
-	 * @param email the email record containing recipient, subject, and body
-	 */
 	@Async
 	public void sendPlainTextEmail(EmailRecord email) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom(emailFrom);
 		message.setTo(email.to());
 		message.setSubject(EMAIL_SUBJECT_PREFIX + email.subject());
-		message.setText(buildEmailBody(email));
+		message.setText(buildEmailBody(email.body()));
 		javaMailSender.send(message);
 	}
 
-	/**
-	 * Sends an email with an HTML body.
-	 *
-	 * @param email the email record containing recipient, subject, and body
-	 */
 	@Async
-	public void sendHtmlEmail(EmailRecord email) {
+	public void sendHtmlEmail(List<AnalyticsRecord> notPassedList) {
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+		var emailBody = generateAnalyticsFailedEmailBody(notPassedList);
 		try {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 			helper.setFrom(emailFrom);
-			helper.setTo(email.to());
-			helper.setSubject(EMAIL_SUBJECT_PREFIX + email.subject());
-			helper.setText(buildEmailBody(email), true); // true indicates HTML
+			System.out.println(emailList);
+			// Convert List<String> to InternetAddress[]
+			InternetAddress[] internetAddresses = emailList.stream()
+					.map(email -> {
+						try {
+							return new InternetAddress(email);
+						} catch (AddressException e) {
+							log.error("Invalid email address: " + email, e);
+							return null;
+						}
+					})
+					.filter(Objects::nonNull)
+					.toArray(InternetAddress[]::new);
+
+			helper.setBcc(internetAddresses);
+			helper.setSubject(EMAIL_SUBJECT_PREFIX + "Warning: Analytics Failed");
+			helper.setText(buildEmailBody(emailBody), true);
 			javaMailSender.send(mimeMessage);
 		} catch (MessagingException e) {
 			log.error("Failed to send email with HTML body", e);
 		}
 	}
 
-	/**
-	 * Generates the email body for analytics records that failed.
-	 *
-	 * @param notPassedList the list of analytics records that did not pass
-	 * @return the generated HTML email body
-	 */
 	public String generateAnalyticsFailedEmailBody(List<AnalyticsRecord> notPassedList) {
 		String formattedList = notPassedList.stream()
 				.map(record -> String.format(
@@ -86,29 +93,29 @@ public class EmailService {
 						"</table><p>Please take the necessary actions to address these issues.</p>");
 	}
 
-	public String generateUserLoginEmailBody(String username, String email, String date) {
+	public String generateUserLoginEmailBody(String username, String email, LocalDateTime date) {
 		return generateUserActionEmailBody("logged in", username, email, date);
 	}
 
-	public String generateUserCreationEmailBody(String username, String email, String date) {
+	public String generateUserSignupEmailBody(String username, String email, LocalDateTime date) {
 		return generateUserActionEmailBody("been created", username, email, date);
 	}
 
-	public String generateUserDeletionEmailBody(String username, String email, String date) {
+	public String generateUserDeletionEmailBody(String username, String email, LocalDateTime date) {
 		return generateUserActionEmailBody("been deleted", username, email, date);
 	}
 
-	public String generateUserUpdateEmailBody(String username, String email, String date) {
+	public String generateUserUpdateEmailBody(String username, String email, LocalDateTime date) {
 		return generateUserActionEmailBody("been updated", username, email, date);
 	}
 
-	private String generateUserActionEmailBody(String action, String username, String email, String date) {
+	private String generateUserActionEmailBody(String action, String username, String email, LocalDateTime date) {
 		return String.format(HTML_TEMPLATE,
 				String.format("<p>User <b>%s</b> has %s with email <b>%s</b> at <b>%s</b>.</p>",
 						username, action, email, date));
 	}
 
-	private String buildEmailBody(EmailRecord email) {
-		return String.format("\n\n%s\n\nBest regards,\nLabGraph Team", email.body());
+	private String buildEmailBody(String email) {
+		return String.format("\n\n%s\n\nBest regards,\nLabGraph Team", email);
 	}
 }

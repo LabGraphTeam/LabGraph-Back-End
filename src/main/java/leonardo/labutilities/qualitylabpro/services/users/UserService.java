@@ -1,5 +1,6 @@
 package leonardo.labutilities.qualitylabpro.services.users;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,8 @@ import leonardo.labutilities.qualitylabpro.utils.components.PasswordRecoveryToke
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @Service
@@ -68,18 +71,17 @@ public class UserService {
 		if (userRepository.existsByEmail(email)) {
 			throw new CustomGlobalErrorHandling.UserAlreadyExistException();
 		}
+		emailService.generateUserSignupEmailBody(user.getUsername(), user.getEmail(), LocalDateTime.now());
 		return userRepository.save(user);
 	}
-
+	@Async
 	public TokenJwtRecord signIn(String email, String password) {
 
 		final var authToken = new UsernamePasswordAuthenticationToken(email, password);
 		final var auth = authenticationManager.authenticate(authToken);
 		final var user = (User) auth.getPrincipal();
-		String message = String.format("Hello There!\nYou have successfully logged on %s.", java.time.LocalDateTime.now()
-				.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
-		emailService.sendPlainTextEmail(new EmailRecord(user.getEmail(), "Login Notification", message));
-
+//		String message = String.format("Hello There!\nYou have successfully logged on %s.", LocalDateTime.now()
+//				.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
 		return new TokenJwtRecord(tokenService.generateToken(user));
 	}
 

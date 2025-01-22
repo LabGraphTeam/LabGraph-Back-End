@@ -85,7 +85,8 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 
 	public boolean isRecordStd3s(AnalyticsRecord record) {
 		String rules = record.rules();
-		return (Objects.equals(rules, "+3s") || Objects.equals(rules, "-3s"));
+		return (Objects.equals(rules, "+3s") || Objects.equals(rules, "-3s") ||
+				Objects.equals(rules, "-2s") || Objects.equals(rules, "+2s"));
 	}
 
 	@Override
@@ -229,8 +230,7 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 				.toList();
 
 		if (!notPassedList.isEmpty()) {
-			String emailBody = emailService.generateAnalyticsFailedEmailBody(notPassedList);
-			emailService.sendHtmlEmail(new EmailRecord("leomeireles55@outlook.com", "Warning: Analytics Not Passed", emailBody));
+			emailService.sendHtmlEmail(notPassedList);
 		}
 	}
 
