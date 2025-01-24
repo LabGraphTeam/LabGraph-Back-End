@@ -1,6 +1,7 @@
 package leonardo.labutilities.qualitylabpro.services.email;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
@@ -34,7 +35,22 @@ public class EmailService {
 	@Value("${spring.mail.username}")
 	String emailFrom;
 
-	List<String> emailList = List.of(dotenv.get("EMAIL_TO_SEND_LIST").split(","));
+	@Value("${email.to.send.list:}")
+	String emailListString;
+
+
+	private List<String> emailList;
+
+	@PostConstruct
+	private void init() {
+		emailList = (emailListString != null && !emailListString.isEmpty())
+				? List.of(emailListString.split(","))
+				: List.of();
+
+		if (emailList.isEmpty()) {
+			log.warn("No email recipients configured in email.to.send.list");
+		}
+	}
 
 	@Async
 	public void sendPlainTextEmail(EmailRecord email) {
