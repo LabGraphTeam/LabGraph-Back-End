@@ -1,10 +1,10 @@
 package leonardo.labutilities.qualitylabpro.controllers.analytics;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import leonardo.labutilities.qualitylabpro.constants.AvailableHematologyAnalytics;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationRecord;
 import leonardo.labutilities.qualitylabpro.services.analytics.HematologyAnalyticsService;
+import leonardo.labutilities.qualitylabpro.utils.constants.AvailableHematologyAnalytics;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

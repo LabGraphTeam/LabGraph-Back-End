@@ -35,7 +35,7 @@ public class UsersController {
         if (authentication != null && authentication.isAuthenticated()) {
             final var user = (User) authentication.getPrincipal();
             userService.updateUserPassword(user.getUsername(), user.getEmail(),
-                    updatePasswordRecord.oldPassword(), updatePasswordRecord.newPassword());
+                                           updatePasswordRecord.oldPassword(), updatePasswordRecord.newPassword());
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -53,14 +53,14 @@ public class UsersController {
     public ResponseEntity<Void> changePassword(
             @Valid @RequestBody final RecoverPasswordRecord recoverPasswordRecord) {
         userService.changePassword(recoverPasswordRecord.email(),
-                recoverPasswordRecord.temporaryPassword(), recoverPasswordRecord.newPassword());
+                                   recoverPasswordRecord.temporaryPassword(), recoverPasswordRecord.newPassword());
         return ResponseEntity.noContent().build();
     }
 
     @Transactional
     @PostMapping("/sign-up")
     public ResponseEntity<Void> signUp(@Valid @RequestBody final SignUpUsersRecord signUpUsersRecord) {
-        userService.signUp(signUpUsersRecord.username(),signUpUsersRecord.email(), signUpUsersRecord.password());
+        userService.signUp(signUpUsersRecord.username(), signUpUsersRecord.email(), signUpUsersRecord.password());
         return ResponseEntity.noContent().build();
     }
 
@@ -68,7 +68,7 @@ public class UsersController {
     public ResponseEntity<TokenJwtRecord> singIn(
             @RequestBody @Valid final LoginUserRecord loginUserRecord) {
         final var token = userService.signIn(loginUserRecord.email(),
-                loginUserRecord.password());
+                                             loginUserRecord.password());
         return ResponseEntity.ok(token);
     }
 }

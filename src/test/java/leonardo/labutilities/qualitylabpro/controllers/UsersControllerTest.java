@@ -34,8 +34,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UsersController.class)
 @Import(TestSecurityConfig.class)
@@ -80,11 +82,11 @@ class UsersControllerTest {
         when(userService.signUp(anyString(), anyString(), anyString())).thenReturn(user);
 
         mockMvc.perform(post("/users/sign-up")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(usersRecordJacksonTester.write(usersRecord).getJson()))
-                .andExpect(status().isNoContent())
-                .andExpect(jsonPath("$.username").value("testUser"))
-                .andExpect(jsonPath("$.email").value("test@example.com"));
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(usersRecordJacksonTester.write(usersRecord).getJson()))
+               .andExpect(status().isNoContent())
+               .andExpect(jsonPath("$.username").value("testUser"))
+               .andExpect(jsonPath("$.email").value("test@example.com"));
 
         verify(userService).signUp(usersRecord.username(), usersRecord.password(), usersRecord.email());
     }
@@ -100,11 +102,11 @@ class UsersControllerTest {
                 .thenReturn(tokenJwtRecord);
 
         mockMvc.perform(post("/users/sign-in")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginRecordJacksonTester
-                                .write(loginRecord)
-                                .getJson())).andExpect(status().isOk())
-                .andExpect(jsonPath("$.tokenJWT").value("TokenJwt"));
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(loginRecordJacksonTester
+                                                 .write(loginRecord)
+                                                 .getJson())).andExpect(status().isOk())
+               .andExpect(jsonPath("$.tokenJWT").value("TokenJwt"));
 
         verify(userService).signIn("test@example.com", "password");
 
@@ -116,9 +118,9 @@ class UsersControllerTest {
         UsersRecord usersRecord = new UsersRecord("testUser", "Mandrake2024@", "test@example.com");
 
         mockMvc.perform(post("/users/password/forgot-password")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(usersRecordJacksonTester.write(usersRecord).getJson()))
-                .andExpect(status().isNoContent());
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(usersRecordJacksonTester.write(usersRecord).getJson()))
+               .andExpect(status().isNoContent());
 
         verify(userService).recoverPassword(usersRecord.username(), usersRecord.email());
     }
@@ -130,9 +132,9 @@ class UsersControllerTest {
                 "test@example.com", "tempPassword", "newPassword");
 
         mockMvc.perform(patch("/users/password/recover")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(recoverPasswordRecordJacksonTester.write(recoverRecord).getJson()))
-                .andExpect(status().isNoContent());
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(recoverPasswordRecordJacksonTester.write(recoverRecord).getJson()))
+               .andExpect(status().isNoContent());
 
         verify(userService).changePassword(
                 recoverRecord.email(),
@@ -158,13 +160,13 @@ class UsersControllerTest {
                 (auth.getUsername(), auth.getEmail(), "oldPassword", "newPassword");
 
         mockMvc.perform(patch("/users/password")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(updatePasswordRecordJacksonTester.write(updateRecord).getJson())
-                        .with(SecurityMockMvcRequestPostProcessors.user(user)))
-                .andExpect(status().isNoContent());
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(updatePasswordRecordJacksonTester.write(updateRecord).getJson())
+                                .with(SecurityMockMvcRequestPostProcessors.user(user)))
+               .andExpect(status().isNoContent());
 
         verify(userService).updateUserPassword(
-               updateRecord.username(),
+                updateRecord.username(),
                 updateRecord.email(),
                 updateRecord.oldPassword(),
                 updateRecord.newPassword()
@@ -177,9 +179,9 @@ class UsersControllerTest {
         UsersRecord invalidRecord = new UsersRecord("", "", "invalid-email");
 
         mockMvc.perform(post("/users/sign-up")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(usersRecordJacksonTester.write(invalidRecord).getJson()))
-                .andExpect(status().isBadRequest());
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(usersRecordJacksonTester.write(invalidRecord).getJson()))
+               .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -191,9 +193,9 @@ class UsersControllerTest {
                 .thenThrow(new BadCredentialsException("Authentication failed at"));
 
         mockMvc.perform(post("/users/sign-in")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginRecordJacksonTester.write(loginRecord).getJson()))
-                .andExpect(status().isUnauthorized());
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(loginRecordJacksonTester.write(loginRecord).getJson()))
+               .andExpect(status().isUnauthorized());
 
         verify(userService, times(1)).signIn(loginRecord.email(), loginRecord.password());
     }

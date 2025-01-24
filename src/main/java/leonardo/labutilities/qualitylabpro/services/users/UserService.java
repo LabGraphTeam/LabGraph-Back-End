@@ -1,10 +1,5 @@
 package leonardo.labutilities.qualitylabpro.services.users;
 
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.stereotype.Service;
-
 import leonardo.labutilities.qualitylabpro.dtos.authentication.TokenJwtRecord;
 import leonardo.labutilities.qualitylabpro.dtos.email.EmailRecord;
 import leonardo.labutilities.qualitylabpro.dtos.email.RecoveryEmailRecord;
@@ -18,6 +13,9 @@ import leonardo.labutilities.qualitylabpro.utils.components.PasswordRecoveryToke
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
@@ -35,10 +33,12 @@ public class UserService {
 	private void sendRecoveryEmail(RecoveryEmailRecord recoveryEmailRecord) {
 		String subject = "Password Recovery";
 		String message = String.format(
-				"Dear user,\n\nUse the following temporary password to recover your account: %s\n\nBest regards,\nYour Team",
+				"Dear user,\n\nUse the following temporary password to recover your account: %s\n\nBest regards,"
+						+ "\nYour Team",
 				recoveryEmailRecord.temporaryPassword());
 		log.info("Sending recovery email to: {}", recoveryEmailRecord.email());
-		emailService.sendPlainTextEmail(new EmailRecord(recoveryEmailRecord.email(), subject, message));
+		emailService
+				.sendPlainTextEmail(new EmailRecord(recoveryEmailRecord.email(), subject, message));
 	}
 
 	public void recoverPassword(String username, String email) {
@@ -60,28 +60,31 @@ public class UserService {
 		if (!passwordRecoveryTokenManager.isRecoveryTokenValid(temporaryPassword, email)) {
 			throw new CustomGlobalErrorHandling.ResourceNotFoundException("Invalid recovery token");
 		}
-		userRepository.setPasswordWhereByEmail(email,
-				BCryptEncoderComponent.encrypt(newPassword));
+		userRepository.setPasswordWhereByEmail(email, BCryptEncoderComponent.encrypt(newPassword));
 	}
 
-    public User signUp(String username, String email, String password) {
+	public User signUp(String username, String email, String password) {
 
-		var user = new User(username, BCryptEncoderComponent.encrypt(password), email, UserRoles.USER);
+		var user =
+				new User(username, BCryptEncoderComponent.encrypt(password), email, UserRoles.USER);
 
 		if (userRepository.existsByEmail(email)) {
 			throw new CustomGlobalErrorHandling.UserAlreadyExistException();
 		}
-		emailService.generateUserSignupEmailBody(user.getUsername(), user.getEmail(), LocalDateTime.now());
+		emailService.notifyUserSignup(user.getUsername(), user.getEmail(), LocalDateTime.now());
 		return userRepository.save(user);
 	}
-	@Async
+
+
 	public TokenJwtRecord signIn(String email, String password) {
 
 		final var authToken = new UsernamePasswordAuthenticationToken(email, password);
 		final var auth = authenticationManager.authenticate(authToken);
 		final var user = (User) auth.getPrincipal();
-//		String message = String.format("Hello There!\nYou have successfully logged on %s.", LocalDateTime.now()
-//				.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+		if (!auth.isAuthenticated()) {
+			emailService.notifyFailedUserLogin(user.getUsername(), user.getEmail(),
+					LocalDateTime.now());
+		}
 		return new TokenJwtRecord(tokenService.generateToken(user));
 	}
 

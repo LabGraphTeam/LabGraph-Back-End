@@ -38,101 +38,101 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 public class HematologyAnalyticsControllerTest {
 
-	@MockitoBean
-	private TokenService tokenService;
+    @MockitoBean
+    private TokenService tokenService;
 
-	@MockitoBean
-	private UserRepository userRepository;
+    @MockitoBean
+    private UserRepository userRepository;
 
-	@Autowired
-	private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-	@MockitoBean
-	private HematologyAnalyticsService hematologyAnalyticsService;
+    @MockitoBean
+    private HematologyAnalyticsService hematologyAnalyticsService;
 
-	@Autowired
-	private JacksonTester<List<AnalyticsRecord>> jacksonGenericValuesRecord;
+    @Autowired
+    private JacksonTester<List<AnalyticsRecord>> jacksonGenericValuesRecord;
 
-	@Test
-	@DisplayName("It should return a list of all analytics by level")
-	void getAllAnalytics_by_level_return_list() throws Exception {
-		List<AnalyticsRecord> records = createSampleRecordList();
-		Page<AnalyticsRecord> page = new PageImpl<>(records);
+    @Test
+    @DisplayName("It should return a list of all analytics by level")
+    void getAllAnalytics_by_level_return_list() throws Exception {
+        List<AnalyticsRecord> records = createSampleRecordList();
+        Page<AnalyticsRecord> page = new PageImpl<>(records);
 
-		when(hematologyAnalyticsService
-				.findAnalyticsByNameInByLevel(anyList(),any(),any(),any(), any(Pageable.class)))
-				.thenReturn(page);
+        when(hematologyAnalyticsService
+                     .findAnalyticsByNameInByLevel(anyList(), any(), any(), any(), any(Pageable.class)))
+                .thenReturn(page);
 
-		mockMvc.perform(get("/hematology-analytics/level-date-range")
-						.param("level", "PCCC1")
-						.param("startDate", "2025-01-01 00:00:00")
-						.param("endDate", "2025-01-05 00:00:00"))
-				.andExpect(status().isOk());
+        mockMvc.perform(get("/hematology-analytics/level-date-range")
+                                .param("level", "PCCC1")
+                                .param("startDate", "2025-01-01 00:00:00")
+                                .param("endDate", "2025-01-05 00:00:00"))
+               .andExpect(status().isOk());
 
-		verify(hematologyAnalyticsService, times(1))
-				.findAnalyticsByNameInByLevel(anyList(),any(), any(),any(), any(Pageable.class));
-	}
+        verify(hematologyAnalyticsService, times(1))
+                .findAnalyticsByNameInByLevel(anyList(), any(), any(), any(), any(Pageable.class));
+    }
 
-	@Test
-	@DisplayName("It should return HTTP code 201 when analytics records are saved")
-	void analytics_post_return_201() throws Exception {
-		List<AnalyticsRecord> records = createSampleRecordList();
-		mockMvc.perform(post("/hematology-analytics").contentType(MediaType.APPLICATION_JSON)
-				.content(jacksonGenericValuesRecord.write(records).getJson()))
-				.andExpect(status().isCreated());
-		verify(hematologyAnalyticsService, times(1)).saveNewAnalyticsRecords(anyList());
-	}
+    @Test
+    @DisplayName("It should return HTTP code 201 when analytics records are saved")
+    void analytics_post_return_201() throws Exception {
+        List<AnalyticsRecord> records = createSampleRecordList();
+        mockMvc.perform(post("/hematology-analytics").contentType(MediaType.APPLICATION_JSON)
+                                                     .content(jacksonGenericValuesRecord.write(records).getJson()))
+               .andExpect(status().isCreated());
+        verify(hematologyAnalyticsService, times(1)).saveNewAnalyticsRecords(anyList());
+    }
 
-	@Test
-	@DisplayName("It should return a list of all analytics with pagination")
-	void getAllAnalytics_return_list() throws Exception {
-		List<AnalyticsRecord> records = createSampleRecordList();
-		Page<AnalyticsRecord> page = new PageImpl<>(records);
+    @Test
+    @DisplayName("It should return a list of all analytics with pagination")
+    void getAllAnalytics_return_list() throws Exception {
+        List<AnalyticsRecord> records = createSampleRecordList();
+        Page<AnalyticsRecord> page = new PageImpl<>(records);
 
-		when(hematologyAnalyticsService.findAnalyticsPagedByNameIn(anyList(), any(Pageable.class)))
-				.thenReturn(page);
+        when(hematologyAnalyticsService.findAnalyticsPagedByNameIn(anyList(), any(Pageable.class)))
+                .thenReturn(page);
 
-		mockMvc.perform(get("/hematology-analytics")
-						.param("page", "0")
-						.param("size", "10"))
-				.andExpect(status().isOk());
+        mockMvc.perform(get("/hematology-analytics")
+                                .param("page", "0")
+                                .param("size", "10"))
+               .andExpect(status().isOk());
 
-		verify(hematologyAnalyticsService, times(1))
-				.findAnalyticsPagedByNameIn(anyList(), any(Pageable.class));
-	}
+        verify(hematologyAnalyticsService, times(1))
+                .findAnalyticsPagedByNameIn(anyList(), any(Pageable.class));
+    }
 
 
-	@Test
-	@DisplayName("It should return analytics records for a date range")
-	void getAnalyticsByDateRange_return_analytics() throws Exception {
-		List<AnalyticsRecord> records = createSampleRecordList();
-		Page<AnalyticsRecord> page = new PageImpl<>(records);
+    @Test
+    @DisplayName("It should return analytics records for a date range")
+    void getAnalyticsByDateRange_return_analytics() throws Exception {
+        List<AnalyticsRecord> records = createSampleRecordList();
+        Page<AnalyticsRecord> page = new PageImpl<>(records);
 
-		when(hematologyAnalyticsService.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any()))
-				.thenReturn(page);
+        when(hematologyAnalyticsService.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any()))
+                .thenReturn(page);
 
-		mockMvc.perform(get("/hematology-analytics/date-range")
-				.param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00"))
-				.andExpect(status().isOk());
+        mockMvc.perform(get("/hematology-analytics/date-range")
+                                .param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00"))
+               .andExpect(status().isOk());
 
-		verify(hematologyAnalyticsService, times(1))
-				.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any());
-	}
+        verify(hematologyAnalyticsService, times(1))
+                .findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any());
+    }
 
-	@Test
-	@DisplayName("It should return mean and standard deviation for a date range")
-	void getMeanAndStandardDeviation_return_result() throws Exception {
-		MeanAndStdDeviationRecord result = new MeanAndStdDeviationRecord(10.5, 2.3);
-		when(hematologyAnalyticsService.calculateMeanAndStandardDeviation(any(), any(), any(),
-				any())).thenReturn(result);
+    @Test
+    @DisplayName("It should return mean and standard deviation for a date range")
+    void getMeanAndStandardDeviation_return_result() throws Exception {
+        MeanAndStdDeviationRecord result = new MeanAndStdDeviationRecord(10.5, 2.3);
+        when(hematologyAnalyticsService.calculateMeanAndStandardDeviation(any(), any(), any(),
+                                                                          any())).thenReturn(result);
 
-		mockMvc.perform(get("/hematology-analytics/mean-standard-deviation")
-				.param("name", "Hemoglobin").param("level", "High")
-				.param("startDate", "2025-01-01 00:00:00").param("endDate",
-								"2025-01-05 00:00:00"))
-				.andExpect(status().isOk());
-		verify(hematologyAnalyticsService, times(1))
-				.calculateMeanAndStandardDeviation(any(), any(),
-				any(), any());
-	}
+        mockMvc.perform(get("/hematology-analytics/mean-standard-deviation")
+                                .param("name", "Hemoglobin").param("level", "High")
+                                .param("startDate", "2025-01-01 00:00:00").param("endDate",
+                                                                                 "2025-01-05 00:00:00"))
+               .andExpect(status().isOk());
+        verify(hematologyAnalyticsService, times(1))
+                .calculateMeanAndStandardDeviation(any(), any(),
+                                                   any(), any());
+    }
 }

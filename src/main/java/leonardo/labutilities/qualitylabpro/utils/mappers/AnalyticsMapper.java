@@ -5,8 +5,10 @@ import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorCompon
 
 public class AnalyticsMapper {
     public static final RulesValidatorComponent rulesValidatorComponent = new RulesValidatorComponent();
+
     public static leonardo.labutilities.qualitylabpro.entities.Analytics toEntity(AnalyticsRecord record) {
-        leonardo.labutilities.qualitylabpro.entities.Analytics analytics = new leonardo.labutilities.qualitylabpro.entities.Analytics();
+        leonardo.labutilities.qualitylabpro.entities.Analytics analytics =
+                new leonardo.labutilities.qualitylabpro.entities.Analytics();
         analytics.setDate(record.date());
         analytics.setLevelLot(record.level_lot());
         analytics.setTestLot(record.test_lot());

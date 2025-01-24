@@ -1,17 +1,11 @@
 package leonardo.labutilities.qualitylabpro.repositories;
 
-import static leonardo.labutilities.qualitylabpro.utils.AnalyticsHelperMocks.createSampleRecord;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Transient;
-import leonardo.labutilities.qualitylabpro.constants.AvailableBiochemistryAnalytics;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
-
 import leonardo.labutilities.qualitylabpro.entities.Analytics;
 import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorComponent;
+import leonardo.labutilities.qualitylabpro.utils.constants.AvailableBiochemistryAnalytics;
 import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticsMapper;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,30 +23,35 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static leonardo.labutilities.qualitylabpro.utils.AnalyticsHelperMocks.createSampleRecord;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 class AnalyticsRepositoryTest {
 	@Autowired
-	AnalyticsRepository repository;
-	@Transient
-    final
-    RulesValidatorComponent rulesValidatorComponent = new RulesValidatorComponent();
+	private static final List<String> ANALYTICS_NAME_LIST =
+			new AvailableBiochemistryAnalytics().availableBioAnalytics();
 	@Transient
 	static Flyway flyway;
 	@Transient
-    final LocalDateTime testDate = LocalDateTime.of(2024, 12, 16, 7, 53);
+	final RulesValidatorComponent rulesValidatorComponent = new RulesValidatorComponent();
+	@Transient
+	final LocalDateTime testDate = LocalDateTime.of(2024, 12, 16, 7, 53);
+	@Autowired
+	AnalyticsRepository repository;
 	@Autowired
 	private EntityManager entityManager;
-	@Autowired
-	private static final List<String> ANALYTICS_NAME_LIST = new AvailableBiochemistryAnalytics().availableBioAnalytics();
-
 
 	@BeforeAll
 	static void setupDatabase(@Autowired Flyway flyway) {
 		flyway.clean();
 		flyway.migrate();
 	}
+
 	@BeforeEach
 	void setupTestData() {
 		Analytics analytics = new Analytics(createSampleRecord(), rulesValidatorComponent);
@@ -63,10 +62,11 @@ class AnalyticsRepositoryTest {
 	@DisplayName("Should find all Analytics by level")
 	void testFindAllByLevel() {
 		PageRequest pageable = PageRequest.of(0, 10);
-		List<AnalyticsRecord> results = repository
-				.findByNameInAndLevelAndDateBetween(ANALYTICS_NAME_LIST,
-						"PCCC1",testDate.minusDays(1), testDate.plusDays(1), pageable)
-				.stream().toList();
+		List<AnalyticsRecord> results =
+				repository
+						.findByNameInAndLevelAndDateBetween(ANALYTICS_NAME_LIST, "PCCC1",
+								testDate.minusDays(1), testDate.plusDays(1), pageable)
+						.stream().toList();
 		assertThat(results).isNotEmpty();
 		assertThat(results.getFirst().level()).isEqualTo("PCCC1");
 	}
@@ -77,11 +77,12 @@ class AnalyticsRepositoryTest {
 		repository.updateMeanByNameAndLevelAndLevelLot("ALB2", "PCCC1", "0774693", 3.25);
 		entityManager.clear();
 		Analytics analytics = repository
-				.findByNameAndLevelAndLevelLot
-						(PageRequest.of(0, 10), "ALB2", "PCCC1", "0774693").get(0);
+				.findByNameAndLevelAndLevelLot(PageRequest.of(0, 10), "ALB2", "PCCC1", "0774693")
+				.get(0);
 		System.out.println(analytics.getMean());
 		assertThat(analytics.getMean()).isEqualTo(3.25);
 	}
+
 	@Test
 	@DisplayName("Should find analytics by name when exists")
 	void testExistsByName() {
@@ -93,8 +94,8 @@ class AnalyticsRepositoryTest {
 	@DisplayName("Should find all analytics by name with pagination")
 	void testFindAllByName() {
 		PageRequest pageable = PageRequest.of(0, 10);
-		List<AnalyticsRecord> results = repository.findByName("ALB2", pageable)
-				.stream().map(AnalyticsMapper::toRecord).toList();
+		List<AnalyticsRecord> results = repository.findByName("ALB2", pageable).stream()
+				.map(AnalyticsMapper::toRecord).toList();
 		assertThat(results).isNotEmpty();
 		assertThat(results.getFirst().name()).isEqualTo("ALB2");
 	}
@@ -102,8 +103,7 @@ class AnalyticsRepositoryTest {
 	@Test
 	@DisplayName("Should verify existence by date, level and name")
 	void testExistsByDateAndLevelAndName() {
-		boolean exists =
-				repository.existsByDateAndLevelAndName(testDate, "PCCC1", "ALB2");
+		boolean exists = repository.existsByDateAndLevelAndName(testDate, "PCCC1", "ALB2");
 
 		assertTrue(exists);
 	}
@@ -113,9 +113,8 @@ class AnalyticsRepositoryTest {
 	void testFindAllByNameAndLevel() {
 		PageRequest pageable = PageRequest.of(0, 10);
 
-		List<AnalyticsRecord> results =
-				repository.findByNameAndLevel(pageable, "ALB2", "PCCC1")
-						.stream().map(AnalyticsMapper::toRecord).toList();
+		List<AnalyticsRecord> results = repository.findByNameAndLevel(pageable, "ALB2", "PCCC1")
+				.stream().map(AnalyticsMapper::toRecord).toList();
 
 		assertThat(results).isNotEmpty();
 		assertThat(results.getFirst().name()).isEqualTo("ALB2");
@@ -142,8 +141,8 @@ class AnalyticsRepositoryTest {
 		List<String> names = List.of("ALB2");
 		PageRequest pageable = PageRequest.of(0, 10);
 
-		List<AnalyticsRecord> results = repository.findByNameIn(names, pageable)
-				.stream().map(AnalyticsMapper::toRecord).toList();
+		List<AnalyticsRecord> results = repository.findByNameIn(names, pageable).stream()
+				.map(AnalyticsMapper::toRecord).toList();
 
 		assertThat(results).isNotEmpty();
 		assertThat(results.getFirst().name()).isEqualTo("ALB2");
@@ -155,8 +154,9 @@ class AnalyticsRepositoryTest {
 		setupTestData();
 		PageRequest pageable = PageRequest.of(0, 10);
 
-		List<AnalyticsRecord> results = repository.findByNameAndLevelAndDateBetween(
-				"ALB2", "PCCC1", testDate.minusDays(1), testDate.plusDays(1), pageable)
+		List<AnalyticsRecord> results = repository
+				.findByNameAndLevelAndDateBetween("ALB2", "PCCC1", testDate.minusDays(1),
+						testDate.plusDays(1), pageable)
 				.stream().map(AnalyticsMapper::toRecord).toList();
 
 		assertThat(results).isNotEmpty();
@@ -169,9 +169,8 @@ class AnalyticsRepositoryTest {
 	void testFindAllByDateBetween() {
 		setupTestData();
 		List<AnalyticsRecord> results =
-				repository
-						.findByDateBetween(testDate.minusDays(1), testDate.plusDays(1))
-						.stream().map(AnalyticsMapper::toRecord).toList();
+				repository.findByDateBetween(testDate.minusDays(1), testDate.plusDays(1)).stream()
+						.map(AnalyticsMapper::toRecord).toList();
 		assertThat(results).isNotEmpty();
 	}
 
@@ -181,8 +180,9 @@ class AnalyticsRepositoryTest {
 		setupTestData();
 		PageRequest pageable = PageRequest.of(0, 10);
 
-		List<AnalyticsRecord> results = repository.findByNameAndDateBetweenGroupByLevel(
-				"ALB2", testDate.minusDays(1), testDate.plusDays(1), pageable)
+		List<AnalyticsRecord> results = repository
+				.findByNameAndDateBetweenGroupByLevel("ALB2", testDate.minusDays(1),
+						testDate.plusDays(1), pageable)
 				.stream().map(AnalyticsMapper::toRecord).toList();
 
 		assertThat(results).isNotEmpty();

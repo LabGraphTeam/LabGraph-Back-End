@@ -38,115 +38,116 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureJsonTesters
 @ActiveProfiles("test")
 public class BiochemistryAnalyticsControllerTest {
-	@Autowired
-	private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-	@MockitoBean
-	private TokenService tokenService;
+    @MockitoBean
+    private TokenService tokenService;
 
-	@MockitoBean
-	private UserRepository userRepository;
+    @MockitoBean
+    private UserRepository userRepository;
 
-	@MockitoBean
-	private BiochemistryAnalyticsService biochemistryAnalyticsService;
+    @MockitoBean
+    private BiochemistryAnalyticsService biochemistryAnalyticsService;
 
-	@Autowired
-	private JacksonTester<List<AnalyticsRecord>> jacksonGenericValuesRecord;
+    @Autowired
+    private JacksonTester<List<AnalyticsRecord>> jacksonGenericValuesRecord;
 
-	@Autowired
-	private JacksonTester<UpdateAnalyticsMeanRecord> jacksonUpdateAnalyticsMeanRecord;
+    @Autowired
+    private JacksonTester<UpdateAnalyticsMeanRecord> jacksonUpdateAnalyticsMeanRecord;
 
-	@Test
-	@DisplayName("It should return a list of all analytics by level")
-	void getAllAnalytics_by_level_return_list() throws Exception {
-		List<AnalyticsRecord> records = createSampleRecordList();
-		Page<AnalyticsRecord> page = new PageImpl<>(records);
+    @Test
+    @DisplayName("It should return a list of all analytics by level")
+    void getAllAnalytics_by_level_return_list() throws Exception {
+        List<AnalyticsRecord> records = createSampleRecordList();
+        Page<AnalyticsRecord> page = new PageImpl<>(records);
 
-		when(biochemistryAnalyticsService.findAnalyticsByNameInByLevel(anyList(), any(), any(), any(), any(Pageable.class)))
-				.thenReturn(page);
+        when(biochemistryAnalyticsService.findAnalyticsByNameInByLevel(anyList(), any(), any(), any(),
+                                                                       any(Pageable.class)))
+                .thenReturn(page);
 
-		mockMvc.perform(get("/biochemistry-analytics/level-date-range")
-						.param("level", "PCCC1")
-						.param("startDate", "2025-01-01 00:00:00")
-						.param("endDate", "2025-01-05 00:00:00"))
-				.andExpect(status().isOk());
+        mockMvc.perform(get("/biochemistry-analytics/level-date-range")
+                                .param("level", "PCCC1")
+                                .param("startDate", "2025-01-01 00:00:00")
+                                .param("endDate", "2025-01-05 00:00:00"))
+               .andExpect(status().isOk());
 
-		verify(biochemistryAnalyticsService, times(1))
-				.findAnalyticsByNameInByLevel(anyList(),any(), any(),any(), any(Pageable.class));
-	}
+        verify(biochemistryAnalyticsService, times(1))
+                .findAnalyticsByNameInByLevel(anyList(), any(), any(), any(), any(Pageable.class));
+    }
 
-	@Test
-	@DisplayName("It should return HTTP code 201 when analytics records are saved")
-	void analytics_post_return_201() throws Exception {
-		List<AnalyticsRecord> records = createSampleRecordList();
-		mockMvc.perform(post("/biochemistry-analytics").contentType(MediaType.APPLICATION_JSON)
-				.content(jacksonGenericValuesRecord.write(records).getJson()))
-				.andExpect(status().isCreated());
-		verify(biochemistryAnalyticsService, times(1)).saveNewAnalyticsRecords(anyList());
-	}
+    @Test
+    @DisplayName("It should return HTTP code 201 when analytics records are saved")
+    void analytics_post_return_201() throws Exception {
+        List<AnalyticsRecord> records = createSampleRecordList();
+        mockMvc.perform(post("/biochemistry-analytics").contentType(MediaType.APPLICATION_JSON)
+                                                       .content(jacksonGenericValuesRecord.write(records).getJson()))
+               .andExpect(status().isCreated());
+        verify(biochemistryAnalyticsService, times(1)).saveNewAnalyticsRecords(anyList());
+    }
 
-	@Test
-	@DisplayName("It should return HTTP code 204 when analytics records are updated")
-	void analytics_put_return_204() throws Exception {
-		var mockDto = new UpdateAnalyticsMeanRecord("Glucose", "PCCC1", "1234", 10.5);
-		mockMvc.perform(patch("/biochemistry-analytics").contentType(MediaType.APPLICATION_JSON)
-				.content(jacksonUpdateAnalyticsMeanRecord.write(mockDto).getJson()))
-				.andExpect(status().isNoContent());
-		verify(biochemistryAnalyticsService, times(1))
-				.updateAnalyticsMeanByNameAndLevelAndLevelLot("Glucose", "PCCC1", "1234", 10.5);
-	}
+    @Test
+    @DisplayName("It should return HTTP code 204 when analytics records are updated")
+    void analytics_put_return_204() throws Exception {
+        var mockDto = new UpdateAnalyticsMeanRecord("Glucose", "PCCC1", "1234", 10.5);
+        mockMvc.perform(patch("/biochemistry-analytics").contentType(MediaType.APPLICATION_JSON)
+                                                        .content(jacksonUpdateAnalyticsMeanRecord.write(mockDto).getJson()))
+               .andExpect(status().isNoContent());
+        verify(biochemistryAnalyticsService, times(1))
+                .updateAnalyticsMeanByNameAndLevelAndLevelLot("Glucose", "PCCC1", "1234", 10.5);
+    }
 
-	@Test
-	@DisplayName("It should return a list of all analytics with pagination")
-	void getAllAnalytics_return_list() throws Exception {
-		List<AnalyticsRecord> records = createSampleRecordList();
-		Page<AnalyticsRecord> page = new PageImpl<>(records);
+    @Test
+    @DisplayName("It should return a list of all analytics with pagination")
+    void getAllAnalytics_return_list() throws Exception {
+        List<AnalyticsRecord> records = createSampleRecordList();
+        Page<AnalyticsRecord> page = new PageImpl<>(records);
 
-		when(biochemistryAnalyticsService.findAnalyticsPagedByNameIn(anyList(), any(Pageable.class)))
-				.thenReturn(page);
+        when(biochemistryAnalyticsService.findAnalyticsPagedByNameIn(anyList(), any(Pageable.class)))
+                .thenReturn(page);
 
-		mockMvc.perform(get("/biochemistry-analytics")
-						.param("page", "0")
-						.param("size", "10"))
-				.andExpect(status().isOk());
+        mockMvc.perform(get("/biochemistry-analytics")
+                                .param("page", "0")
+                                .param("size", "10"))
+               .andExpect(status().isOk());
 
-		verify(biochemistryAnalyticsService, times(1))
-				.findAnalyticsPagedByNameIn(anyList(), any(Pageable.class));
-	}
+        verify(biochemistryAnalyticsService, times(1))
+                .findAnalyticsPagedByNameIn(anyList(), any(Pageable.class));
+    }
 
 
-	@Test
-	@DisplayName("It should return analytics records for a date range")
-	@WithMockUser(username = "admin", roles = {"ADMIN"})
-	void getAnalyticsByDateRange_return_analytics() throws Exception {
-		Page<AnalyticsRecord> records = new PageImpl<>(createSampleRecordList());
+    @Test
+    @DisplayName("It should return analytics records for a date range")
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAnalyticsByDateRange_return_analytics() throws Exception {
+        Page<AnalyticsRecord> records = new PageImpl<>(createSampleRecordList());
 
-		when(biochemistryAnalyticsService.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any()))
-				.thenReturn(records);
+        when(biochemistryAnalyticsService.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any()))
+                .thenReturn(records);
 
-		mockMvc.perform(get("/biochemistry-analytics/date-range")
-				.param("startDate", "2025-01-01 00:00:00").param("endDate",
-								"2025-01-05 00:00:00"))
-				.andExpect(status().isOk());
+        mockMvc.perform(get("/biochemistry-analytics/date-range")
+                                .param("startDate", "2025-01-01 00:00:00").param("endDate",
+                                                                                 "2025-01-05 00:00:00"))
+               .andExpect(status().isOk());
 
-		verify(biochemistryAnalyticsService, times(1))
-				.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any());
-	}
+        verify(biochemistryAnalyticsService, times(1))
+                .findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any());
+    }
 
-	@Test
-	@DisplayName("It should return mean and standard deviation for a date range")
-	@WithMockUser(username = "admin", roles = {"ADMIN"})
-	void getMeanAndStandardDeviation_return_result() throws Exception {
-		MeanAndStdDeviationRecord result = new MeanAndStdDeviationRecord(10.5, 2.3);
-		when(biochemistryAnalyticsService.calculateMeanAndStandardDeviation(any(), any(), any(),
-				any())).thenReturn(result);
+    @Test
+    @DisplayName("It should return mean and standard deviation for a date range")
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getMeanAndStandardDeviation_return_result() throws Exception {
+        MeanAndStdDeviationRecord result = new MeanAndStdDeviationRecord(10.5, 2.3);
+        when(biochemistryAnalyticsService.calculateMeanAndStandardDeviation(any(), any(), any(),
+                                                                            any())).thenReturn(result);
 
-		mockMvc.perform(get("/biochemistry-analytics/mean-standard-deviation")
-				.param("name", "Hemoglobin").param("level", "High")
-				.param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00"))
-				.andExpect(status().isOk());
+        mockMvc.perform(get("/biochemistry-analytics/mean-standard-deviation")
+                                .param("name", "Hemoglobin").param("level", "High")
+                                .param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00"))
+               .andExpect(status().isOk());
 
-		verify(biochemistryAnalyticsService, times(1)).calculateMeanAndStandardDeviation(any(),
-				any(), any(), any());
-	}
+        verify(biochemistryAnalyticsService, times(1)).calculateMeanAndStandardDeviation(any(),
+                                                                                         any(), any(), any());
+    }
 }

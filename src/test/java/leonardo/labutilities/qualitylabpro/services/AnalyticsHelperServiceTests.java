@@ -1,6 +1,5 @@
 package leonardo.labutilities.qualitylabpro.services;
 
-import leonardo.labutilities.qualitylabpro.constants.AvailableBiochemistryAnalytics;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedValuesByLevel;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanRecord;
@@ -8,7 +7,9 @@ import leonardo.labutilities.qualitylabpro.entities.Analytics;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticsHelperService;
 import leonardo.labutilities.qualitylabpro.services.email.EmailService;
+import leonardo.labutilities.qualitylabpro.utils.components.ControlRulesValidators;
 import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorComponent;
+import leonardo.labutilities.qualitylabpro.utils.constants.AvailableBiochemistryAnalytics;
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticsMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,66 +32,72 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AnalyticsHelperServiceTests {
 
+	private static final List<String> ANALYTICS_NAME_LIST =
+			new AvailableBiochemistryAnalytics().availableBioAnalytics();
 	@Mock
 	private AnalyticsRepository analyticsRepository;
-
 	@Mock
 	private AnalyticsHelperService analyticsHelperService;
-
 	@Mock
 	private EmailService emailService;
-
-	private static final List<String> ANALYTICS_NAME_LIST = new AvailableBiochemistryAnalytics().availableBioAnalytics();
+	@Mock
+	private ControlRulesValidators controlRulesValidators;
 
 	@BeforeEach
 	void setUp() {
 		try (AutoCloseable closeable = MockitoAnnotations.openMocks(this)) {
-			analyticsHelperService =
-					new AnalyticsHelperService(analyticsRepository, emailService) {
+			analyticsHelperService = new AnalyticsHelperService(analyticsRepository, emailService,
+					controlRulesValidators) {
 
-						@Override
-						public List<AnalyticsRecord> findAnalyticsByNameAndLevel
-								(Pageable pageable, String name, String level) {
-							return analyticsRepository.findByNameAndLevel(pageable, name,
-									level).stream().map(AnalyticsMapper::toRecord).toList();
-						}
+				@Override
+				public List<AnalyticsRecord> findAnalyticsByNameAndLevel(Pageable pageable,
+						String name, String level) {
+					return analyticsRepository.findByNameAndLevel(pageable, name, level).stream()
+							.map(AnalyticsMapper::toRecord).toList();
+				}
 
-						@Override
-						public List<AnalyticsRecord> findAnalyticsByNameAndLevelAndDate(
-								String name, String level, LocalDateTime dateStart,
-								LocalDateTime dateEnd) {
-							return analyticsRepository.findByNameAndLevelAndDateBetween(name,
-											level, dateStart, dateEnd, PageRequest.of(0, 200))
-									.stream().map(AnalyticsMapper::toRecord).toList();
-						}
-					};
+				@Override
+				public List<AnalyticsRecord> findAnalyticsByNameAndLevelAndDate(String name,
+						String level, LocalDateTime dateStart, LocalDateTime dateEnd) {
+					return analyticsRepository
+							.findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd,
+									PageRequest.of(0, 200))
+							.stream().map(AnalyticsMapper::toRecord).toList();
+				}
+			};
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to initialize mocks", e);
 		}
 	}
 
-//	@Test
-//	public void findAllAnalyticsByLevel() {
-//		var mockPageable = PageRequest.of(0, 10);
-//		var mockLevel = "PCCC1";
-//		var mockList = ANALYTICS_NAME_LIST;
-//		LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
-//		LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
-//
-//		List<Analytics> expectedRecords = createDateRangeRecords().stream().map(AnalyticsMapper::toEntity).toList();
-//		Page<Ana>
-//		when(analyticsRepository.findByNameInAndLevelAndDateBetween(mockList, mockLevel, startDate, endDate, mockPageable))
-//				.thenReturn(expectedRecords);
-//
-//		analyticsHelperService.findAnalyticsByNameInByLevelBaseMethod(mockList, mockLevel, startDate, endDate, mockPageable);
-//		verify(analyticsRepository).findByNameInAndLevelAndDateBetween(mockList, mockLevel, startDate, endDate, mockPageable);
-//	}
+	// @Test
+	// public void findAllAnalyticsByLevel() {
+	// var mockPageable = PageRequest.of(0, 10);
+	// var mockLevel = "PCCC1";
+	// var mockList = ANALYTICS_NAME_LIST;
+	// LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
+	// LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
+	//
+	// List<Analytics> expectedRecords =
+	// createDateRangeRecords().stream().map(AnalyticsMapper::toEntity).toList();
+	// Page<Ana>
+	// when(analyticsRepository.findByNameInAndLevelAndDateBetween(mockList, mockLevel, startDate,
+	// endDate, mockPageable))
+	// .thenReturn(expectedRecords);
+	//
+	// analyticsHelperService.findAnalyticsByNameInByLevelBaseMethod(mockList, mockLevel, startDate,
+	// endDate, mockPageable);
+	// verify(analyticsRepository).findByNameInAndLevelAndDateBetween(mockList, mockLevel,
+	// startDate, endDate, mockPageable);
+	// }
 
 	@Test
 	public void updateAnalyticsMean() {
 		var mockDto = new UpdateAnalyticsMeanRecord("Glucose", "PCCC1", "076587", 1.0);
-		analyticsHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(mockDto.name(), mockDto.level(), mockDto.levelLot(), mockDto.mean());
-		verify(analyticsRepository).updateMeanByNameAndLevelAndLevelLot(mockDto.name(), mockDto.level(), mockDto.levelLot(), mockDto.mean());
+		analyticsHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(mockDto.name(),
+				mockDto.level(), mockDto.levelLot(), mockDto.mean());
+		verify(analyticsRepository).updateMeanByNameAndLevelAndLevelLot(mockDto.name(),
+				mockDto.level(), mockDto.levelLot(), mockDto.mean());
 	}
 
 	@Test
@@ -105,8 +112,10 @@ class AnalyticsHelperServiceTests {
 
 		// Assert: validate the rules generated by the component
 		assertEquals(records.stream().map(AnalyticsRecord::rules).toList(),
-				analytics.stream().map(Analytics::getRules).toList(),
-				"The rules processed by the RulesValidatorComponent should match the input rules");
+				analytics.stream().map(Analytics::getRules).toList(), """
+						The rules processed by the \
+						RulesValidatorComponent should match the input\
+						 rules""");
 	}
 
 	@Test
@@ -123,8 +132,7 @@ class AnalyticsHelperServiceTests {
 	@Test
 	void saveNewAnalyticsRecords_WithDuplicateRecords_ShouldThrowException() {
 		List<AnalyticsRecord> records = createSampleRecordList();
-		when(analyticsRepository.existsByDateAndLevelAndName(any(), any(), any()))
-				.thenReturn(true);
+		when(analyticsRepository.existsByDateAndLevelAndName(any(), any(), any())).thenReturn(true);
 
 		assertThrows(CustomGlobalErrorHandling.DataIntegrityViolationException.class,
 				() -> analyticsHelperService.saveNewAnalyticsRecords(records));
@@ -158,8 +166,8 @@ class AnalyticsHelperServiceTests {
 		String level = "Normal";
 		Pageable pageable = PageRequest.of(0, 10);
 		List<Analytics> expectedRecords = createSampleRecordList().stream()
-				.filter(r -> r.name().equals(name) && r.level().equals(level)).toList()
-				.stream().map(AnalyticsMapper::toEntity).toList();
+				.filter(r -> r.name().equals(name) && r.level().equals(level)).toList().stream()
+				.map(AnalyticsMapper::toEntity).toList();
 
 		when(analyticsRepository.findByNameAndLevel(pageable, name, level))
 				.thenReturn(expectedRecords);
@@ -177,7 +185,8 @@ class AnalyticsHelperServiceTests {
 		String level = "Normal";
 		LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
 		LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
-		List<Analytics> expectedRecords = createDateRangeRecords().stream().map(AnalyticsMapper::toEntity).toList();
+		List<Analytics> expectedRecords =
+				createDateRangeRecords().stream().map(AnalyticsMapper::toEntity).toList();
 
 		when(analyticsRepository.findByNameAndLevelAndDateBetween(eq(name), eq(level),
 				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(expectedRecords);
@@ -266,17 +275,18 @@ class AnalyticsHelperServiceTests {
 		String name = "Glucose";
 		LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
 		LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
-		List<Analytics> records = createSampleRecordList().stream().map(AnalyticsMapper::toEntity).toList();
+		List<Analytics> records =
+				createSampleRecordList().stream().map(AnalyticsMapper::toEntity).toList();
 
-		when(analyticsRepository.findByNameAndDateBetweenGroupByLevel(eq(name),
-				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(records);
+		when(analyticsRepository.findByNameAndDateBetweenGroupByLevel(eq(name), eq(startDate),
+				eq(endDate), any(Pageable.class))).thenReturn(records);
 
 		List<GroupedValuesByLevel> result =
 				analyticsHelperService.findGroupedAnalyticsByLevel(name, startDate, endDate);
 
 		assertNotNull(result);
 		assertFalse(result.isEmpty());
-		verify(analyticsRepository).findByNameAndDateBetweenGroupByLevel(eq(name),
-				eq(startDate), eq(endDate), any(Pageable.class));
+		verify(analyticsRepository).findByNameAndDateBetweenGroupByLevel(eq(name), eq(startDate),
+				eq(endDate), any(Pageable.class));
 	}
 }
