@@ -8,6 +8,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 class ControlApplicationTests {
 
-	@Test
-	void contextLoads() {}
+    @Test
+    void contextLoads() {
+    }
 }

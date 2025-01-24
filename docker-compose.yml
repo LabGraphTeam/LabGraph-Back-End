@@ -30,10 +30,11 @@ services:
       API_SECURITY_ISSUER: ${API_SECURITY_ISSUER}
       SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
       SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
-    command: ["java", "-jar", "-Dspring.profiles.active=prod", "app.jar"]
+      EMAIL_TO_SEND_LIST: ${EMAIL_TO_SEND_LIST}
+    command: [ "java", "-jar", "-Dspring.profiles.active=prod", "app.jar" ]
     networks:
       - qualitylab-net
-  
+
   nginx:
     restart: always
     image: nginx:latest

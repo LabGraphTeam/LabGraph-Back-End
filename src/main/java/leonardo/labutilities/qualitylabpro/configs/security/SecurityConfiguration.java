@@ -21,67 +21,67 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-	private final SecurityFilter securityFilter;
+    private final SecurityFilter securityFilter;
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		return http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults())
-				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(req -> {
-					// Public endpoints
-					req.requestMatchers(HttpMethod.POST, "/users/sign-in").permitAll();
-					req.requestMatchers(HttpMethod.POST, "/users/sign-up").permitAll();
-					req.requestMatchers(HttpMethod.POST, "/hematology-analytics/**").permitAll();
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults())
+                   .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                   .authorizeHttpRequests(req -> {
+                       // Public endpoints
+                       req.requestMatchers(HttpMethod.POST, "/users/sign-in").permitAll();
+                       req.requestMatchers(HttpMethod.POST, "/users/sign-up").permitAll();
+                       req.requestMatchers(HttpMethod.POST, "/hematology-analytics/**").permitAll();
 
-					// Swagger/OpenAPI endpoints
-					req.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
-							.permitAll();
+                       // Swagger/OpenAPI endpoints
+                       req.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
+                          .permitAll();
 
-					// Admin-only endpoints
-					req.requestMatchers(HttpMethod.DELETE, "/generic-analytics/**")
-							.hasRole("ADMIN");
-					req.requestMatchers(HttpMethod.DELETE, "/biochemistry-analytics/**")
-							.hasRole("ADMIN");
-					req.requestMatchers(HttpMethod.DELETE, "/hematology-analytics/**")
-							.hasRole("ADMIN");
-					req.requestMatchers(HttpMethod.DELETE, "/coagulation-analytics/**")
-							.hasRole("ADMIN");
+                       // Admin-only endpoints
+                       req.requestMatchers(HttpMethod.DELETE, "/generic-analytics/**")
+                          .hasRole("ADMIN");
+                       req.requestMatchers(HttpMethod.DELETE, "/biochemistry-analytics/**")
+                          .hasRole("ADMIN");
+                       req.requestMatchers(HttpMethod.DELETE, "/hematology-analytics/**")
+                          .hasRole("ADMIN");
+                       req.requestMatchers(HttpMethod.DELETE, "/coagulation-analytics/**")
+                          .hasRole("ADMIN");
 
-					// Add PUT and PATCH restrictions for admin
-					req.requestMatchers(HttpMethod.PUT, "/generic-analytics/**").hasRole("ADMIN");
+                       // Add PUT and PATCH restrictions for admin
+                       req.requestMatchers(HttpMethod.PUT, "/generic-analytics/**").hasRole("ADMIN");
 
-					req.requestMatchers(HttpMethod.PUT, "/biochemistry-analytics/**")
-							.hasRole("ADMIN");
-					req.requestMatchers(HttpMethod.PUT, "/hematology-analytics/**")
-							.hasRole("ADMIN");
-					req.requestMatchers(HttpMethod.PUT, "/coagulation-analytics/**")
-							.hasRole("ADMIN");
+                       req.requestMatchers(HttpMethod.PUT, "/biochemistry-analytics/**")
+                          .hasRole("ADMIN");
+                       req.requestMatchers(HttpMethod.PUT, "/hematology-analytics/**")
+                          .hasRole("ADMIN");
+                       req.requestMatchers(HttpMethod.PUT, "/coagulation-analytics/**")
+                          .hasRole("ADMIN");
 
-					req.requestMatchers(HttpMethod.PATCH, "/generic-analytics/**").hasRole("ADMIN");
+                       req.requestMatchers(HttpMethod.PATCH, "/generic-analytics/**").hasRole("ADMIN");
 
-					req.requestMatchers(HttpMethod.PATCH, "/biochemistry-analytics/**")
-							.hasRole("ADMIN");
-					req.requestMatchers(HttpMethod.PATCH, "/hematology-analytics/**")
-							.hasRole("ADMIN");
-					req.requestMatchers(HttpMethod.PATCH, "/coagulation-analytics/**")
-							.hasRole("ADMIN");
+                       req.requestMatchers(HttpMethod.PATCH, "/biochemistry-analytics/**")
+                          .hasRole("ADMIN");
+                       req.requestMatchers(HttpMethod.PATCH, "/hematology-analytics/**")
+                          .hasRole("ADMIN");
+                       req.requestMatchers(HttpMethod.PATCH, "/coagulation-analytics/**")
+                          .hasRole("ADMIN");
 
-					req.requestMatchers(HttpMethod.DELETE, "/users/**");
+                       req.requestMatchers(HttpMethod.DELETE, "/users/**");
 
-					// All other endpoints require authentication
-					req.anyRequest().permitAll();
-				}).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-				.build();
-	}
+                       // All other endpoints require authentication
+                       req.anyRequest().authenticated();
+                   }).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                   .build();
+    }
 
-	@Bean
-	public AuthenticationManager authMenager(AuthenticationConfiguration configuration)
-			throws Exception {
-		return configuration.getAuthenticationManager();
-	}
+    @Bean
+    public AuthenticationManager authMenager(AuthenticationConfiguration configuration)
+            throws Exception {
+        return configuration.getAuthenticationManager();
+    }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }

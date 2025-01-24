@@ -17,7 +17,7 @@ services:
   quality-lab-pro:
     restart: on-failure
     build:
-      context: ./ 
+      context: ./
       dockerfile: Dockerfile
     working_dir: /usr/src/app
     container_name: quality-lab-pro

@@ -10,24 +10,24 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-	UserDetails findByUsername(String userName);
+    UserDetails findByUsername(String userName);
 
-	UserDetails getReferenceByUsernameAndEmail(String userName, String Email);
+    UserDetails getReferenceByUsernameAndEmail(String userName, String Email);
 
-	boolean existsByUsernameAndEmail(String userName, String Email);
+    boolean existsByUsernameAndEmail(String userName, String Email);
 
-	@Transactional
-	@Modifying
-	@Query("UPDATE users u SET u.password = ?2 WHERE u.username = ?1")
-	void setPasswordWhereByUsername(String username, String newPassword);
+    @Transactional
+    @Modifying
+    @Query("UPDATE users u SET u.password = ?2 WHERE u.username = ?1")
+    void setPasswordWhereByUsername(String username, String newPassword);
 
-	@Transactional
-	@Modifying
-	@Query("UPDATE users u SET u.password = ?2 WHERE u.email = ?1")
-	void setPasswordWhereByEmail(String email, String newPassword);
+    @Transactional
+    @Modifying
+    @Query("UPDATE users u SET u.password = ?2 WHERE u.email = ?1")
+    void setPasswordWhereByEmail(String email, String newPassword);
 
 
-	boolean existsByUsername(String name);
+    boolean existsByUsername(String name);
 
-	boolean existsByEmail(String email);
+    boolean existsByEmail(String email);
 }

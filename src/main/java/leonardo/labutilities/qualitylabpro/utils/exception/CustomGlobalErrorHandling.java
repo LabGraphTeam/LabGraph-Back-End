@@ -1,8 +1,7 @@
 package leonardo.labutilities.qualitylabpro.utils.exception;
 
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,118 +12,122 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
 public class CustomGlobalErrorHandling extends RuntimeException {
 
-	@ExceptionHandler(MethodArgumentNotValidException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex,
-			HttpServletRequest request) {
-		Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
-				.collect(Collectors.toMap(FieldError::getField,
-						error -> error.getDefaultMessage() != null ? error.getDefaultMessage()
-								: "invalid args"));
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex,
+                                                               HttpServletRequest request) {
+        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
+                                       .collect(Collectors.toMap(FieldError::getField,
+                                                                 error -> error.getDefaultMessage() != null ?
+                                                                          error.getDefaultMessage()
+                                                                                                            :
+                                                                          "invalid args"));
 
-		ApiError apiError =
-				new ApiError(HttpStatus.BAD_REQUEST, "Validation failed", request.getRequestURI());
-		apiError.addValidationErrors(errors);
+        ApiError apiError =
+                new ApiError(HttpStatus.BAD_REQUEST, "Validation failed", request.getRequestURI());
+        apiError.addValidationErrors(errors);
 
-		log.error("Validation failed for request to {}: {}", request.getRequestURI(), errors);
-		return ResponseEntity.badRequest().body(apiError);
-	}
+        log.error("Validation failed for request to {}: {}", request.getRequestURI(), errors);
+        return ResponseEntity.badRequest().body(apiError);
+    }
 
-	@ExceptionHandler({ResourceNotFoundException.class})
-	@ResponseStatus(HttpStatus.NOT_FOUND)
-	public ResponseEntity<ApiError> handleNotFound(Exception ex, HttpServletRequest request) {
-		ApiError apiError =
-				new ApiError(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
+    @ExceptionHandler({ResourceNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ApiError> handleNotFound(Exception ex, HttpServletRequest request) {
+        ApiError apiError =
+                new ApiError(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
 
-		log.error("Resource not found at {}: {}", request.getRequestURI(), ex.getMessage());
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
-	}
+        log.error("Resource not found at {}: {}", request.getRequestURI(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+    }
 
-	@ExceptionHandler({BadCredentialsException.class, PasswordNotMatchesException.class})
-	@ResponseStatus(HttpStatus.UNAUTHORIZED)
-	public ResponseEntity<ApiError> handleAuthenticationErrors(Exception ex,
-			HttpServletRequest request) {
-		ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, "Authentication failed or Username and Password not accepted.",
-				request.getRequestURI());
+    @ExceptionHandler({BadCredentialsException.class, PasswordNotMatchesException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<ApiError> handleAuthenticationErrors(Exception ex,
+                                                               HttpServletRequest request) {
+        ApiError apiError =
+                new ApiError(HttpStatus.UNAUTHORIZED, "Authentication failed or Username and Password not accepted.",
+                             request.getRequestURI());
 
-		log.error("Authentication failed or Username and Password not accepted. at {}", request.getRequestURI());
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
-	}
+        log.error("Authentication failed or Username and Password not accepted. at {}", request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+    }
 
-	@ExceptionHandler(AccessDeniedException.class)
-	@ResponseStatus(HttpStatus.FORBIDDEN)
-	public ResponseEntity<ApiError> handleAccessDenied(HttpServletRequest request) {
-		ApiError apiError =
-				new ApiError(HttpStatus.FORBIDDEN, "Access denied", request.getRequestURI());
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<ApiError> handleAccessDenied(HttpServletRequest request) {
+        ApiError apiError =
+                new ApiError(HttpStatus.FORBIDDEN, "Access denied", request.getRequestURI());
 
-		log.error("Access denied at {}", request.getRequestURI());
-		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
-	}
+        log.error("Access denied at {}", request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
+    }
 
-	@ExceptionHandler(UserAlreadyExistException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public ResponseEntity<ApiError> handleUserAllReadyExist(UserAlreadyExistException ex,
-			HttpServletRequest request) {
-		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Username or Email are invalids or already exists",
-				request.getRequestURI());
+    @ExceptionHandler(UserAlreadyExistException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> handleUserAllReadyExist(UserAlreadyExistException ex,
+                                                            HttpServletRequest request) {
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Username or Email are invalids or already exists",
+                                         request.getRequestURI());
 
-		log.error("Username or Email are invalids or already exists at {}: {}", request.getRequestURI(),
-				ex.getMessage());
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
-	}
+        log.error("Username or Email are invalids or already exists at {}: {}", request.getRequestURI(),
+                  ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+    }
 
-	@ExceptionHandler(DataIntegrityViolationException.class)
-	@ResponseStatus(HttpStatus.CONFLICT)
-	public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex,
-			HttpServletRequest request) {
-		ApiError apiError = new ApiError(HttpStatus.CONFLICT,
-				"Data integrity violation - the value already exists", request.getRequestURI());
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex,
+                                                                 HttpServletRequest request) {
+        ApiError apiError = new ApiError(HttpStatus.CONFLICT,
+                                         "Data integrity violation - the value already exists",
+                                         request.getRequestURI());
 
-		log.error("Data integrity violation at {}: {}", request.getRequestURI(), ex.getMessage());
-		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
-	}
+        log.error("Data integrity violation at {}: {}", request.getRequestURI(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+    }
 
-	@ExceptionHandler(Exception.class)
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	public ResponseEntity<ApiError> handleAllUncaughtException(Exception ex,
-			HttpServletRequest request) {
-		ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR,
-				"An unexpected error occurred", request.getRequestURI());
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<ApiError> handleAllUncaughtException(Exception ex,
+                                                               HttpServletRequest request) {
+        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR,
+                                         "An unexpected error occurred", request.getRequestURI());
 
-		log.error("Unexpected error occurred at {}: {}", request.getRequestURI(), ex.getMessage(),
-				ex);
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
-	}
+        log.error("Unexpected error occurred at {}: {}", request.getRequestURI(), ex.getMessage(),
+                  ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
+    }
 
-	// Exception classes
-	public static class ResourceNotFoundException extends RuntimeException {
-		public ResourceNotFoundException(String message) {
-			super(message);
-		}
-	}
+    // Exception classes
+    public static class ResourceNotFoundException extends RuntimeException {
+        public ResourceNotFoundException(String message) {
+            super(message);
+        }
+    }
 
-	public static class PasswordNotMatchesException extends RuntimeException {
-		public PasswordNotMatchesException() {
-			super();
-		}
-	}
+    public static class PasswordNotMatchesException extends RuntimeException {
+        public PasswordNotMatchesException() {
+            super();
+        }
+    }
 
-	public static class DataIntegrityViolationException extends RuntimeException {
-		public DataIntegrityViolationException() {
-			super();
-		}
-	}
+    public static class DataIntegrityViolationException extends RuntimeException {
+        public DataIntegrityViolationException() {
+            super();
+        }
+    }
 
-	public static class UserAlreadyExistException extends RuntimeException {
-		public UserAlreadyExistException() {
-			super();
-		}
-	}
+    public static class UserAlreadyExistException extends RuntimeException {
+        public UserAlreadyExistException() {
+            super();
+        }
+    }
 }
