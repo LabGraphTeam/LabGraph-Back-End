@@ -1,6 +1,5 @@
 package leonardo.labutilities.qualitylabpro.services.email;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
@@ -30,12 +29,11 @@ import static leonardo.labutilities.qualitylabpro.utils.constants.EmailTemplate.
 @Service
 public class EmailService {
 	private final JavaMailSender javaMailSender;
-	Dotenv dotenv = Dotenv.load();
 
 	@Value("${spring.mail.username}")
 	String emailFrom;
 
-	@Value("${email.to.send.list:}")
+	@Value("${email.to.send.list}")
 	String emailListString;
 
 
