@@ -133,13 +133,11 @@ public class EmailService {
 
 	public String generateAnalyticsFailedEmailBody(List<AnalyticsRecord> notPassedList,
 			String otherValidations) {
-		String formattedList = notPassedList.stream()
-				.map(record -> String.format(
-						"<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td"
-								+ ">%s</td></tr>",
-						record.name(), record.level(), record.value().toString(),
-						record.mean().toString(), record.rules(),
-						record.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd " + "HH:mm"))))
+		String formattedList = notPassedList.stream().map(record -> String.format(
+				"<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
+				record.name(), record.level(), record.value().toString(), record.mean().toString(),
+				record.rules(), record.description(),
+				record.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))))
 				.collect(Collectors.joining("\n"));
 		return String.format(HTML_TEMPLATE,
 				TABLE_STYLE + ANALYTICS_WARNING_HEADER + FAILED_ANALYTICS_HEADER + formattedList
