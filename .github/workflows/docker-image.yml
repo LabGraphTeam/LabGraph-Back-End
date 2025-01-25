@@ -31,7 +31,7 @@ jobs:
   deploy:
     runs-on: [ self-hosted, linux, x64, backend ]
     needs: build
-    environment: production
+    environment: Production
 
     steps:
       - name: Checkout code
