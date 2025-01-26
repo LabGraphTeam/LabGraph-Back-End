@@ -17,13 +17,13 @@ RUN mvn clean package -DskipTests -U \
     && rm -rf /root/.m2 \
     && rm -rf /app/src
 
-RUN jar xvf target/QualityLabPro-0.7.jar
+RUN jar xvf target/QualityLabPro-0.8.jar
 RUN jdeps --ignore-missing-deps -q  \
     --recursive  \
     --multi-release 21  \
     --print-module-deps  \
     --class-path 'BOOT-INF/lib/*'  \
-    target/QualityLabPro-0.7.jar > modules.txt
+    target/QualityLabPro-0.8.jar > modules.txt
 
 # Build small JRE image
 RUN $JAVA_HOME/bin/jlink \
