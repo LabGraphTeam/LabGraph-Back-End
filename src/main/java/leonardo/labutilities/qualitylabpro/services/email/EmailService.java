@@ -101,7 +101,7 @@ public class EmailService {
 			log.warn("No failed analytics records to send notification for");
 			return;
 		}
-		log.info(validationResults.toString());
+		log.info(validationResults);
 
 
 		String emailBody = generateAnalyticsFailedEmailBody(failedRecords, validationResults);
@@ -131,17 +131,15 @@ public class EmailService {
 		}
 	}
 
-	public String generateAnalyticsFailedEmailBody(List<AnalyticsRecord> notPassedList,
-			String otherValidations) {
+	public String generateAnalyticsFailedEmailBody(List<AnalyticsRecord> notPassedList, String otherValidations) {
 		String formattedList = notPassedList.stream().map(record -> String.format(
-				"<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
-				record.name(), record.level(), record.value().toString(), record.mean().toString(),
-				record.rules(), record.description(),
-				record.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))))
+						"<tr><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td></tr>",
+						record.name(), record.level(), record.value().toString(), record.mean().toString(),
+						record.rules(), record.description(),
+						record.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))))
 				.collect(Collectors.joining("\n"));
 		return String.format(HTML_TEMPLATE,
-				TABLE_STYLE + ANALYTICS_WARNING_HEADER + FAILED_ANALYTICS_HEADER + formattedList
-						+ LAST_ANALYTICS_PARAGRAPH + "\n" + otherValidations);
+				ANALYTICS_WARNING_HEADER + String.format(TABLE_STYLE, formattedList) + LAST_ANALYTICS_PARAGRAPH + "\n" + otherValidations);
 	}
 
 	public void notifyUserLogin(String username, String email, LocalDateTime date) {
