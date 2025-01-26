@@ -14,6 +14,7 @@ public class StringToLocalDateTimeConverter implements Converter<String, LocalDa
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
+    @NonNull
     public LocalDateTime convert(@NonNull String source) {
         return LocalDateTime.parse(source, FORMATTER);
     }
