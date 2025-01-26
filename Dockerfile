@@ -1,11 +1,10 @@
 # First stage, build the custom JRE
 FROM eclipse-temurin:21-jdk-alpine AS jre-builder
 
-RUN mkdir /opt/app
-COPY src /opt/app/src
-COPY pom.xml /opt/app
+COPY src /app/src
+COPY pom.xml /app
 
-WORKDIR /opt/app
+WORKDIR /app
 
 ENV MAVEN_VERSION 3.5.4
 ENV MAVEN_HOME /usr/lib/mvn
@@ -16,7 +15,7 @@ RUN apk update && \
 
 RUN mvn clean package -DskipTests -U \
     && rm -rf /root/.m2 \
-    && rm -rf /opt/app/src
+    && rm -rf /app/src
 
 RUN jar xvf target/QualityLabPro-0.7.jar
 RUN jdeps --ignore-missing-deps -q  \
@@ -44,20 +43,8 @@ ENV PATH="${JAVA_HOME}/bin:${PATH}"
 # copy JRE from the base image
 COPY --from=jre-builder /optimized-jdk-21 $JAVA_HOME
 
-# Add app user
-ARG APPLICATION_USER=spring
-
-# Create a user to run the application, don't run as root
-RUN addgroup --system $APPLICATION_USER &&  adduser --system $APPLICATION_USER --ingroup $APPLICATION_USER
-
-# Create the application directory
-RUN mkdir /app && chown -R $APPLICATION_USER /app
-
-COPY --chown=$APPLICATION_USER:$APPLICATION_USER --from=jre-builder /opt/app/target/QualityLabPro-0.7.jar /app/app.jar
-
-WORKDIR /app
-
-USER $APPLICATION_USER
+WORKDIR /usr/src/app
+COPY --from=jre-builder /app/target/QualityLabPro-0.7.jar ./app.jar
 
 ENV SPRING_PROFILES_ACTIVE=prod \
     SERVER_PORT=8080
