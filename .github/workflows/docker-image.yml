@@ -56,15 +56,33 @@ jobs:
         run: |
           docker-compose pull
           docker-compose up -d
+
+  notify:
+    runs-on: [ self-hosted, linux, x64, backend ]
+    needs: deploy
+
+    steps:
       - name: Notify deployment
         run: echo "Deployment completed successfully"
+
+  health-check:
+    runs-on: [ self-hosted, linux, x64, backend ]
+    needs: deploy
+
+    steps:
       - name: Wait for server to be ready and healthy test
         run: |
-          sleep 15
+          sleep 20
           until curl -sSf http://localhost:${{ secrets.SERVER_LOCAL_PORT }}/actuator/health; do
             echo "Waiting for server..."
             sleep 5
           done
+
+  cleanup:
+    runs-on: [ self-hosted, linux, x64, backend ]
+    needs: health-check
+
+    steps:
       - name: Set execute permission for cleanup script
         run: chmod +x ./.github/scripts/cleanup_docker.sh
       - name: Running scripts
