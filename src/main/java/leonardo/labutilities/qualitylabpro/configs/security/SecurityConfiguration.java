@@ -37,6 +37,10 @@ public class SecurityConfiguration {
                        req.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
                           .permitAll();
 
+                       // Health check endpoints
+                       req.requestMatchers("/actuator/**")
+                               .permitAll();
+
                        // Admin-only endpoints
                        req.requestMatchers(HttpMethod.DELETE, "/generic-analytics/**")
                           .hasRole("ADMIN");
