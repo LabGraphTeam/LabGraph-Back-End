@@ -1,6 +1,6 @@
 services:
   mariadb:
-    image: mariadb:10.10
+    image: mariadb:lts
     restart: always
     env_file: ./.env
     environment:
