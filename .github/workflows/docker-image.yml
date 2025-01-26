@@ -58,13 +58,6 @@ jobs:
           docker-compose up -d
       - name: Notify deployment
         run: echo "Deployment completed successfully"
-      - name: Wait for server to be ready and healthy test
-        run: |
-          sleep 5
-          until curl -sSf http://localhost:${{ secrets.SERVER_LOCAL_PORT }}/actuator/health; do
-            echo "Waiting for server..."
-            sleep 5
-          done
       - name: Set execute permission for cleanup script
         run: chmod +x ./.github/scripts/cleanup_docker.sh
       - name: Running scripts
