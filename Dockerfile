@@ -32,7 +32,7 @@ RUN $JAVA_HOME/bin/jlink \
          --strip-debug \
          --no-man-pages \
          --no-header-files \
-         --compress=2 \
+         --compress=zip-6 \
          --output /optimized-jdk-21
 
 # Second stage, Use the custom JRE and build the app image
