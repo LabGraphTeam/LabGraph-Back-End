@@ -46,6 +46,16 @@ COPY --from=jre-builder /optimized-jdk-21 $JAVA_HOME
 WORKDIR /usr/src/app
 COPY --from=jre-builder /app/target/QualityLabPro-0.7.jar ./app.jar
 
+
+# Get Gmail SMTP server certificate
+RUN apk add --no-cache openssl && \
+    openssl s_client -connect smtp.gmail.com:587 -showcerts </dev/null 2>/dev/null | \
+    sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > gmail.cert
+
+# Import the certificate into the Java keystore
+RUN keytool -import -alias smtp.gmail.com -keystore "$JAVA_HOME/lib/security/cacerts" -file gmail.cert -storepass changeit -noprompt
+
+
 ENV SPRING_PROFILES_ACTIVE=prod \
     SERVER_PORT=8080
 
