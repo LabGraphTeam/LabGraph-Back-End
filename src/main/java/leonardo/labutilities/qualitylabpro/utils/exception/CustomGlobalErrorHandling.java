@@ -12,37 +12,36 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
-public class CustomGlobalErrorHandling extends RuntimeException {
+public class CustomGlobalErrorHandling {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex,
                                                                HttpServletRequest request) {
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
-                                       .collect(Collectors.toMap(FieldError::getField,
-                                                                 error -> error.getDefaultMessage() != null ?
-                                                                          error.getDefaultMessage()
-                                                                                                            :
-                                                                          "invalid args"));
+                .collect(Collectors.toMap(FieldError::getField,
+                        error -> {
+                            error.getDefaultMessage();
+                            return error.getDefaultMessage();
+                        }));
 
-        ApiError apiError =
-                new ApiError(HttpStatus.BAD_REQUEST, "Validation failed", request.getRequestURI());
-        apiError.addValidationErrors(errors);
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Validation failed", request.getRequestURI());
+        apiError.setDetails(new ArrayList<>(errors.values()));
 
         log.error("Validation failed for request to {}: {}", request.getRequestURI(), errors);
         return ResponseEntity.badRequest().body(apiError);
     }
 
-    @ExceptionHandler({ResourceNotFoundException.class})
+    @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ApiError> handleNotFound(Exception ex, HttpServletRequest request) {
-        ApiError apiError =
-                new ApiError(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
+    public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
 
         log.error("Resource not found at {}: {}", request.getRequestURI(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
@@ -50,21 +49,17 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 
     @ExceptionHandler({BadCredentialsException.class, PasswordNotMatchesException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<ApiError> handleAuthenticationErrors(Exception ex,
-                                                               HttpServletRequest request) {
-        ApiError apiError =
-                new ApiError(HttpStatus.UNAUTHORIZED, "Authentication failed or Username and Password not accepted.",
-                             request.getRequestURI());
+    public ResponseEntity<ApiError> handleAuthenticationErrors(Exception ex, HttpServletRequest request) {
+        ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, "Authentication failed", request.getRequestURI());
 
-        log.error("Authentication failed or Username and Password not accepted. at {}", request.getRequestURI());
+        log.error("Authentication failed at {}: {}", request.getRequestURI(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseEntity<ApiError> handleAccessDenied(HttpServletRequest request) {
-        ApiError apiError =
-                new ApiError(HttpStatus.FORBIDDEN, "Access denied", request.getRequestURI());
+        ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, "Access denied", request.getRequestURI());
 
         log.error("Access denied at {}", request.getRequestURI());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
@@ -72,23 +67,17 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 
     @ExceptionHandler(UserAlreadyExistException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ApiError> handleUserAllReadyExist(UserAlreadyExistException ex,
-                                                            HttpServletRequest request) {
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Username or Email are invalids or already exists",
-                                         request.getRequestURI());
+    public ResponseEntity<ApiError> handleUserAlreadyExist(UserAlreadyExistException ex, HttpServletRequest request) {
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Username or email already exists", request.getRequestURI());
 
-        log.error("Username or Email are invalids or already exists at {}: {}", request.getRequestURI(),
-                  ex.getMessage());
+        log.error("Username or email already exists at {}: {}", request.getRequestURI(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex,
-                                                                 HttpServletRequest request) {
-        ApiError apiError = new ApiError(HttpStatus.CONFLICT,
-                                         "Data integrity violation - the value already exists",
-                                         request.getRequestURI());
+    public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex, HttpServletRequest request) {
+        ApiError apiError = new ApiError(HttpStatus.CONFLICT, "Data integrity violation", request.getRequestURI());
 
         log.error("Data integrity violation at {}: {}", request.getRequestURI(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
@@ -96,17 +85,14 @@ public class CustomGlobalErrorHandling extends RuntimeException {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ApiError> handleAllUncaughtException(Exception ex,
-                                                               HttpServletRequest request) {
-        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR,
-                                         "An unexpected error occurred", request.getRequestURI());
+    public ResponseEntity<ApiError> handleAllUncaughtException(Exception ex, HttpServletRequest request) {
+        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", request.getRequestURI());
 
-        log.error("Unexpected error occurred at {}: {}", request.getRequestURI(), ex.getMessage(),
-                  ex);
+        log.error("Unexpected error occurred at {}: {}", request.getRequestURI(), ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
     }
 
-    // Exception classes
+
     public static class ResourceNotFoundException extends RuntimeException {
         public ResourceNotFoundException(String message) {
             super(message);

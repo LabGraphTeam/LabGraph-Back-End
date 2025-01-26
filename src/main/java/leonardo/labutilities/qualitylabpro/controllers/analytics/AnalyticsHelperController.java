@@ -1,11 +1,11 @@
 package leonardo.labutilities.qualitylabpro.controllers.analytics;
 
 import jakarta.validation.Valid;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedMeanAndStdRecordByLevel;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedResultsByLevel;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanRecord;
-import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticsHelperService;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedMeanAndStdByLevelDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedResultsByLevelDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanDTO;
+import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticHelperService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
@@ -25,63 +25,63 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 public class AnalyticsHelperController {
-    private final AnalyticsHelperService analyticsHelperService;
+    private final AnalyticHelperService analyticHelperService;
 
-    public AnalyticsHelperController(AnalyticsHelperService analyticsHelperService) {
-        this.analyticsHelperService = analyticsHelperService;
+    public AnalyticsHelperController(AnalyticHelperService analyticHelperService) {
+        this.analyticHelperService = analyticHelperService;
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AnalyticsRecord> getAnalyticsById(@PathVariable Long id) {
-        return ResponseEntity.ok(analyticsHelperService.findOneById(id));
+    public ResponseEntity<AnalyticsDTO> getAnalyticsById(@PathVariable Long id) {
+        return ResponseEntity.ok(analyticHelperService.findOneById(id));
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<Void> deleteAnalyticsResultById(@PathVariable Long id) {
-        analyticsHelperService.deleteAnalyticsById(id);
+        analyticHelperService.deleteAnalyticsById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping
     @Transactional
-    public ResponseEntity<List<AnalyticsRecord>> postAnalytics(
-            @Valid @RequestBody List<@Valid AnalyticsRecord> values) {
-        analyticsHelperService.saveNewAnalyticsRecords(values);
+    public ResponseEntity<List<AnalyticsDTO>> postAnalytics(
+            @Valid @RequestBody List<@Valid AnalyticsDTO> values) {
+        analyticHelperService.saveNewAnalyticsRecords(values);
         return ResponseEntity.status(201).build();
     }
 
     @PatchMapping()
     public ResponseEntity<Void> updateAnalyticsMean(
-            @Valid @RequestBody UpdateAnalyticsMeanRecord updateAnalyticsMeanRecord) {
-        analyticsHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(
-                updateAnalyticsMeanRecord.name(), updateAnalyticsMeanRecord.level(),
-                updateAnalyticsMeanRecord.levelLot(), updateAnalyticsMeanRecord.mean());
+            @Valid @RequestBody UpdateAnalyticsMeanDTO updateAnalyticsMeanDTO) {
+        analyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(
+                updateAnalyticsMeanDTO.name(), updateAnalyticsMeanDTO.level(),
+                updateAnalyticsMeanDTO.levelLot(), updateAnalyticsMeanDTO.mean());
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/grouped-by-level")
-    public ResponseEntity<List<GroupedResultsByLevel>> getGroupedByLevel(@RequestParam String name,
-                                                                         @RequestParam("startDate") LocalDateTime startDate,
-                                                                         @RequestParam("endDate") LocalDateTime endDate) {
-        List<GroupedResultsByLevel> groupedData =
-                analyticsHelperService.findAnalyticsWithGroupedResults(name, startDate, endDate);
+    public ResponseEntity<List<GroupedResultsByLevelDTO>> getGroupedByLevel(@RequestParam String name,
+                                                                            @RequestParam("startDate") LocalDateTime startDate,
+                                                                            @RequestParam("endDate") LocalDateTime endDate) {
+        List<GroupedResultsByLevelDTO> groupedData =
+                analyticHelperService.findAnalyticsWithGroupedResults(name, startDate, endDate);
         return ResponseEntity.ok(groupedData);
     }
 
     @GetMapping("/grouped-by-level/mean-deviation")
-    public ResponseEntity<List<GroupedMeanAndStdRecordByLevel>> getMeanAndDeviationGrouped(
+    public ResponseEntity<List<GroupedMeanAndStdByLevelDTO>> getMeanAndDeviationGrouped(
             @RequestParam String name, @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate) {
-        List<GroupedMeanAndStdRecordByLevel> groupedData = analyticsHelperService
+        List<GroupedMeanAndStdByLevelDTO> groupedData = analyticHelperService
                 .calculateGroupedMeanAndStandardDeviation(name, startDate, endDate);
         return ResponseEntity.ok(groupedData);
     }
 
-    public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAllAnalyticsWithLinks(
+    public ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAllAnalyticsWithLinks(
             List<String> names, Pageable pageable) {
-        Page<AnalyticsRecord> resultsList =
-                analyticsHelperService.findAnalyticsPagedByNameIn(names, pageable);
+        Page<AnalyticsDTO> resultsList =
+                analyticHelperService.findAnalyticsPagedByNameIn(names, pageable);
 
         var entityModels = resultsList.getContent().stream()
                                       .map(record -> createEntityModel(record, pageable)).collect(Collectors.toList());
@@ -90,10 +90,10 @@ public class AnalyticsHelperController {
         return ResponseEntity.ok(result);
     }
 
-    public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAnalyticsByDateBetweenWithLinks(
+    public ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAnalyticsByDateBetweenWithLinks(
             List<String> names, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
 
-        Page<AnalyticsRecord> analyticsRecordPaged = analyticsHelperService
+        Page<AnalyticsDTO> analyticsRecordPaged = analyticHelperService
                 .findAnalyticsByNameInAndDateBetweenWithLinks(names, startDate, endDate, pageable);
 
         if (analyticsRecordPaged == null) {
@@ -109,16 +109,16 @@ public class AnalyticsHelperController {
         return ResponseEntity.ok(result);
     }
 
-    EntityModel<AnalyticsRecord> createEntityModel(AnalyticsRecord record, Pageable pageable) {
+    EntityModel<AnalyticsDTO> createEntityModel(AnalyticsDTO record, Pageable pageable) {
         return EntityModel.of(record, Link.of(ServletUriComponentsBuilder.fromCurrentContextPath()
                                                                          .path("/backend-api")
                                                                          .path(linkTo(methodOn(getClass()).getAnalyticsById(record.id())).toUri().getPath())
                                                                          .toUriString()).withSelfRel());
     }
 
-    private CollectionModel<EntityModel<AnalyticsRecord>> addPaginationLinks(
-            CollectionModel<EntityModel<AnalyticsRecord>> collectionModel,
-            Page<AnalyticsRecord> page, Pageable pageable) {
+    private CollectionModel<EntityModel<AnalyticsDTO>> addPaginationLinks(
+            CollectionModel<EntityModel<AnalyticsDTO>> collectionModel,
+            Page<AnalyticsDTO> page, Pageable pageable) {
 
         UriComponentsBuilder uriBuilder =
                 ServletUriComponentsBuilder.fromCurrentRequest().replacePath("/backend-api"

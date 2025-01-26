@@ -1,9 +1,9 @@
 package leonardo.labutilities.qualitylabpro.controllers.analytics;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationRecord;
-import leonardo.labutilities.qualitylabpro.services.analytics.BiochemistryAnalyticsService;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
+import leonardo.labutilities.qualitylabpro.services.analytics.BiochemistryAnalyticService;
 import leonardo.labutilities.qualitylabpro.utils.constants.AvailableBiochemistryAnalytics;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -30,17 +30,17 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
 
 	private static final List<String> names =
 			new AvailableBiochemistryAnalytics().availableBioAnalytics();
-	private final BiochemistryAnalyticsService biochemistryAnalyticsService;
+	private final BiochemistryAnalyticService biochemistryAnalyticsService;
 
 	public BiochemistryAnalyticsController(
-			BiochemistryAnalyticsService biochemistryAnalyticsService) {
+			BiochemistryAnalyticService biochemistryAnalyticsService) {
 		super(biochemistryAnalyticsService);
 		this.biochemistryAnalyticsService = biochemistryAnalyticsService;
 	}
 
 	@Override
 	@GetMapping()
-	public ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAllAnalytics(
+	public ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAllAnalytics(
 			@PageableDefault(sort = "date",
 					direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
 		return this.getAllAnalyticsWithLinks(names, pageable);
@@ -48,7 +48,7 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
 
 	@Override
 	@GetMapping("/date-range")
-	public ResponseEntity<Page<AnalyticsRecord>> getAnalyticsDateBetween(
+	public ResponseEntity<Page<AnalyticsDTO>> getAnalyticsDateBetween(
 			@RequestParam("startDate") LocalDateTime startDate,
 			@RequestParam("endDate") LocalDateTime endDate, @PageableDefault(sort = "date",
 					direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
@@ -58,7 +58,7 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
 
 	@Override
 	@GetMapping("/level-date-range")
-	public ResponseEntity<Page<AnalyticsRecord>> getAllAnalyticsByLevelDateRange(
+	public ResponseEntity<Page<AnalyticsDTO>> getAllAnalyticsByLevelDateRange(
 			@RequestParam String level, @RequestParam("startDate") LocalDateTime startDate,
 			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(biochemistryAnalyticsService.findAnalyticsByNameInByLevel(names,
@@ -67,7 +67,7 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
 
 	@Override
 	@GetMapping("/name-and-level-date-range")
-	public ResponseEntity<List<AnalyticsRecord>> getAllAnalyticsByNameAndLevelDateRange(
+	public ResponseEntity<List<AnalyticsDTO>> getAllAnalyticsByNameAndLevelDateRange(
 			@RequestParam String name, @RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
 			@RequestParam("endDate") LocalDateTime endDate) {
@@ -78,7 +78,7 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
 
 	@Override
 	@GetMapping("/mean-standard-deviation")
-	public ResponseEntity<MeanAndStdDeviationRecord> getMeanAndStandardDeviation(
+	public ResponseEntity<MeanAndStdDeviationDTO> getMeanAndStandardDeviation(
 			@RequestParam String name, @RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
 			@RequestParam("endDate") LocalDateTime endDate) {

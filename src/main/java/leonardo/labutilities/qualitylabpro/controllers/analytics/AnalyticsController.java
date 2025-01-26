@@ -1,9 +1,9 @@
 package leonardo.labutilities.qualitylabpro.controllers.analytics;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationRecord;
-import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticsHelperService;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
+import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticHelperService;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,35 +28,35 @@ import java.util.List;
 @RestController()
 public abstract class AnalyticsController extends AnalyticsHelperController {
 
-    public AnalyticsController(AnalyticsHelperService analyticsHelperService) {
-        super(analyticsHelperService);
+    public AnalyticsController(AnalyticHelperService analyticHelperService) {
+        super(analyticHelperService);
     }
 
     @GetMapping()
-    public abstract ResponseEntity<CollectionModel<EntityModel<AnalyticsRecord>>> getAllAnalytics(
+    public abstract ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAllAnalytics(
             @PageableDefault(sort = "date",
                     direction = Sort.Direction.DESC) @ParameterObject Pageable pageable);
 
 
     @GetMapping("/date-range")
-    public abstract ResponseEntity<Page<AnalyticsRecord>> getAnalyticsDateBetween(
+    public abstract ResponseEntity<Page<AnalyticsDTO>> getAnalyticsDateBetween(
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate, @PageableDefault(sort = "date",
                     direction = Sort.Direction.DESC) @ParameterObject Pageable pageable);
 
     @GetMapping("/level-date-range")
-    public abstract ResponseEntity<Page<AnalyticsRecord>> getAllAnalyticsByLevelDateRange(
+    public abstract ResponseEntity<Page<AnalyticsDTO>> getAllAnalyticsByLevelDateRange(
             @RequestParam String level, @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable);
 
     @GetMapping("/name-and-level-date-range")
-    public abstract ResponseEntity<List<AnalyticsRecord>> getAllAnalyticsByNameAndLevelDateRange(
+    public abstract ResponseEntity<List<AnalyticsDTO>> getAllAnalyticsByNameAndLevelDateRange(
             @RequestParam String name, @RequestParam String level,
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate);
 
     @GetMapping("/mean-standard-deviation")
-    public abstract ResponseEntity<MeanAndStdDeviationRecord> getMeanAndStandardDeviation(
+    public abstract ResponseEntity<MeanAndStdDeviationDTO> getMeanAndStandardDeviation(
             @RequestParam String name, @RequestParam String level,
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate);

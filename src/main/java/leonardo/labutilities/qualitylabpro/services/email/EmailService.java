@@ -5,8 +5,8 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
-import leonardo.labutilities.qualitylabpro.dtos.email.EmailRecord;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.email.EmailDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +51,7 @@ public class EmailService {
 	}
 
 	@Async
-	public void sendPlainTextEmail(EmailRecord email) {
+	public void sendPlainTextEmail(EmailDTO email) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom(emailFrom);
 		message.setTo(email.to());
@@ -61,7 +61,7 @@ public class EmailService {
 	}
 
 	@Async
-	public void sendHtmlEmail(EmailRecord emailRecord) {
+	public void sendHtmlEmail(EmailDTO emailDTO) {
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		try {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
@@ -83,8 +83,8 @@ public class EmailService {
 			}
 
 			helper.setBcc(internetAddresses);
-			helper.setSubject(EMAIL_SUBJECT_PREFIX + emailRecord.subject());
-			helper.setText(buildEmailBody(emailRecord.body()), true);
+			helper.setSubject(EMAIL_SUBJECT_PREFIX + emailDTO.subject());
+			helper.setText(buildEmailBody(emailDTO.body()), true);
 
 			javaMailSender.send(mimeMessage);
 			log.info("HTML email sent successfully to {} recipients", internetAddresses.length);
@@ -95,7 +95,7 @@ public class EmailService {
 		}
 	}
 
-	public void sendFailedAnalyticsNotification(List<AnalyticsRecord> failedRecords,
+	public void sendFailedAnalyticsNotification(List<AnalyticsDTO> failedRecords,
 			String validationResults) {
 		if (failedRecords == null || failedRecords.isEmpty()) {
 			log.warn("No failed analytics records to send notification for");
@@ -120,7 +120,7 @@ public class EmailService {
 			}).filter(Objects::nonNull).toArray(InternetAddress[]::new);
 
 			helper.setBcc(internetAddresses);
-			helper.setSubject(EMAIL_SUBJECT_PREFIX + "Quality Control Alert: Failed Analytics");
+			helper.setSubject(EMAIL_SUBJECT_PREFIX + "Quality Control Alert: Failed Analytic");
 			helper.setText(buildEmailBody(emailBody), true);
 			javaMailSender.send(mimeMessage);
 
@@ -131,7 +131,7 @@ public class EmailService {
 		}
 	}
 
-	public String generateAnalyticsFailedEmailBody(List<AnalyticsRecord> notPassedList, String otherValidations) {
+	public String generateAnalyticsFailedEmailBody(List<AnalyticsDTO> notPassedList, String otherValidations) {
 		String formattedList = notPassedList.stream().map(record -> String.format(
 						"<tr><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td></tr>",
 						record.name(), record.level(), record.value().toString(), record.mean().toString(),
@@ -166,7 +166,7 @@ public class EmailService {
 			LocalDateTime date) {
 		String subject = String.format("User %s - %s", username, actionType);
 		String content = createUserActionEmailContent(actionType, username, email, date);
-		sendHtmlEmail(new EmailRecord(email, subject, content));
+		sendHtmlEmail(new EmailDTO(email, subject, content));
 	}
 
 	private String createUserActionEmailContent(String actionType, String username, String email,

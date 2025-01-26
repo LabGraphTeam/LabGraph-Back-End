@@ -1,8 +1,8 @@
 package leonardo.labutilities.qualitylabpro.services.users;
 
-import leonardo.labutilities.qualitylabpro.dtos.authentication.TokenJwtRecord;
-import leonardo.labutilities.qualitylabpro.dtos.email.EmailRecord;
-import leonardo.labutilities.qualitylabpro.dtos.email.RecoveryEmailRecord;
+import leonardo.labutilities.qualitylabpro.dtos.authentication.TokenJwtDTO;
+import leonardo.labutilities.qualitylabpro.dtos.email.EmailDTO;
+import leonardo.labutilities.qualitylabpro.dtos.email.RecoveryEmailDTO;
 import leonardo.labutilities.qualitylabpro.entities.User;
 import leonardo.labutilities.qualitylabpro.enums.UserRoles;
 import leonardo.labutilities.qualitylabpro.repositories.UserRepository;
@@ -30,15 +30,15 @@ public class UserService {
 	private final AuthenticationManager authenticationManager;
 	private final TokenService tokenService;
 
-	private void sendRecoveryEmail(RecoveryEmailRecord recoveryEmailRecord) {
+	private void sendRecoveryEmail(RecoveryEmailDTO recoveryEmailDTO) {
 		String subject = "Password Recovery";
 		String message = String.format(
 				"Dear user,\n\nUse the following temporary password to recover your account: %s\n\nBest regards,"
 						+ "\nYour Team",
-				recoveryEmailRecord.temporaryPassword());
-		log.info("Sending recovery email to: {}", recoveryEmailRecord.email());
+				recoveryEmailDTO.temporaryPassword());
+		log.info("Sending recovery email to: {}", recoveryEmailDTO.email());
 		emailService
-				.sendPlainTextEmail(new EmailRecord(recoveryEmailRecord.email(), subject, message));
+				.sendPlainTextEmail(new EmailDTO(recoveryEmailDTO.email(), subject, message));
 	}
 
 	public void recoverPassword(String username, String email) {
@@ -53,7 +53,7 @@ public class UserService {
 		String temporaryPassword = passwordRecoveryTokenManager.generateTemporaryPassword();
 		passwordRecoveryTokenManager.generateAndStoreToken(email, temporaryPassword);
 
-		sendRecoveryEmail(new RecoveryEmailRecord(email, temporaryPassword));
+		sendRecoveryEmail(new RecoveryEmailDTO(email, temporaryPassword));
 	}
 
 	public void changePassword(String email, String temporaryPassword, String newPassword) {
@@ -76,7 +76,7 @@ public class UserService {
 	}
 
 
-	public TokenJwtRecord signIn(String email, String password) {
+	public TokenJwtDTO signIn(String email, String password) {
 
 		final var authToken = new UsernamePasswordAuthenticationToken(email, password);
 		final var auth = authenticationManager.authenticate(authToken);
@@ -85,7 +85,7 @@ public class UserService {
 			emailService.notifyFailedUserLogin(user.getUsername(), user.getEmail(),
 					LocalDateTime.now());
 		}
-		return new TokenJwtRecord(tokenService.generateToken(user));
+		return new TokenJwtDTO(tokenService.generateToken(user));
 	}
 
 	public void updateUserPassword(String name, String email, String password, String newPassword) {
