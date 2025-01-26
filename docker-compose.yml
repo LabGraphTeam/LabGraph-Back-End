@@ -1,6 +1,6 @@
 services:
   mariadb:
-    image: mariadb:latest
+    image: mariadb:11.2
     restart: always
     environment:
       MARIADB_DATABASE: ${DB_DATABASE}
@@ -14,7 +14,7 @@ services:
       - qualitylab-net
 
   quality-lab-pro:
-    restart: on-failure
+    restart: always
     image: leonardomeireles55/quality-lab-pro-back-end:latest
     working_dir: /usr/src/app
     container_name: quality-lab-pro
