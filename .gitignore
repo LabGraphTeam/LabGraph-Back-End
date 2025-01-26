@@ -1,3 +1,4 @@
+# Existing entries
 HELP.md
 lab.log
 *.log
@@ -8,6 +9,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+
 ### STS ###
 .apt_generated
 .classpath
@@ -16,11 +18,13 @@ target/
 .settings
 .springBeans
 .sts4-cache
+
 ### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -30,8 +34,50 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
+
 ### VS Code ###
 .vscode/
 .env
 package-lock.json
 package.json
+
+### Additional Spring Boot ###
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+### System Files ###
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+### Logs ###
+logs/
+*.tmp
+*.temp
+
+### Spring Specific ###
+application-*.yml
+application-*.properties
+!application.yml
+!application.properties
+
+### Maven ###
+.mvn/*
+!.mvn/wrapper/maven-wrapper.properties
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties

@@ -10,6 +10,6 @@ services:
       - ${DB_LOCAL_PORT}:${DB_DOCKER_PORT}
     volumes:
       - mysql-volume:/var/lib/mysql
-      - ./database:/docker-entrypoint-initdb.
+      - ./database:/docker-entrypoint-initdb.d
 volumes:
   mysql-volume:
