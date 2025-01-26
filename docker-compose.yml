@@ -1,6 +1,6 @@
 services:
   mariadb:
-    image: mariadb:lts
+    image: mariadb:11.2
     restart: always
     environment:
       MARIADB_DATABASE: ${DB_DATABASE}
@@ -37,7 +37,7 @@ services:
 
   nginx:
     restart: always
-    image: cgr.dev/chainguard/nginx:latest
+    image: nginx:latest
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - ./nginx:/etc/nginx:ro

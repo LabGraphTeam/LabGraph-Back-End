@@ -1,6 +1,6 @@
 services:
   mariadb:
-    image: mariadb:lts
+    image: mariadb:11.2
 
   quality-lab-pro:
     restart: on-failure
@@ -11,4 +11,4 @@ services:
 
   nginx:
     restart: always
-    image: cgr.dev/chainguard/nginx:latest
+    image: nginx:latest
