@@ -43,7 +43,7 @@ public abstract class AnalyticsHelperService implements IAnalyticsHelperService 
 
 	private boolean isRuleBroken(AnalyticsRecord record) {
 		String rules = record.rules();
-		return (!"Average".equals(rules));
+		return ("+3s".equals(rules) || "-3s".equals(rules) || "-2s".equals(rules) || "+2s".equals(rules));
 	}
 
 	public List<AnalyticsRecord> validateAnalyticsNameExists(List<AnalyticsRecord> results) {

@@ -1,3 +1,4 @@
+# Existing exclusions
 **/target/
 **/docs/
 **/view/
@@ -7,3 +8,50 @@
 **/LICENSE
 **/.vscode
 **/.editorconfig
+
+# Build and Dependencies
+**/*.jar
+**/*.war
+**/*.ear
+**/build/
+**/.mvn/
+**/node_modules/
+**/package-lock.json
+
+# IDE Files
+**/.idea/
+**/.settings/
+**/.project
+**/.classpath
+**/*.iml
+**/*.iws
+**/*.ipr
+**/.factorypath
+**/.sts4-cache/
+
+# Logs and Temp Files
+**/*.log
+**/logs/
+**/*.tmp
+**/*.temp
+**/.env*
+**/*.env
+
+# Test and Documentation
+**/test/
+**/tests/
+**/coverage/
+**/*.md
+**/javadoc/
+**/swagger/
+
+# OS Files
+**/.DS_Store
+**/Thumbs.db
+
+# Development Files
+**/.gitignore
+**/.dockerignore
+**/docker-compose*.yml
+**/.editorconfig
+**/sonar-project.properties

@@ -1,0 +1,22 @@
+{"properties": [
+  {
+    "name": "api.security.issuer",
+    "type": "java.lang.String",
+    "description": "A description for 'api.security.issuer'"
+  },
+  {
+    "name": "api.security.token.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'api.security.token.secret'"
+  },
+  {
+    "name": "email.to.send.list",
+    "type": "java.lang.String",
+    "description": "A description for 'email.to.send.list'"
+  },
+  {
+    "name": "DATABASE_TO_UPPER",
+    "type": "java.lang.String",
+    "description": "A description for 'DATABASE_TO_UPPER'"
+  }
+]}

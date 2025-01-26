@@ -6,10 +6,11 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
 @EnableCaching
-@EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
+@EnableSpringDataWebSupport(
+		pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 @SpringBootApplication()
 public class ControlApplication {
-    public static void main(final String[] args) {
-        SpringApplication.run(ControlApplication.class, args);
-    }
+	public static void main(final String[] args) {
+		SpringApplication.run(ControlApplication.class, args);
+	}
 }

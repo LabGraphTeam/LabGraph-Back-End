@@ -1,6 +1,6 @@
 services:
   mariadb:
-    image: mariadb:10.10
+    image: mariadb:11.2
     restart: always
     env_file: ./.env
     environment:
@@ -15,7 +15,7 @@ services:
       - app-network
 
   quality-lab-pro:
-    restart: on-failure
+    restart: always
     build:
       context: ./
       dockerfile: Dockerfile
@@ -25,9 +25,17 @@ services:
     ports:
       - ${SERVER_LOCAL_PORT}:${SERVER_DOCKER_PORT}
     environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_ROOT_PASSWORD}
+      SERVER_PORT: ${SERVER_DOCKER_PORT}
+      API_SECURITY_TOKEN_SECRET: ${API_SECURITY_TOKEN_SECRET}
+      API_SECURITY_ISSUER: ${API_SECURITY_ISSUER}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
+      EMAIL_TO_SEND_LIST: ${EMAIL_TO_SEND_LIST}
+    command: [ "java", "-jar", "-Dspring.profiles.active=local", "app.jar" ]
     networks:
       - app-network
 
