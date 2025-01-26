@@ -1,17 +1,17 @@
 package leonardo.labutilities.qualitylabpro.services;
 
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedValuesByLevel;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanRecord;
-import leonardo.labutilities.qualitylabpro.entities.Analytics;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedValuesByLevelDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanDTO;
+import leonardo.labutilities.qualitylabpro.entities.Analytic;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
-import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticsHelperService;
+import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticHelperService;
 import leonardo.labutilities.qualitylabpro.services.email.EmailService;
 import leonardo.labutilities.qualitylabpro.utils.components.ControlRulesValidators;
 import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorComponent;
 import leonardo.labutilities.qualitylabpro.utils.constants.AvailableBiochemistryAnalytics;
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
-import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticsMapper;
+import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,14 +30,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AnalyticsHelperServiceTests {
+class AnalyticHelperServiceTests {
 
 	private static final List<String> ANALYTICS_NAME_LIST =
 			new AvailableBiochemistryAnalytics().availableBioAnalytics();
 	@Mock
 	private AnalyticsRepository analyticsRepository;
 	@Mock
-	private AnalyticsHelperService analyticsHelperService;
+	private AnalyticHelperService analyticHelperService;
 	@Mock
 	private EmailService emailService;
 	@Mock
@@ -46,23 +46,23 @@ class AnalyticsHelperServiceTests {
 	@BeforeEach
 	void setUp() {
 		try (AutoCloseable closeable = MockitoAnnotations.openMocks(this)) {
-			analyticsHelperService = new AnalyticsHelperService(analyticsRepository, emailService,
+			analyticHelperService = new AnalyticHelperService(analyticsRepository, emailService,
 					controlRulesValidators) {
 
 				@Override
-				public List<AnalyticsRecord> findAnalyticsByNameAndLevel(Pageable pageable,
-						String name, String level) {
+				public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable,
+                                                                      String name, String level) {
 					return analyticsRepository.findByNameAndLevel(pageable, name, level).stream()
-							.map(AnalyticsMapper::toRecord).toList();
+							.map(AnalyticMapper::toRecord).toList();
 				}
 
 				@Override
-				public List<AnalyticsRecord> findAnalyticsByNameAndLevelAndDate(String name,
-						String level, LocalDateTime dateStart, LocalDateTime dateEnd) {
+				public List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name,
+                                                                             String level, LocalDateTime dateStart, LocalDateTime dateEnd) {
 					return analyticsRepository
 							.findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd,
 									PageRequest.of(0, 200))
-							.stream().map(AnalyticsMapper::toRecord).toList();
+							.stream().map(AnalyticMapper::toRecord).toList();
 				}
 			};
 		} catch (Exception e) {
@@ -78,14 +78,14 @@ class AnalyticsHelperServiceTests {
 	// LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
 	// LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
 	//
-	// List<Analytics> expectedRecords =
-	// createDateRangeRecords().stream().map(AnalyticsMapper::toEntity).toList();
+	// List<Analytic> expectedRecords =
+	// createDateRangeRecords().stream().map(AnalyticMapper::toEntity).toList();
 	// Page<Ana>
 	// when(analyticsRepository.findByNameInAndLevelAndDateBetween(mockList, mockLevel, startDate,
 	// endDate, mockPageable))
 	// .thenReturn(expectedRecords);
 	//
-	// analyticsHelperService.findAnalyticsByNameInByLevelBaseMethod(mockList, mockLevel, startDate,
+	// analyticHelperService.findAnalyticsByNameInByLevelBaseMethod(mockList, mockLevel, startDate,
 	// endDate, mockPageable);
 	// verify(analyticsRepository).findByNameInAndLevelAndDateBetween(mockList, mockLevel,
 	// startDate, endDate, mockPageable);
@@ -93,8 +93,8 @@ class AnalyticsHelperServiceTests {
 
 	@Test
 	public void updateAnalyticsMean() {
-		var mockDto = new UpdateAnalyticsMeanRecord("Glucose", "PCCC1", "076587", 1.0);
-		analyticsHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(mockDto.name(),
+		var mockDto = new UpdateAnalyticsMeanDTO("Glucose", "PCCC1", "076587", 1.0);
+		analyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(mockDto.name(),
 				mockDto.level(), mockDto.levelLot(), mockDto.mean());
 		verify(analyticsRepository).updateMeanByNameAndLevelAndLevelLot(mockDto.name(),
 				mockDto.level(), mockDto.levelLot(), mockDto.mean());
@@ -103,16 +103,16 @@ class AnalyticsHelperServiceTests {
 	@Test
 	void shouldValidateRulesProcessedByRulesValidatorComponent() {
 		// Arrange: create sample input records
-		List<AnalyticsRecord> records = createSampleRecordList();
+		List<AnalyticsDTO> records = createSampleRecordList();
 		RulesValidatorComponent rulesValidatorComponent = new RulesValidatorComponent();
 
-		// Act: convert the records to AnalyticsRecord using the validation component
-		List<Analytics> analytics = records.stream()
-				.map(values -> new Analytics(values, rulesValidatorComponent)).toList();
+		// Act: convert the records to AnalyticsDTO using the validation component
+		List<Analytic> analytics = records.stream()
+				.map(values -> new Analytic(values, rulesValidatorComponent)).toList();
 
 		// Assert: validate the rules generated by the component
-		assertEquals(records.stream().map(AnalyticsRecord::rules).toList(),
-				analytics.stream().map(Analytics::getRules).toList(), """
+		assertEquals(records.stream().map(AnalyticsDTO::rules).toList(),
+				analytics.stream().map(Analytic::getRules).toList(), """
 						The rules processed by the \
 						RulesValidatorComponent should match the input\
 						 rules""");
@@ -120,35 +120,35 @@ class AnalyticsHelperServiceTests {
 
 	@Test
 	void saveNewAnalyticsRecords_WithValidRecords_ShouldSaveSuccessfully() {
-		List<AnalyticsRecord> records = createSampleRecordList();
+		List<AnalyticsDTO> records = createSampleRecordList();
 		when(analyticsRepository.existsByDateAndLevelAndName(any(), any(), any()))
 				.thenReturn(false);
 		when(analyticsRepository.saveAll(any())).thenReturn(null);
 
-		assertDoesNotThrow(() -> analyticsHelperService.saveNewAnalyticsRecords(records));
+		assertDoesNotThrow(() -> analyticHelperService.saveNewAnalyticsRecords(records));
 		verify(analyticsRepository, times(1)).saveAll(any());
 	}
 
 	@Test
 	void saveNewAnalyticsRecords_WithDuplicateRecords_ShouldThrowException() {
-		List<AnalyticsRecord> records = createSampleRecordList();
+		List<AnalyticsDTO> records = createSampleRecordList();
 		when(analyticsRepository.existsByDateAndLevelAndName(any(), any(), any())).thenReturn(true);
 
 		assertThrows(CustomGlobalErrorHandling.DataIntegrityViolationException.class,
-				() -> analyticsHelperService.saveNewAnalyticsRecords(records));
+				() -> analyticHelperService.saveNewAnalyticsRecords(records));
 		verify(analyticsRepository, never()).saveAll(any());
 	}
 
 	@Test
 	void findById_WithValidId_ShouldReturnRecord() {
 		Long id = 1L;
-		Analytics analytics = new Analytics();
-		when(analyticsRepository.findById(id)).thenReturn(Optional.of(analytics));
+		Analytic analytic = new Analytic();
+		when(analyticsRepository.findById(id)).thenReturn(Optional.of(analytic));
 
-		Analytics result = AnalyticsMapper.toEntity(analyticsHelperService.findOneById(id));
+		Analytic result = AnalyticMapper.toEntity(analyticHelperService.findOneById(id));
 
 		assertNotNull(result);
-		assertEquals(analytics, result);
+		assertEquals(analytic, result);
 	}
 
 	@Test
@@ -157,7 +157,7 @@ class AnalyticsHelperServiceTests {
 		when(analyticsRepository.findById(id)).thenReturn(Optional.empty());
 
 		assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
-				() -> analyticsHelperService.findOneById(id));
+				() -> analyticHelperService.findOneById(id));
 	}
 
 	@Test
@@ -165,15 +165,15 @@ class AnalyticsHelperServiceTests {
 		String name = "Glucose";
 		String level = "Normal";
 		Pageable pageable = PageRequest.of(0, 10);
-		List<Analytics> expectedRecords = createSampleRecordList().stream()
+		List<Analytic> expectedRecords = createSampleRecordList().stream()
 				.filter(r -> r.name().equals(name) && r.level().equals(level)).toList().stream()
-				.map(AnalyticsMapper::toEntity).toList();
+				.map(AnalyticMapper::toEntity).toList();
 
 		when(analyticsRepository.findByNameAndLevel(pageable, name, level))
 				.thenReturn(expectedRecords);
 
-		List<AnalyticsRecord> result =
-				analyticsHelperService.findAnalyticsByNameAndLevel(pageable, name, level);
+		List<AnalyticsDTO> result =
+				analyticHelperService.findAnalyticsByNameAndLevel(pageable, name, level);
 
 		assertEquals(expectedRecords.size(), result.size());
 		verify(analyticsRepository).findByNameAndLevel(pageable, name, level);
@@ -185,13 +185,13 @@ class AnalyticsHelperServiceTests {
 		String level = "Normal";
 		LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
 		LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
-		List<Analytics> expectedRecords =
-				createDateRangeRecords().stream().map(AnalyticsMapper::toEntity).toList();
+		List<Analytic> expectedRecords =
+				createDateRangeRecords().stream().map(AnalyticMapper::toEntity).toList();
 
 		when(analyticsRepository.findByNameAndLevelAndDateBetween(eq(name), eq(level),
 				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(expectedRecords);
 
-		List<AnalyticsRecord> result = analyticsHelperService
+		List<AnalyticsDTO> result = analyticHelperService
 				.findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate);
 
 		assertNotNull(result);
@@ -204,7 +204,7 @@ class AnalyticsHelperServiceTests {
 		when(analyticsRepository.existsById(id)).thenReturn(true);
 		doNothing().when(analyticsRepository).deleteById(id);
 
-		assertDoesNotThrow(() -> analyticsHelperService.deleteAnalyticsById(id));
+		assertDoesNotThrow(() -> analyticHelperService.deleteAnalyticsById(id));
 
 		verify(analyticsRepository).deleteById(id);
 	}
@@ -215,7 +215,7 @@ class AnalyticsHelperServiceTests {
 		when(analyticsRepository.existsById(id)).thenReturn(false);
 
 		assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
-				() -> analyticsHelperService.deleteAnalyticsById(id));
+				() -> analyticHelperService.deleteAnalyticsById(id));
 		verify(analyticsRepository, never()).deleteById(id);
 	}
 
@@ -224,7 +224,7 @@ class AnalyticsHelperServiceTests {
 		String name = "Glucose";
 		when(analyticsRepository.existsByName(name.toUpperCase())).thenReturn(true);
 
-		assertDoesNotThrow(() -> analyticsHelperService.ensureNameExists(name));
+		assertDoesNotThrow(() -> analyticHelperService.ensureNameExists(name));
 	}
 
 	@Test
@@ -233,7 +233,7 @@ class AnalyticsHelperServiceTests {
 		when(analyticsRepository.existsByName(name.toUpperCase())).thenReturn(false);
 
 		assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
-				() -> analyticsHelperService.ensureNameExists(name));
+				() -> analyticHelperService.ensureNameExists(name));
 	}
 
 	@Test
@@ -243,29 +243,29 @@ class AnalyticsHelperServiceTests {
 
 		CustomGlobalErrorHandling.ResourceNotFoundException exception =
 				assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
-						() -> analyticsHelperService.ensureNameExists(name));
+						() -> analyticHelperService.ensureNameExists(name));
 
-		assertEquals("AnalyticsRecord by name not found", exception.getMessage());
+		assertEquals("AnalyticsDTO by name not found", exception.getMessage());
 	}
 
 	@Test
 	void isAnalyticsNonExistent_WithNonExistentRecord_ShouldReturnTrue() {
-		AnalyticsRecord record = createSampleRecord();
+		AnalyticsDTO record = createSampleRecord();
 		when(analyticsRepository.existsByDateAndLevelAndName(record.date(), record.level(),
 				record.name())).thenReturn(false);
 
-		boolean result = analyticsHelperService.isAnalyticsNonExistent(record);
+		boolean result = analyticHelperService.isAnalyticsNonExistent(record);
 
 		assertTrue(result);
 	}
 
 	@Test
 	void isAnalyticsNonExistent_WithExistentRecord_ShouldReturnFalse() {
-		AnalyticsRecord record = createSampleRecord();
+		AnalyticsDTO record = createSampleRecord();
 		when(analyticsRepository.existsByDateAndLevelAndName(record.date(), record.level(),
 				record.name())).thenReturn(true);
 
-		boolean result = analyticsHelperService.isAnalyticsNonExistent(record);
+		boolean result = analyticHelperService.isAnalyticsNonExistent(record);
 
 		assertFalse(result);
 	}
@@ -275,14 +275,14 @@ class AnalyticsHelperServiceTests {
 		String name = "Glucose";
 		LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
 		LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
-		List<Analytics> records =
-				createSampleRecordList().stream().map(AnalyticsMapper::toEntity).toList();
+		List<Analytic> records =
+				createSampleRecordList().stream().map(AnalyticMapper::toEntity).toList();
 
 		when(analyticsRepository.findByNameAndDateBetweenGroupByLevel(eq(name), eq(startDate),
 				eq(endDate), any(Pageable.class))).thenReturn(records);
 
-		List<GroupedValuesByLevel> result =
-				analyticsHelperService.findGroupedAnalyticsByLevel(name, startDate, endDate);
+		List<GroupedValuesByLevelDTO> result =
+				analyticHelperService.findGroupedAnalyticsByLevel(name, startDate, endDate);
 
 		assertNotNull(result);
 		assertFalse(result.isEmpty());

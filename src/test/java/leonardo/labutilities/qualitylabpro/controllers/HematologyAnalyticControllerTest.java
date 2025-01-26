@@ -2,10 +2,10 @@ package leonardo.labutilities.qualitylabpro.controllers;
 
 import leonardo.labutilities.qualitylabpro.configs.TestSecurityConfig;
 import leonardo.labutilities.qualitylabpro.controllers.analytics.HematologyAnalyticsController;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationRecord;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
 import leonardo.labutilities.qualitylabpro.repositories.UserRepository;
-import leonardo.labutilities.qualitylabpro.services.analytics.HematologyAnalyticsService;
+import leonardo.labutilities.qualitylabpro.services.analytics.HematologyAnalyticService;
 import leonardo.labutilities.qualitylabpro.services.authentication.TokenService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @AutoConfigureJsonTesters
 @ActiveProfiles("test")
-public class HematologyAnalyticsControllerTest {
+public class HematologyAnalyticControllerTest {
 
     @MockitoBean
     private TokenService tokenService;
@@ -48,16 +48,16 @@ public class HematologyAnalyticsControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private HematologyAnalyticsService hematologyAnalyticsService;
+    private HematologyAnalyticService hematologyAnalyticsService;
 
     @Autowired
-    private JacksonTester<List<AnalyticsRecord>> jacksonGenericValuesRecord;
+    private JacksonTester<List<AnalyticsDTO>> jacksonGenericValuesRecord;
 
     @Test
     @DisplayName("It should return a list of all analytics by level")
     void getAllAnalytics_by_level_return_list() throws Exception {
-        List<AnalyticsRecord> records = createSampleRecordList();
-        Page<AnalyticsRecord> page = new PageImpl<>(records);
+        List<AnalyticsDTO> records = createSampleRecordList();
+        Page<AnalyticsDTO> page = new PageImpl<>(records);
 
         when(hematologyAnalyticsService
                      .findAnalyticsByNameInByLevel(anyList(), any(), any(), any(), any(Pageable.class)))
@@ -76,7 +76,7 @@ public class HematologyAnalyticsControllerTest {
     @Test
     @DisplayName("It should return HTTP code 201 when analytics records are saved")
     void analytics_post_return_201() throws Exception {
-        List<AnalyticsRecord> records = createSampleRecordList();
+        List<AnalyticsDTO> records = createSampleRecordList();
         mockMvc.perform(post("/hematology-analytics").contentType(MediaType.APPLICATION_JSON)
                                                      .content(jacksonGenericValuesRecord.write(records).getJson()))
                .andExpect(status().isCreated());
@@ -86,8 +86,8 @@ public class HematologyAnalyticsControllerTest {
     @Test
     @DisplayName("It should return a list of all analytics with pagination")
     void getAllAnalytics_return_list() throws Exception {
-        List<AnalyticsRecord> records = createSampleRecordList();
-        Page<AnalyticsRecord> page = new PageImpl<>(records);
+        List<AnalyticsDTO> records = createSampleRecordList();
+        Page<AnalyticsDTO> page = new PageImpl<>(records);
 
         when(hematologyAnalyticsService.findAnalyticsPagedByNameIn(anyList(), any(Pageable.class)))
                 .thenReturn(page);
@@ -105,8 +105,8 @@ public class HematologyAnalyticsControllerTest {
     @Test
     @DisplayName("It should return analytics records for a date range")
     void getAnalyticsByDateRange_return_analytics() throws Exception {
-        List<AnalyticsRecord> records = createSampleRecordList();
-        Page<AnalyticsRecord> page = new PageImpl<>(records);
+        List<AnalyticsDTO> records = createSampleRecordList();
+        Page<AnalyticsDTO> page = new PageImpl<>(records);
 
         when(hematologyAnalyticsService.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any()))
                 .thenReturn(page);
@@ -122,7 +122,7 @@ public class HematologyAnalyticsControllerTest {
     @Test
     @DisplayName("It should return mean and standard deviation for a date range")
     void getMeanAndStandardDeviation_return_result() throws Exception {
-        MeanAndStdDeviationRecord result = new MeanAndStdDeviationRecord(10.5, 2.3);
+        MeanAndStdDeviationDTO result = new MeanAndStdDeviationDTO(10.5, 2.3);
         when(hematologyAnalyticsService.calculateMeanAndStandardDeviation(any(), any(), any(),
                                                                           any())).thenReturn(result);
 

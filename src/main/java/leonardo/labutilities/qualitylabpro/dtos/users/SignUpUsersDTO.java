@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-public record SignUpUsersRecord(
+public record SignUpUsersDTO(
         @Email
         String email,
         @NotNull @Pattern(

@@ -1,7 +1,7 @@
 package leonardo.labutilities.qualitylabpro.entities;
 
 import jakarta.persistence.*;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorComponent;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity(name = "generic_analytics")
-public class Analytics extends RepresentationModel<Analytics> {
+public class Analytic extends RepresentationModel<Analytic> {
 
     LocalDateTime date;
     @Column(name = "level_lot")
@@ -34,12 +34,12 @@ public class Analytics extends RepresentationModel<Analytics> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    public Analytics() {
+    public Analytic() {
     }
 
-    public Analytics(Long id, LocalDateTime date, String levelLot, String testLot,
-                     String name, String level, double value, double mean, double sd, String unitValue,
-                     String rules, String description, RulesValidatorComponent rulesValidatorComponent) {
+    public Analytic(Long id, LocalDateTime date, String levelLot, String testLot,
+                    String name, String level, double value, double mean, double sd, String unitValue,
+                    String rules, String description, RulesValidatorComponent rulesValidatorComponent) {
         this.id = id;
         this.date = date;
         this.levelLot = levelLot;
@@ -55,8 +55,8 @@ public class Analytics extends RepresentationModel<Analytics> {
         this.rulesValidatorComponent = rulesValidatorComponent;
     }
 
-    public Analytics(AnalyticsRecord values,
-                     RulesValidatorComponent rulesValidatorComponent) {
+    public Analytic(AnalyticsDTO values,
+                    RulesValidatorComponent rulesValidatorComponent) {
         this.date = values.date();
         this.levelLot = values.level_lot();
         this.testLot = values.test_lot();

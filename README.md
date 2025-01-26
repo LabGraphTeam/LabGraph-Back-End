@@ -145,29 +145,29 @@ docker-compose up --build --force-recreate
 
 ### CoagulationAnalyticsService
 
-Handles analytics related to coagulation tests.
+Handles analytic related to coagulation tests.
 
 ### BiochemistryAnalyticsService
 
-Handles analytics related to biochemistry tests.
+Handles analytic related to biochemistry tests.
 
 ### HematologyAnalyticsService
 
-Handles analytics related to hematology tests.
+Handles analytic related to hematology tests.
 
 ## Controllers
 
 ### CoagulationAnalyticsController
 
-Manages endpoints for coagulation analytics.
+Manages endpoints for coagulation analytic.
 
 ### BiochemistryAnalyticsController
 
-Manages endpoints for biochemistry analytics.
+Manages endpoints for biochemistry analytic.
 
 ### HematologyAnalyticsController
 
-Manages endpoints for hematology analytics.
+Manages endpoints for hematology analytic.
 
 ## React Recharts.js Front-end
 

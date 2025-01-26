@@ -1,6 +1,6 @@
 package leonardo.labutilities.qualitylabpro.utils.components;
 
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsRecord;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
 import org.springframework.stereotype.Component;
 import java.util.HashSet;
@@ -30,14 +30,14 @@ public class ControlRulesValidators {
 					""";
 
 
-	public String validateRules(List<AnalyticsRecord> records) {
+	public String validateRules(List<AnalyticsDTO> records) {
 		StringBuilder errors = new StringBuilder();
 		errors.append("<div style='font-family: Arial, sans-serif;'>");
 
 		// Track already reported violations
 		Set<String> reportedViolations = new HashSet<>();
 
-		for (AnalyticsRecord record : records) {
+		for (AnalyticsDTO record : records) {
 			// Create unique key for test/level combination
 			String violationKey = record.name() + "-" + record.level();
 
@@ -50,7 +50,7 @@ public class ControlRulesValidators {
 					analyticsRepository.findLast10ByNameAndLevel(record.name(), record.level());
 			var mean = analyticsRecords.getFirst().mean();
 			var stdDev = analyticsRecords.getFirst().sd();
-			var values = analyticsRecords.stream().map(AnalyticsRecord::value).toList();
+			var values = analyticsRecords.stream().map(AnalyticsDTO::value).toList();
 
 			if (rule4_1s(values, mean, stdDev)) {
 				errors.append(String.format(ERROR_MESSAGE_TEMPLATE, "4-1s", record.name(),
