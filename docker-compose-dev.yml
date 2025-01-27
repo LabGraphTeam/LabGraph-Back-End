@@ -12,7 +12,7 @@ services:
       - mysql-volume:/var/lib/mysql
       - ./database:/docker-entrypoint-initdb.d
     networks:
-      - app-network
+      - qualitylab-net
 
   quality-lab-pro:
     restart: always
@@ -37,22 +37,26 @@ services:
       EMAIL_TO_SEND_LIST: ${EMAIL_TO_SEND_LIST}
     command: [ "java", "-jar", "-Dspring.profiles.active=local", "app.jar" ]
     networks:
-      - app-network
+      - qualitylab-net
 
-  nginx:
-    restart: always
-    image: nginx:latest
-    volumes:
-      - ./nginx/dev:/etc/nginx:ro
-    ports:
-      - '80:80'
-      - '443:443'
-    networks:
-      - app-network
+  # nginx:
+  #   restart: always
+  #   image: nginx:latest
+  #   volumes:
+  #     - ./nginx/dev:/etc/nginx:ro
+  #   ports:
+  #     - '80:80'
+  #     - '443:443'
+  #   networks:
+  #     - qualitylab-net
 
 volumes:
   mysql-volume:
 
 networks:
-  app-network:
+  qualitylab-net:
+    name: qualitylab-net
     driver: bridge
+    attachable: true
+    driver_opts:
+      com.docker.network.bridge.name: qualitylab-net

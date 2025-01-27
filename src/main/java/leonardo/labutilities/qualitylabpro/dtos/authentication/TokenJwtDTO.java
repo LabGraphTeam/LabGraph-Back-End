@@ -1,4 +1,6 @@
 package leonardo.labutilities.qualitylabpro.dtos.authentication;
 
-public record TokenJwtDTO(String tokenJWT) {
+import java.time.Instant;
+
+public record TokenJwtDTO(String tokenJWT, Instant dateExp) {
 }

@@ -37,8 +37,7 @@ public class UserService {
 						+ "\nYour Team",
 				recoveryEmailDTO.temporaryPassword());
 		log.info("Sending recovery email to: {}", recoveryEmailDTO.email());
-		emailService
-				.sendPlainTextEmail(new EmailDTO(recoveryEmailDTO.email(), subject, message));
+		emailService.sendPlainTextEmail(new EmailDTO(recoveryEmailDTO.email(), subject, message));
 	}
 
 	public void recoverPassword(String username, String email) {
@@ -85,7 +84,7 @@ public class UserService {
 			emailService.notifyFailedUserLogin(user.getUsername(), user.getEmail(),
 					LocalDateTime.now());
 		}
-		return new TokenJwtDTO(tokenService.generateToken(user));
+		return tokenService.generateToken(user);
 	}
 
 	public void updateUserPassword(String name, String email, String password, String newPassword) {
