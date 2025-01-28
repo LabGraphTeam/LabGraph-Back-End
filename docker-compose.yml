@@ -40,6 +40,7 @@ services:
     image: nginx:latest
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /etc/ssl/lab-spec.systems:/etc/ssl/lab-spec.systems:ro
       - ./nginx:/etc/nginx:ro
       - ./nginx/certs:/etc/nginx/certs:ro
     networks:
