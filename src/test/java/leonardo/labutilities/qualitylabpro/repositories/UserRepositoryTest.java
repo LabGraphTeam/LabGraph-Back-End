@@ -41,7 +41,7 @@ class UserRepositoryTest {
     @Transactional
     void findByLoginUserDataBaseIsUserExists() {
         setupTestData();
-        var userNotNull = userRepository.findByUsername("UserTest");
+        var userNotNull = userRepository.getReferenceByUsername("UserTest");
         assertThat(userNotNull).isNotNull();
     }
 
@@ -49,7 +49,7 @@ class UserRepositoryTest {
     @DisplayName("return null when user is empty")
     @Transactional
     void findByLoginUserDataBaseIsUserNotExists() {
-        var userEmpty = userRepository.findByUsername("");
+        var userEmpty = userRepository.getReferenceByUsername("");
         assertThat(userEmpty).isNull();
     }
 

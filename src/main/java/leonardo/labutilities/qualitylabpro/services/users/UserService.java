@@ -75,26 +75,24 @@ public class UserService {
 		return userRepository.save(user);
 	}
 
-
 	public TokenJwtDTO signIn(String identifier, String password) {
-		User user;
-		if (identifier.contains("@")) {
-			user = (User) userRepository.findByEmail(identifier);
-		} else {
-			user = (User) userRepository.findByUsername(identifier);
-		}
 
-		if (user == null) {
-			throw new UsernameNotFoundException("User not found: " + identifier);
-		}
+		final var credential = userRepository.findByUsernameOrEmail(identifier, identifier).getUsername();
 
-		final var authToken = new UsernamePasswordAuthenticationToken(user.getEmail(), password);
+		final var authToken = new UsernamePasswordAuthenticationToken(credential, password);
 		final var auth = authenticationManager.authenticate(authToken);
+		final var user = (User) auth.getPrincipal();
 		if (!auth.isAuthenticated()) {
-			emailService.notifyFailedUserLogin(user.getUsername(), user.getEmail(), LocalDateTime.now());
+			try {
+				emailService.notifyFailedUserLogin(user.getUsername(), user.getEmail(),
+						LocalDateTime.now());
+			} catch (Exception e) {
+				log.error("Failed to send analytics notification identifier", e);
+			}
 		}
 		return tokenService.generateToken(user);
 	}
+
 	public void updateUserPassword(String name, String email, String password, String newPassword) {
 		var oldPass = userRepository.getReferenceByUsernameAndEmail(name, email);
 		if (!BCryptEncoderComponent.decrypt(password, oldPass.getPassword())
