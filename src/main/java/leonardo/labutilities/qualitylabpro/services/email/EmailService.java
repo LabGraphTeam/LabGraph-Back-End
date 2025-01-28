@@ -33,7 +33,7 @@ public class EmailService {
 	@Value("${spring.mail.username}")
 	String emailFrom;
 
-	@Value("${identifier.to.send.list}")
+	@Value("${email.to.send.list}")
 	String emailListString;
 
 
