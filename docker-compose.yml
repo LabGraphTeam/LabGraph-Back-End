@@ -50,6 +50,7 @@ services:
       - '443:443'
 networks:
   qualitylab-net:
-    external: true
+    driver: bridge
+    name: qualitylab-net
 volumes:
   mysql-volume:
