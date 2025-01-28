@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static leonardo.labutilities.qualitylabpro.utils.blacklist.AnalyticsBlackList.BLACK_LIST;
+
 @Slf4j
 @Service
 public abstract class AnalyticHelperService implements IAnalyticHelperService {
@@ -43,7 +45,8 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 
 	private boolean isRuleBroken(AnalyticsDTO record) {
 		String rules = record.rules();
-		return ("+3s".equals(rules) || "-3s".equals(rules) || "-2s".equals(rules) || "+2s".equals(rules));
+		return ("+3s".equals(rules) || "-3s".equals(rules) || "-2s".equals(rules) || "+2s".equals(rules))
+				&& !BLACK_LIST.contains(record.name());
 	}
 
 	public List<AnalyticsDTO> validateAnalyticsNameExists(List<AnalyticsDTO> results) {
