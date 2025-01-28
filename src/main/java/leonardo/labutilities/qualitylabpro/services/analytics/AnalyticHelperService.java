@@ -170,9 +170,12 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 		if (notPassedList.isEmpty()) {
 			return;
 		}
-
-		var content = controlRulesValidators.validateRules(notPassedList);
-		emailService.sendFailedAnalyticsNotification(notPassedList, content);
+		try {
+			var content = controlRulesValidators.validateRules(notPassedList);
+			emailService.sendFailedAnalyticsNotification(notPassedList, content);
+		} catch (Exception e) {
+			log.error("Error sending email notification: {}", e.getMessage());
+		}
 	}
 
 
