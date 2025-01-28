@@ -12,6 +12,7 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(@NonNull CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:3000", "https://quality-lab-pro.vercel.app",
+                                "https://www.lab-spec.systems", "https://lab-spec.systems",
                                 "https://68.183.141.155", "https://leomeireles-dev.xyz")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD")
                 .allowedHeaders("*").exposedHeaders("Authorization").allowCredentials(true)
