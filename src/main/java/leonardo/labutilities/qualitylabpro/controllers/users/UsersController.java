@@ -60,7 +60,7 @@ public class UsersController {
     @Transactional
     @PostMapping("/sign-up")
     public ResponseEntity<Void> signUp(@Valid @RequestBody final SignUpUsersDTO signUpUsersDTO) {
-        userService.signUp(signUpUsersDTO.username(), signUpUsersDTO.email(), signUpUsersDTO.password());
+        userService.signUp(signUpUsersDTO.identifier(), signUpUsersDTO.email(), signUpUsersDTO.password());
         return ResponseEntity.noContent().build();
     }
 

@@ -25,7 +25,7 @@ public class TokenService {
 	public TokenJwtDTO generateToken(User user) {
 		try {
 			var algorithm = Algorithm.HMAC256(SECRET);
-			return new TokenJwtDTO(JWT.create().withIssuer(ISSUER).withSubject(user.getEmail())
+			return new TokenJwtDTO(JWT.create().withIssuer(ISSUER).withSubject(user.getUsername())
 					.withExpiresAt(dateExp()).sign(algorithm), dateExp());
 		} catch (JWTCreationException exception) {
 			throw new RuntimeException("Error generating token", exception);

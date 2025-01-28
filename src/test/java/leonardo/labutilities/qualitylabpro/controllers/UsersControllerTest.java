@@ -88,7 +88,7 @@ class UsersControllerTest {
 		mockMvc.perform(post("/users/sign-up").contentType(MediaType.APPLICATION_JSON)
 				.content(usersRecordJacksonTester.write(usersDTO).getJson()))
 				.andExpect(status().isNoContent())
-				.andExpect(jsonPath("$.username").value("testUser"))
+				.andExpect(jsonPath("$.identifier").value("testUser"))
 				.andExpect(jsonPath("$.identifier").value("test@example.com"));
 
 		verify(userService).signUp(usersDTO.username(), usersDTO.password(), usersDTO.email());

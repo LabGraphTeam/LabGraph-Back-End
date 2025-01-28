@@ -40,7 +40,7 @@ class UserServiceTest {
         when(userRepository.existsByUsernameAndEmail(anyString(), anyString())).thenReturn(true);
         when(passwordRecoveryTokenManager.generateTemporaryPassword()).thenReturn("tempPassword");
 
-        userService.recoverPassword("username", "identifier@example.com");
+        userService.recoverPassword("identifier", "identifier@example.com");
 
         verify(passwordRecoveryTokenManager).generateAndStoreToken("identifier@example.com",
                                                                    "tempPassword");
@@ -52,12 +52,12 @@ class UserServiceTest {
         when(userRepository.existsByUsernameAndEmail(anyString(), anyString())).thenReturn(false);
 
         assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
-                     () -> userService.recoverPassword("username", "identifier@example.com"));
+                     () -> userService.recoverPassword("identifier", "identifier@example.com"));
     }
 
     @Test
     void testChangePassword_ValidToken() {
-        User user = new User("username", BCryptEncoderComponent.encrypt("newPassword"),
+        User user = new User("identifier", BCryptEncoderComponent.encrypt("newPassword"),
                              "identifier@example.com", UserRoles.USER);
         when(passwordRecoveryTokenManager.isRecoveryTokenValid(anyString(), anyString()))
                 .thenReturn(true);
@@ -80,44 +80,44 @@ class UserServiceTest {
         when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
         assertThrows(CustomGlobalErrorHandling.UserAlreadyExistException.class,
-                     () -> userService.signUp("username", "password", "identifier@example.com"));
+                     () -> userService.signUp("identifier", "password", "identifier@example.com"));
     }
 
     @Test
     void testSignUp_NewUser() {
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(
-                new User("username", "encryptedPassword", "identifier@example.com", UserRoles.USER));
+                new User("identifier", "encryptedPassword", "identifier@example.com", UserRoles.USER));
 
-        User user = userService.signUp("username", "password", "identifier@example.com");
+        User user = userService.signUp("identifier", "password", "identifier@example.com");
 
         assertNotNull(user);
-        assertEquals("username", user.getUsername());
+        assertEquals("identifier", user.getUsername());
         assertEquals("identifier@example.com", user.getEmail());
     }
 
     @Test
     void should_return_error_with_testUpdateUserPassword_PasswordMatches() {
-        User user = new User("username", BCryptEncoderComponent.encrypt("newPassword"),
+        User user = new User("identifier", BCryptEncoderComponent.encrypt("newPassword"),
                              "identifier@example.com", UserRoles.USER);
 
         when(userRepository.getReferenceByUsernameAndEmail(anyString(), anyString()))
                 .thenReturn(user);
 
         assertThrows(CustomGlobalErrorHandling.PasswordNotMatchesException.class, () -> userService
-                .updateUserPassword("username", "identifier@example.com", "oldPassword", "newPassword"));
+                .updateUserPassword("identifier", "identifier@example.com", "oldPassword", "newPassword"));
         verify(userRepository, never()).setPasswordWhereByUsername(anyString(), anyString());
     }
 
     @Test
     void testUpdateUserPassword_PasswordDoesNotMatch() {
-        User user = new User("username", BCryptEncoderComponent.encrypt("oldPassword"),
+        User user = new User("identifier", BCryptEncoderComponent.encrypt("oldPassword"),
                              "identifier@example.com", UserRoles.USER);
         when(userRepository.getReferenceByUsernameAndEmail(anyString(), anyString()))
                 .thenReturn(user);
 
         assertThrows(CustomGlobalErrorHandling.PasswordNotMatchesException.class,
-                     () -> userService.updateUserPassword("username", "identifier@example.com",
+                     () -> userService.updateUserPassword("identifier", "identifier@example.com",
                                                           "wrongPassword", "newPassword"));
     }
 }
