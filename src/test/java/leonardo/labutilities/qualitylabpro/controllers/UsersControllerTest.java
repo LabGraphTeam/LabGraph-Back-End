@@ -89,7 +89,7 @@ class UsersControllerTest {
 				.content(usersRecordJacksonTester.write(usersDTO).getJson()))
 				.andExpect(status().isNoContent())
 				.andExpect(jsonPath("$.username").value("testUser"))
-				.andExpect(jsonPath("$.email").value("test@example.com"));
+				.andExpect(jsonPath("$.identifier").value("test@example.com"));
 
 		verify(userService).signUp(usersDTO.username(), usersDTO.password(), usersDTO.email());
 	}
@@ -102,7 +102,7 @@ class UsersControllerTest {
 		LoginUserDTO loginRecord = new LoginUserDTO("test@example.com", "password");
 		TokenJwtDTO tokenJwtDTO = new TokenJwtDTO("TokenJwt", dateExp);
 
-		when(userService.signIn(loginRecord.email(), loginRecord.password()))
+		when(userService.signIn(loginRecord.identifier(), loginRecord.password()))
 				.thenReturn(tokenJwtDTO);
 
 		mockMvc.perform(post("/users/sign-in").contentType(MediaType.APPLICATION_JSON)
@@ -170,7 +170,7 @@ class UsersControllerTest {
 	@Test
 	@DisplayName("Should return 400 when signing up with invalid data")
 	void signUp_with_invalid_data_return_400() throws Exception {
-		UsersDTO invalidRecord = new UsersDTO("", "", "invalid-email");
+		UsersDTO invalidRecord = new UsersDTO("", "", "invalid-identifier");
 
 		mockMvc.perform(post("/users/sign-up").contentType(MediaType.APPLICATION_JSON)
 				.content(usersRecordJacksonTester.write(invalidRecord).getJson()))
@@ -189,6 +189,6 @@ class UsersControllerTest {
 				.content(loginRecordJacksonTester.write(loginRecord).getJson()))
 				.andExpect(status().isUnauthorized());
 
-		verify(userService, times(1)).signIn(loginRecord.email(), loginRecord.password());
+		verify(userService, times(1)).signIn(loginRecord.identifier(), loginRecord.password());
 	}
 }

@@ -68,9 +68,9 @@ public class CustomGlobalErrorHandling {
     @ExceptionHandler(UserAlreadyExistException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiError> handleUserAlreadyExist(UserAlreadyExistException ex, HttpServletRequest request) {
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Username or email already exists", request.getRequestURI());
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Username or identifier already exists", request.getRequestURI());
 
-        log.error("Username or email already exists at {}: {}", request.getRequestURI(), ex.getMessage());
+        log.error("Username or identifier already exists at {}: {}", request.getRequestURI(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }
 

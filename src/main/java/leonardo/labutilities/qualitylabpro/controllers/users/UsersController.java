@@ -67,7 +67,7 @@ public class UsersController {
     @PostMapping("/sign-in")
     public ResponseEntity<TokenJwtDTO> singIn(
             @RequestBody @Valid final LoginUserDTO loginUserDTO) {
-        final var token = userService.signIn(loginUserDTO.email(),
+        final var token = userService.signIn(loginUserDTO.identifier(),
                                              loginUserDTO.password());
         return ResponseEntity.ok(token);
     }

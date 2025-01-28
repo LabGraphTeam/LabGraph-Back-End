@@ -33,7 +33,7 @@ public class EmailService {
 	@Value("${spring.mail.username}")
 	String emailFrom;
 
-	@Value("${email.to.send.list}")
+	@Value("${identifier.to.send.list}")
 	String emailListString;
 
 
@@ -46,7 +46,7 @@ public class EmailService {
 				: List.of();
 
 		if (emailList.isEmpty()) {
-			log.warn("No email recipients configured in email.to.send.list");
+			log.warn("No identifier recipients configured in identifier.to.send.list");
 		}
 	}
 
@@ -67,18 +67,18 @@ public class EmailService {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 			helper.setFrom(emailFrom);
 
-			// Convert email list to InternetAddress array
+			// Convert identifier list to InternetAddress array
 			InternetAddress[] internetAddresses = emailList.stream().map(emailAddress -> {
 				try {
 					return new InternetAddress(emailAddress);
 				} catch (AddressException e) {
-					log.error("Invalid email address: {}", emailAddress, e);
+					log.error("Invalid identifier address: {}", emailAddress, e);
 					return null;
 				}
 			}).filter(Objects::nonNull).toArray(InternetAddress[]::new);
 
 			if (internetAddresses.length == 0) {
-				log.error("No valid email addresses found");
+				log.error("No valid identifier addresses found");
 				return;
 			}
 
@@ -87,10 +87,10 @@ public class EmailService {
 			helper.setText(buildEmailBody(emailDTO.body()), true);
 
 			javaMailSender.send(mimeMessage);
-			log.info("HTML email sent successfully to {} recipients", internetAddresses.length);
+			log.info("HTML identifier sent successfully to {} recipients", internetAddresses.length);
 
 		} catch (MessagingException e) {
-			log.error("Failed to send HTML email: {}", e.getMessage(), e);
+			log.error("Failed to send HTML identifier: {}", e.getMessage(), e);
 			throw new RuntimeException("Email sending failed", e);
 		}
 	}
@@ -114,7 +114,7 @@ public class EmailService {
 				try {
 					return new InternetAddress(email);
 				} catch (AddressException e) {
-					log.error("Invalid email address: {}", email, e);
+					log.error("Invalid identifier address: {}", email, e);
 					return null;
 				}
 			}).filter(Objects::nonNull).toArray(InternetAddress[]::new);
@@ -126,7 +126,7 @@ public class EmailService {
 
 			log.info("Failed analytics notification sent for {} records", failedRecords.size());
 		} catch (MessagingException e) {
-			log.error("Failed to send analytics notification email", e);
+			log.error("Failed to send analytics notification identifier", e);
 			throw new RuntimeException("Failed to send analytics notification", e);
 		}
 	}

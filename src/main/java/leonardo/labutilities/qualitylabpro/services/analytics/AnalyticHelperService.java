@@ -174,7 +174,7 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 			var content = controlRulesValidators.validateRules(notPassedList);
 			emailService.sendFailedAnalyticsNotification(notPassedList, content);
 		} catch (Exception e) {
-			log.error("Error sending email notification: {}", e.getMessage());
+			log.error("Error sending identifier notification: {}", e.getMessage());
 		}
 	}
 

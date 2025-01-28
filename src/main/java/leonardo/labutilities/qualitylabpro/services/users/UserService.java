@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -36,7 +37,7 @@ public class UserService {
 				"Dear user,\n\nUse the following temporary password to recover your account: %s\n\nBest regards,"
 						+ "\nYour Team",
 				recoveryEmailDTO.temporaryPassword());
-		log.info("Sending recovery email to: {}", recoveryEmailDTO.email());
+		log.info("Sending recovery identifier to: {}", recoveryEmailDTO.email());
 		emailService.sendPlainTextEmail(new EmailDTO(recoveryEmailDTO.email(), subject, message));
 	}
 
@@ -75,18 +76,25 @@ public class UserService {
 	}
 
 
-	public TokenJwtDTO signIn(String email, String password) {
+	public TokenJwtDTO signIn(String identifier, String password) {
+		User user;
+		if (identifier.contains("@")) {
+			user = (User) userRepository.findByEmail(identifier);
+		} else {
+			user = (User) userRepository.findByUsername(identifier);
+		}
 
-		final var authToken = new UsernamePasswordAuthenticationToken(email, password);
+		if (user == null) {
+			throw new UsernameNotFoundException("User not found: " + identifier);
+		}
+
+		final var authToken = new UsernamePasswordAuthenticationToken(user.getEmail(), password);
 		final var auth = authenticationManager.authenticate(authToken);
-		final var user = (User) auth.getPrincipal();
 		if (!auth.isAuthenticated()) {
-			emailService.notifyFailedUserLogin(user.getUsername(), user.getEmail(),
-					LocalDateTime.now());
+			emailService.notifyFailedUserLogin(user.getUsername(), user.getEmail(), LocalDateTime.now());
 		}
 		return tokenService.generateToken(user);
 	}
-
 	public void updateUserPassword(String name, String email, String password, String newPassword) {
 		var oldPass = userRepository.getReferenceByUsernameAndEmail(name, email);
 		if (!BCryptEncoderComponent.decrypt(password, oldPass.getPassword())
