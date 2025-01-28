@@ -71,7 +71,12 @@ public class UserService {
 		if (userRepository.existsByEmail(email)) {
 			throw new CustomGlobalErrorHandling.UserAlreadyExistException();
 		}
-		emailService.notifyUserSignup(user.getUsername(), user.getEmail(), LocalDateTime.now());
+		try {
+			emailService.notifyUserSignup(user.getUsername(), user.getEmail(), LocalDateTime.now());
+		} catch (Exception e) {
+			log.error("Failed signup for user: {}. Exception: ", user.getEmail(), e);
+		}
+
 		return userRepository.save(user);
 	}
 

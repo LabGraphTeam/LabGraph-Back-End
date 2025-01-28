@@ -166,7 +166,7 @@ public class EmailService {
 			LocalDateTime date) {
 		String subject = String.format("User %s - %s", username, actionType);
 		String content = createUserActionEmailContent(actionType, username, email, date);
-		sendHtmlEmail(new EmailDTO(email, subject, content));
+		sendPlainTextEmail(new EmailDTO(email, subject, content));
 	}
 
 	private String createUserActionEmailContent(String actionType, String username, String email,
