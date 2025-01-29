@@ -32,14 +32,8 @@ jobs:
         with:
           scan-type: 'fs'
           scan-ref: '.'
-          format: 'table'
-          exit-code: '0'  # Changed to 0 to not fail the build
-          ignore-unfixed: true
-          severity: 'CRITICAL,HIGH'
-          scanners: 'vuln'  # Focus on vulnerability scanning
+          trivy-config: trivy.yaml
           cache-dir: '/tmp/trivy-cache'
-          timeout: '5m'
-          debug: true  # Added debug mode for more info
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
