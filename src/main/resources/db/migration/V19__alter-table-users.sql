@@ -1,0 +1,3 @@
+ALTER TABLE users
+MODIFY COLUMN
+username varchar(100) NOT NULL;
