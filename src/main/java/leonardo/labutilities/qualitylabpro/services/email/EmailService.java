@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +60,26 @@ public class EmailService {
 		javaMailSender.send(message);
 	}
 
-	@Async
+	public void sendHtmlEmailWithoutBcc(EmailDTO emailDTO) {
+		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+		try {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+			helper.setFrom(emailFrom);
+
+			helper.addTo(emailDTO.to());
+			helper.setSubject(EMAIL_SUBJECT_PREFIX + emailDTO.subject());
+			helper.setText(buildEmailBody(emailDTO.body()), true);
+
+			javaMailSender.send(mimeMessage);
+			log.info("HTML identifier sent successfully to {} client", emailDTO.to());
+
+		} catch (MessagingException e) {
+			log.error("Failed to send HTML identifier: {}", e.getMessage(), e);
+			throw new RuntimeException("Email sending failed", e);
+		}
+	}
+
+
 	public void sendHtmlEmail(EmailDTO emailDTO) {
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		try {
@@ -170,7 +188,7 @@ public class EmailService {
 			LocalDateTime date) {
 		String subject = String.format("User %s - %s", username, actionType);
 		String content = createUserActionEmailContent(actionType, username, email, date);
-		this.sendPlainTextEmail(new EmailDTO(email, subject, content));
+		sendHtmlEmailWithoutBcc(new EmailDTO(email, subject, content));
 	}
 
 	private String createUserActionEmailContent(String actionType, String username, String email,
