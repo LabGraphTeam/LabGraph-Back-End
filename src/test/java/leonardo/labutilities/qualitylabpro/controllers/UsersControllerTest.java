@@ -1,17 +1,17 @@
 package leonardo.labutilities.qualitylabpro.controllers;
 
-import leonardo.labutilities.qualitylabpro.configs.TestSecurityConfig;
-import leonardo.labutilities.qualitylabpro.controllers.users.UsersController;
-import leonardo.labutilities.qualitylabpro.dtos.authentication.LoginUserDTO;
-import leonardo.labutilities.qualitylabpro.dtos.authentication.TokenJwtDTO;
-import leonardo.labutilities.qualitylabpro.dtos.users.RecoverPasswordDTO;
-import leonardo.labutilities.qualitylabpro.dtos.users.UpdatePasswordDTO;
-import leonardo.labutilities.qualitylabpro.dtos.users.UsersDTO;
-import leonardo.labutilities.qualitylabpro.entities.User;
-import leonardo.labutilities.qualitylabpro.enums.UserRoles;
-import leonardo.labutilities.qualitylabpro.repositories.UserRepository;
-import leonardo.labutilities.qualitylabpro.services.authentication.TokenService;
-import leonardo.labutilities.qualitylabpro.services.users.UserService;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,16 +32,19 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import leonardo.labutilities.qualitylabpro.configs.TestSecurityConfig;
+import leonardo.labutilities.qualitylabpro.controllers.users.UsersController;
+import leonardo.labutilities.qualitylabpro.dtos.authentication.LoginUserDTO;
+import leonardo.labutilities.qualitylabpro.dtos.authentication.TokenJwtDTO;
+import leonardo.labutilities.qualitylabpro.dtos.users.RecoverPasswordDTO;
+import leonardo.labutilities.qualitylabpro.dtos.users.SignUpUsersDTO;
+import leonardo.labutilities.qualitylabpro.dtos.users.UpdatePasswordDTO;
+import leonardo.labutilities.qualitylabpro.dtos.users.UsersDTO;
+import leonardo.labutilities.qualitylabpro.entities.User;
+import leonardo.labutilities.qualitylabpro.enums.UserRoles;
+import leonardo.labutilities.qualitylabpro.repositories.UserRepository;
+import leonardo.labutilities.qualitylabpro.services.authentication.TokenService;
+import leonardo.labutilities.qualitylabpro.services.users.UserService;
 
 @WebMvcTest(UsersController.class)
 @Import(TestSecurityConfig.class)
@@ -69,6 +72,10 @@ class UsersControllerTest {
 	private JacksonTester<UsersDTO> usersRecordJacksonTester;
 
 	@Autowired
+	private JacksonTester<SignUpUsersDTO> signUpUsersDTOJacksonTester;
+
+
+	@Autowired
 	private JacksonTester<LoginUserDTO> loginRecordJacksonTester;
 
 	@Autowired
@@ -80,18 +87,15 @@ class UsersControllerTest {
 	@Test
 	@DisplayName("Should return 204 when signing up a new user")
 	void signUp_return_204() throws Exception {
-		UsersDTO usersDTO = new UsersDTO("testUser", "Marmota2024@", "test@example.com");
-		User user = new User("testUser", "password", "test@example.com", UserRoles.USER);
-
-		when(userService.signUp(anyString(), anyString(), anyString())).thenReturn(user);
+		SignUpUsersDTO signUpUsersDTO =
+				new SignUpUsersDTO("Leonardo Meireles", "marmotas2024@email.com", "marmotas2024@");
 
 		mockMvc.perform(post("/users/sign-up").contentType(MediaType.APPLICATION_JSON)
-				.content(usersRecordJacksonTester.write(usersDTO).getJson()))
-				.andExpect(status().isNoContent())
-				.andExpect(jsonPath("$.identifier").value("testUser"))
-				.andExpect(jsonPath("$.identifier").value("test@example.com"));
+				.content(signUpUsersDTOJacksonTester.write(signUpUsersDTO).getJson()))
+				.andExpect(status().isNoContent());
 
-		verify(userService).signUp(usersDTO.username(), usersDTO.password(), usersDTO.email());
+		verify(userService).signUp(signUpUsersDTO.identifier(), signUpUsersDTO.email(),
+				signUpUsersDTO.password());
 	}
 
 	@Test

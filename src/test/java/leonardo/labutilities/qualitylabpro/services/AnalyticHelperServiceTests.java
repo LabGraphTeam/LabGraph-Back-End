@@ -51,14 +51,15 @@ class AnalyticHelperServiceTests {
 
 				@Override
 				public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable,
-                                                                      String name, String level) {
+						String name, String level) {
 					return analyticsRepository.findByNameAndLevel(pageable, name, level).stream()
 							.map(AnalyticMapper::toRecord).toList();
 				}
 
 				@Override
 				public List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name,
-                                                                             String level, LocalDateTime dateStart, LocalDateTime dateEnd) {
+						String level, LocalDateTime dateStart, LocalDateTime dateEnd,
+						Pageable pageable) {
 					return analyticsRepository
 							.findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd,
 									PageRequest.of(0, 200))
@@ -123,7 +124,8 @@ class AnalyticHelperServiceTests {
 		List<AnalyticsDTO> records = createSampleRecordList();
 		when(analyticsRepository.existsByDateAndLevelAndName(any(), any(), any()))
 				.thenReturn(false);
-		when(analyticsRepository.saveAll(any())).thenReturn(null);
+		when(analyticsRepository.saveAll(any()))
+				.thenAnswer(invocation -> invocation.getArgument(0));
 
 		assertDoesNotThrow(() -> analyticHelperService.saveNewAnalyticsRecords(records));
 		verify(analyticsRepository, times(1)).saveAll(any());
@@ -191,8 +193,8 @@ class AnalyticHelperServiceTests {
 		when(analyticsRepository.findByNameAndLevelAndDateBetween(eq(name), eq(level),
 				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(expectedRecords);
 
-		List<AnalyticsDTO> result = analyticHelperService
-				.findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate);
+		List<AnalyticsDTO> result = analyticHelperService.findAnalyticsByNameAndLevelAndDate(name,
+				level, startDate, endDate, null);
 
 		assertNotNull(result);
 		assertEquals(expectedRecords.size(), result.size());
@@ -281,8 +283,8 @@ class AnalyticHelperServiceTests {
 		when(analyticsRepository.findByNameAndDateBetweenGroupByLevel(eq(name), eq(startDate),
 				eq(endDate), any(Pageable.class))).thenReturn(records);
 
-		List<GroupedValuesByLevelDTO> result =
-				analyticHelperService.findGroupedAnalyticsByLevel(name, startDate, endDate);
+		List<GroupedValuesByLevelDTO> result = analyticHelperService
+				.findGroupedAnalyticsByLevel(name, startDate, endDate, Pageable.unpaged());
 
 		assertNotNull(result);
 		assertFalse(result.isEmpty());

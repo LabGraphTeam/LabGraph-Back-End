@@ -68,18 +68,21 @@ public class HematologyAnalyticsController extends AnalyticsController {
 	public ResponseEntity<List<AnalyticsDTO>> getAllAnalyticsByNameAndLevelDateRange(
 			@RequestParam String name, @RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate) {
+			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(hematologyAnalyticsService.findAnalyticsByNameAndLevelAndDate(name,
-				level, startDate, endDate));
+				level, startDate, endDate, pageable));
 	}
+
 
 	@Override
 	@GetMapping("/mean-standard-deviation")
 	public ResponseEntity<MeanAndStdDeviationDTO> getMeanAndStandardDeviation(
 			@RequestParam String name, @RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate) {
+			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(hematologyAnalyticsService.calculateMeanAndStandardDeviation(name,
-				level, startDate, endDate));
+				level, startDate, endDate, pageable));
 	}
+
+
 }

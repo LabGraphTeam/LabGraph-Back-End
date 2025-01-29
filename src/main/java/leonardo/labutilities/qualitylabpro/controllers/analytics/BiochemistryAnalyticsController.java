@@ -70,9 +70,9 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
 	public ResponseEntity<List<AnalyticsDTO>> getAllAnalyticsByNameAndLevelDateRange(
 			@RequestParam String name, @RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate) {
+			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(biochemistryAnalyticsService
-				.findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate));
+				.findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate, pageable));
 	}
 
 
@@ -81,8 +81,8 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
 	public ResponseEntity<MeanAndStdDeviationDTO> getMeanAndStandardDeviation(
 			@RequestParam String name, @RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate) {
+			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(biochemistryAnalyticsService
-				.calculateMeanAndStandardDeviation(name, level, startDate, endDate));
+				.calculateMeanAndStandardDeviation(name, level, startDate, endDate, pageable));
 	}
 }

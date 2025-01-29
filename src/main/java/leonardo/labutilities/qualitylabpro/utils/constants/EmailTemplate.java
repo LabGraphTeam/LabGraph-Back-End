@@ -21,6 +21,16 @@ public class EmailTemplate {
                 </tbody>
             </table>
             """;
+	public static final String TABLE_ROW = """
+            <tr>
+                <td style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;">%s</td>
+                <td style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;">%s</td>
+                <td style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;">%s</td>
+                <td style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;">%s</td>
+                <td style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;">%s</td>
+                <td style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;">%s</td>
+                <td style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;">%s</td>
+            </tr>""";
 	public static final String ANALYTICS_WARNING_HEADER = """
             <p style="font-size: 16px; color: #d32f2f; margin-bottom: 20px;">
                 <strong>⚠️ Quality Control Alert: Westgard violations</strong>

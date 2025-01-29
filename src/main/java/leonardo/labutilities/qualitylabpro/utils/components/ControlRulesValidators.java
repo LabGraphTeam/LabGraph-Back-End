@@ -30,16 +30,16 @@ public class ControlRulesValidators {
 					""";
 
 
-	public String validateRules(List<AnalyticsDTO> records) {
+	public String validateRules(List<AnalyticsDTO> analytics) {
 		StringBuilder errors = new StringBuilder();
 		errors.append("<div style='font-family: Arial, sans-serif;'>");
 
 		// Track already reported violations
 		Set<String> reportedViolations = new HashSet<>();
 
-		for (AnalyticsDTO record : records) {
+		for (AnalyticsDTO analytic : analytics) {
 			// Create unique key for test/level combination
-			String violationKey = record.name() + "-" + record.level();
+			String violationKey = analytic.name() + "-" + analytic.level();
 
 			// Skip if we already reported this violation
 			if (reportedViolations.contains(violationKey)) {
@@ -47,29 +47,46 @@ public class ControlRulesValidators {
 			}
 
 			var analyticsRecords =
-					analyticsRepository.findLast10ByNameAndLevel(record.name(), record.level());
+					analyticsRepository.findLast10ByNameAndLevel(analytic.name(), analytic.level());
 			var mean = analyticsRecords.getFirst().mean();
 			var stdDev = analyticsRecords.getFirst().sd();
 			var values = analyticsRecords.stream().map(AnalyticsDTO::value).toList();
 
+
+			if (rule1_3s(values, mean, stdDev)) {
+				errors.append(String.format(ERROR_MESSAGE_TEMPLATE, "1-3s", analytic.name(),
+						analytic.level(), "One observation exceeds mean ±3 SD",
+						"Random Error. Reject run and investigate for potential systematic errors."));
+				reportedViolations.add(violationKey);
+			}
+
 			if (rule4_1s(values, mean, stdDev)) {
-				errors.append(String.format(ERROR_MESSAGE_TEMPLATE, "4-1s", record.name(),
-						record.level(),
-						"Four consecutive observations exceed 1 SD on the same side of the mean.",
-						"Investigate possible trends or deviations in the process."));
+				errors.append(String.format(ERROR_MESSAGE_TEMPLATE, "4-1s", analytic.name(),
+						analytic.level(),
+						"Four consecutive measurements exceed ±1 SD on same side of mean",
+						"Systematic Error. Check for calibration drift, reagent lot changes, or environmental conditions."));
 				reportedViolations.add(violationKey);
 			}
 
 			if (rule10x(values, mean, stdDev)) {
-				errors.append(String.format(ERROR_MESSAGE_TEMPLATE, "10x", record.name(),
-						record.level(), "Ten consecutive results are on the same side of the mean.",
-						"Perform maintenance or calibration on the equipment."));
+				errors.append(String.format(ERROR_MESSAGE_TEMPLATE, "10x", analytic.name(),
+						analytic.level(), "Ten consecutive measurements on same side of mean",
+						"Systematic Error. Review calibration, reagent stability, and instrument maintenance. Recalibrate if necessary."));
 				reportedViolations.add(violationKey);
 			}
 		}
 
 		errors.append("</div>");
 		return errors.toString();
+	}
+
+	public boolean rule1_3s(List<Double> values, double mean, double stdDev) {
+		for (double value : values) {
+			if (value > mean + 3 * stdDev || value < mean - 3 * stdDev) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean rule4_1s(List<Double> values, double mean, double stdDev) {

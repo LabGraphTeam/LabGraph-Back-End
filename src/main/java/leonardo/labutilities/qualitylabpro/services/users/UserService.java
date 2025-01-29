@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -68,9 +67,10 @@ public class UserService {
 		var user =
 				new User(username, BCryptEncoderComponent.encrypt(password), email, UserRoles.USER);
 
-		if (userRepository.existsByEmail(email)) {
+		if (userRepository.existsByUsernameOrEmail(email, email)) {
 			throw new CustomGlobalErrorHandling.UserAlreadyExistException();
 		}
+
 		try {
 			emailService.notifyUserSignup(user.getUsername(), user.getEmail(), LocalDateTime.now());
 		} catch (Exception e) {
@@ -82,7 +82,8 @@ public class UserService {
 
 	public TokenJwtDTO signIn(String identifier, String password) {
 
-		final var credential = userRepository.findByUsernameOrEmail(identifier, identifier).getUsername();
+		final var credential =
+				userRepository.findByUsernameOrEmail(identifier, identifier).getUsername();
 
 		final var authToken = new UsernamePasswordAuthenticationToken(credential, password);
 		final var auth = authenticationManager.authenticate(authToken);

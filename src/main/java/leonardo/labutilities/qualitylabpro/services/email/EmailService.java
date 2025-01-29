@@ -14,6 +14,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ import static leonardo.labutilities.qualitylabpro.utils.constants.EmailTemplate.
 
 @RequiredArgsConstructor
 @Slf4j
+@EnableAsync
 @Service
 public class EmailService {
 	private final JavaMailSender javaMailSender;
@@ -50,7 +52,6 @@ public class EmailService {
 		}
 	}
 
-	@Async
 	public void sendPlainTextEmail(EmailDTO email) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom(emailFrom);
@@ -87,7 +88,8 @@ public class EmailService {
 			helper.setText(buildEmailBody(emailDTO.body()), true);
 
 			javaMailSender.send(mimeMessage);
-			log.info("HTML identifier sent successfully to {} recipients", internetAddresses.length);
+			log.info("HTML identifier sent successfully to {} recipients",
+					internetAddresses.length);
 
 		} catch (MessagingException e) {
 			log.error("Failed to send HTML identifier: {}", e.getMessage(), e);
@@ -131,15 +133,17 @@ public class EmailService {
 		}
 	}
 
-	public String generateAnalyticsFailedEmailBody(List<AnalyticsDTO> notPassedList, String otherValidations) {
-		String formattedList = notPassedList.stream().map(record -> String.format(
-						"<tr><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td><td style=\"padding: 12px 15px; text-align: left; border-bottom: 1px solid #dddddd;\">%s</td></tr>",
-						record.name(), record.level(), record.value().toString(), record.mean().toString(),
-						record.rules(), record.description(),
-						record.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))))
+	public String generateAnalyticsFailedEmailBody(List<AnalyticsDTO> notPassedList,
+			String otherValidations) {
+		String formattedList = notPassedList.stream()
+				.map(analytics -> String.format(TABLE_ROW, analytics.name(), analytics.level(),
+						analytics.value().toString(), analytics.mean().toString(),
+						analytics.rules(), analytics.description(),
+						analytics.date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))))
 				.collect(Collectors.joining("\n"));
 		return String.format(HTML_TEMPLATE,
-				ANALYTICS_WARNING_HEADER + String.format(TABLE_STYLE, formattedList) + LAST_ANALYTICS_PARAGRAPH + "\n" + otherValidations);
+				ANALYTICS_WARNING_HEADER + String.format(TABLE_STYLE, formattedList)
+						+ LAST_ANALYTICS_PARAGRAPH + "\n" + otherValidations);
 	}
 
 	public void notifyUserLogin(String username, String email, LocalDateTime date) {
@@ -162,11 +166,11 @@ public class EmailService {
 		sendUserActionEmail("Account Update", username, email, date);
 	}
 
-	private void sendUserActionEmail(String actionType, String username, String email,
+	public void sendUserActionEmail(String actionType, String username, String email,
 			LocalDateTime date) {
 		String subject = String.format("User %s - %s", username, actionType);
 		String content = createUserActionEmailContent(actionType, username, email, date);
-		sendPlainTextEmail(new EmailDTO(email, subject, content));
+		this.sendPlainTextEmail(new EmailDTO(email, subject, content));
 	}
 
 	private String createUserActionEmailContent(String actionType, String username, String email,
@@ -178,6 +182,6 @@ public class EmailService {
 	}
 
 	private String buildEmailBody(String email) {
-		return String.format("\n\n%s\n\nBest regards,\nLabGraph Team", email);
+		return String.format("%n%n%s%n%nBest regards,%nLabGraph Team", email);
 	}
 }
