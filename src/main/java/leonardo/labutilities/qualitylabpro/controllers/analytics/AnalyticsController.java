@@ -34,32 +34,36 @@ public abstract class AnalyticsController extends AnalyticsHelperController {
 
 	@GetMapping()
 	public abstract ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAllAnalytics(
-			@PageableDefault(sort = "date",
+			@PageableDefault(size = 100, sort = "date",
 					direction = Sort.Direction.DESC) @ParameterObject Pageable pageable);
 
 
 	@GetMapping("/date-range")
 	public abstract ResponseEntity<Page<AnalyticsDTO>> getAnalyticsDateBetween(
 			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, @PageableDefault(sort = "date",
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100, sort = "date",
 					direction = Sort.Direction.DESC) @ParameterObject Pageable pageable);
 
 	@GetMapping("/level-date-range")
 	public abstract ResponseEntity<Page<AnalyticsDTO>> getAllAnalyticsByLevelDateRange(
 			@RequestParam String level, @RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable);
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable);
 
 	@GetMapping("/name-and-level-date-range")
 	public abstract ResponseEntity<List<AnalyticsDTO>> getAllAnalyticsByNameAndLevelDateRange(
 			@RequestParam String name, @RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable);
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable);
 
 	@GetMapping("/mean-standard-deviation")
 	public abstract ResponseEntity<MeanAndStdDeviationDTO> getMeanAndStandardDeviation(
 			@RequestParam String name, @RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable);
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable);
 }
 
 

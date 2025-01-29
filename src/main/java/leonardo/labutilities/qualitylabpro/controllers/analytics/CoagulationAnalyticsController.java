@@ -59,7 +59,8 @@ public class CoagulationAnalyticsController extends AnalyticsController {
 	@GetMapping("/level-date-range")
 	public ResponseEntity<Page<AnalyticsDTO>> getAllAnalyticsByLevelDateRange(
 			@RequestParam String level, @RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable) {
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(coagulationAnalyticsService.findAnalyticsByNameInByLevel(names,
 				level, startDate, endDate, pageable));
 	}
@@ -70,7 +71,8 @@ public class CoagulationAnalyticsController extends AnalyticsController {
 	public ResponseEntity<List<AnalyticsDTO>> getAllAnalyticsByNameAndLevelDateRange(
 			@RequestParam String name, @RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable) {
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(coagulationAnalyticsService
 				.findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate, pageable));
 	}
@@ -81,7 +83,8 @@ public class CoagulationAnalyticsController extends AnalyticsController {
 	public ResponseEntity<MeanAndStdDeviationDTO> getMeanAndStandardDeviation(
 			@RequestParam String name, @RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable) {
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(coagulationAnalyticsService.calculateMeanAndStandardDeviation(name,
 				level, startDate, endDate, pageable));
 	}

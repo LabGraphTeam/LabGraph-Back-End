@@ -41,7 +41,7 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
 	@Override
 	@GetMapping()
 	public ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAllAnalytics(
-			@PageableDefault(sort = "date",
+			@PageableDefault(size = 100, sort = "date",
 					direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
 		return this.getAllAnalyticsWithLinks(names, pageable);
 	}
@@ -50,7 +50,8 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
 	@GetMapping("/date-range")
 	public ResponseEntity<Page<AnalyticsDTO>> getAnalyticsDateBetween(
 			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, @PageableDefault(sort = "date",
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100, sort = "date",
 					direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(biochemistryAnalyticsService
 				.findAnalyticsByNameInAndDateBetween(names, startDate, endDate, pageable));
@@ -60,7 +61,8 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
 	@GetMapping("/level-date-range")
 	public ResponseEntity<Page<AnalyticsDTO>> getAllAnalyticsByLevelDateRange(
 			@RequestParam String level, @RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable) {
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(biochemistryAnalyticsService.findAnalyticsByNameInByLevel(names,
 				level, startDate, endDate, pageable));
 	}
@@ -70,7 +72,8 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
 	public ResponseEntity<List<AnalyticsDTO>> getAllAnalyticsByNameAndLevelDateRange(
 			@RequestParam String name, @RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable) {
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(biochemistryAnalyticsService
 				.findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate, pageable));
 	}
@@ -81,7 +84,8 @@ public class BiochemistryAnalyticsController extends AnalyticsController {
 	public ResponseEntity<MeanAndStdDeviationDTO> getMeanAndStandardDeviation(
 			@RequestParam String name, @RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, @ParameterObject Pageable pageable) {
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(biochemistryAnalyticsService
 				.calculateMeanAndStandardDeviation(name, level, startDate, endDate, pageable));
 	}

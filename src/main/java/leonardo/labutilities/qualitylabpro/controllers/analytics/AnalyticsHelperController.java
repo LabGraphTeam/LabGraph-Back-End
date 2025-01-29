@@ -6,8 +6,10 @@ import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedMeanAndStdByLev
 import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedResultsByLevelDTO;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanDTO;
 import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticHelperService;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -63,7 +65,8 @@ public class AnalyticsHelperController {
 	@GetMapping("/grouped-by-level")
 	public ResponseEntity<List<GroupedResultsByLevelDTO>> getGroupedByLevel(
 			@RequestParam String name, @RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, Pageable pageable) {
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		List<GroupedResultsByLevelDTO> groupedData = analyticHelperService
 				.findAnalyticsWithGroupedResults(name, startDate, endDate, pageable);
 		return ResponseEntity.ok(groupedData);
@@ -72,14 +75,15 @@ public class AnalyticsHelperController {
 	@GetMapping("/grouped-by-level/mean-deviation")
 	public ResponseEntity<List<GroupedMeanAndStdByLevelDTO>> getMeanAndDeviationGrouped(
 			@RequestParam String name, @RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, Pageable pageable) {
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		List<GroupedMeanAndStdByLevelDTO> groupedData = analyticHelperService
 				.calculateGroupedMeanAndStandardDeviation(name, startDate, endDate, pageable);
 		return ResponseEntity.ok(groupedData);
 	}
 
 	public ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAllAnalyticsWithLinks(
-			List<String> names, Pageable pageable) {
+			List<String> names, @PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		Page<AnalyticsDTO> resultsList =
 				analyticHelperService.findAnalyticsPagedByNameIn(names, pageable);
 
@@ -91,7 +95,8 @@ public class AnalyticsHelperController {
 	}
 
 	public ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAnalyticsByDateBetweenWithLinks(
-			List<String> names, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+			List<String> names, LocalDateTime startDate, LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 
 		Page<AnalyticsDTO> analyticsRecordPaged = analyticHelperService
 				.findAnalyticsByNameInAndDateBetweenWithLinks(names, startDate, endDate, pageable);
