@@ -1,0 +1,19 @@
+format: json
+list-all-pkgs: true
+exit-code: 0
+severity:
+  - CRITICAL
+  - HIGH
+
+vulnerability:
+  ignore-unfixed: true
+
+scanners:
+  - vuln
+
+debug: true
+timeout: 5m
+
+java:
+  path: pom.xml
+  external-packages: true
