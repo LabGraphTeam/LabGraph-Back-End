@@ -14,7 +14,9 @@ import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHand
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,10 +34,13 @@ public class UserService {
 
 	private void sendRecoveryEmail(RecoveryEmailDTO recoveryEmailDTO) {
 		String subject = "Password Recovery";
-		String message = String.format(
-				"Dear user,\n\nUse the following temporary password to recover your account: %s\n\nBest regards,"
-						+ "\nYour Team",
-				recoveryEmailDTO.temporaryPassword());
+		String message = String.format("""
+				Dear user,
+
+				Use the following temporary password to recover your account: %s
+
+				Best regards,
+				Your Team""", recoveryEmailDTO.temporaryPassword());
 		log.info("Sending recovery identifier to: {}", recoveryEmailDTO.email());
 		emailService.sendPlainTextEmail(new EmailDTO(recoveryEmailDTO.email(), subject, message));
 	}
@@ -45,7 +50,7 @@ public class UserService {
 		var user = userRepository.existsByUsernameAndEmail(username, email);
 
 		if (!user) {
-			throw new CustomGlobalErrorHandling.ResourceNotFoundException(
+			throw new CustomGlobalErrorHandling.UserNotFoundException(
 					"User not or invalid arguments");
 		}
 
@@ -57,9 +62,31 @@ public class UserService {
 
 	public void changePassword(String email, String temporaryPassword, String newPassword) {
 		if (!passwordRecoveryTokenManager.isRecoveryTokenValid(temporaryPassword, email)) {
-			throw new CustomGlobalErrorHandling.ResourceNotFoundException("Invalid recovery token");
+			throw new CustomGlobalErrorHandling.RecoveryTokenInvalidException();
 		}
 		userRepository.setPasswordWhereByEmail(email, BCryptEncoderComponent.encrypt(newPassword));
+	}
+
+	private TokenJwtDTO authenticateAndGenerateToken(User credential, String password) {
+		try {
+			final var authToken =
+					new UsernamePasswordAuthenticationToken(credential.getUsername(), password);
+			final var auth = authenticationManager.authenticate(authToken);
+			final var user = (User) auth.getPrincipal();
+
+			if (!auth.isAuthenticated()) {
+				emailService.notifyFailedUserLogin(user.getUsername(), user.getEmail(),
+						LocalDateTime.now());
+				throw new BadCredentialsException(
+						"Authentication failed for user: " + credential.getUsername());
+			}
+
+			return tokenService.generateToken(user);
+
+		} catch (BadCredentialsException e) {
+			log.error("Authentication failed for user: {}", credential.getUsername(), e);
+			throw e;
+		}
 	}
 
 	public User signUp(String username, String email, String password) {
@@ -81,22 +108,19 @@ public class UserService {
 	}
 
 	public TokenJwtDTO signIn(String identifier, String password) {
+		try {
+			final var credential = userRepository.findByUsernameOrEmail(identifier, identifier);
 
-		final var credential =
-				userRepository.findByUsernameOrEmail(identifier, identifier).getUsername();
-
-		final var authToken = new UsernamePasswordAuthenticationToken(credential, password);
-		final var auth = authenticationManager.authenticate(authToken);
-		final var user = (User) auth.getPrincipal();
-		if (!auth.isAuthenticated()) {
-			try {
-				emailService.notifyFailedUserLogin(user.getUsername(), user.getEmail(),
-						LocalDateTime.now());
-			} catch (Exception e) {
-				log.error("Failed to send analytics notification identifier", e);
+			if (credential == null) {
+				throw new CustomGlobalErrorHandling.UserNotFoundException();
 			}
+
+			return authenticateAndGenerateToken(credential, password);
+
+		} catch (Exception e) {
+			log.error("Sign-in process failed for identifier: {}", identifier, e);
+			throw new BadCredentialsException("Sign-in failed for identifier: " + identifier);
 		}
-		return tokenService.generateToken(user);
 	}
 
 	public void updateUserPassword(String name, String email, String password, String newPassword) {

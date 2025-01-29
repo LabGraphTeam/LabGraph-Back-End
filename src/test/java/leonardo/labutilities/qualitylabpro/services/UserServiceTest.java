@@ -51,14 +51,12 @@ class UserServiceTest {
 	void testRecoverPassword_UserDoesNotExist() {
 		when(userRepository.existsByUsernameAndEmail(anyString(), anyString())).thenReturn(false);
 
-		assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
+		assertThrows(CustomGlobalErrorHandling.UserNotFoundException.class,
 				() -> userService.recoverPassword("identifier", "identifier@example.com"));
 	}
 
 	@Test
 	void testChangePassword_ValidToken() {
-		User user = new User("identifier", BCryptEncoderComponent.encrypt("newPassword"),
-				"identifier@example.com", UserRoles.USER);
 		when(passwordRecoveryTokenManager.isRecoveryTokenValid(anyString(), anyString()))
 				.thenReturn(true);
 		userService.changePassword("identifier@example.com", "tempPassword", "newPassword");
@@ -71,8 +69,9 @@ class UserServiceTest {
 		when(passwordRecoveryTokenManager.isRecoveryTokenValid(anyString(), anyString()))
 				.thenReturn(false);
 
-		assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class, () -> userService
-				.changePassword("identifier@example.com", "tempPassword", "newPassword"));
+		assertThrows(CustomGlobalErrorHandling.RecoveryTokenInvalidException.class,
+				() -> userService.changePassword("identifier@example.com", "tempPassword",
+						"newPassword"));
 	}
 
 	@Test
