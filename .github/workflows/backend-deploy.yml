@@ -1,4 +1,4 @@
-name: Docker Image CI/CD
+name: Backend Deploy Pipeline
 
 on:
   push:
@@ -96,7 +96,7 @@ jobs:
           max_attempts=12
           attempt=1
           while [ $attempt -le $max_attempts ]; do
-            if curl -sSf http://localhost:${{ secrets.SERVER_LOCAL_PORT }}/actuator/health; then
+            if curl -sSf https://lab-spec.systems/backend-api/actuator/health; then
               echo "Service is healthy!"
               exit 0
             fi
