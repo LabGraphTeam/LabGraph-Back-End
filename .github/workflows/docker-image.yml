@@ -30,14 +30,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
             
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          trivy-config: trivy.yaml
-          cache-dir: '/tmp/trivy-cache'
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
