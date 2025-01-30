@@ -2,10 +2,13 @@ package leonardo.labutilities.qualitylabpro.utils.components;
 
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
+import leonardo.labutilities.qualitylabpro.utils.blacklist.AnalyticsBlackList;
 import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static leonardo.labutilities.qualitylabpro.utils.constants.EmailTemplate.ERROR_MESSAGE_TEMPLATE;
 
 @Component
 public class ControlRulesValidators {
@@ -16,18 +19,7 @@ public class ControlRulesValidators {
 		this.analyticsRepository = analyticsRepository;
 	}
 
-	private static final String ERROR_MESSAGE_TEMPLATE =
-			"""
-					<div style="margin: 10px 0; padding: 15px; border-left: 4px solid #ff4444; background-color: #fff3f3;">
-					    <h3 style="color: #cc0000; margin: 0 0 10px 0;">%s Rule Violation</h3>
-					    <p style="margin: 0; color: #333;">
-					        <strong>Test:</strong> %s<br>
-					        <strong>Level:</strong> %s<br>
-					        <strong>Issue:</strong> %s<br>
-					        <strong>Action Required:</strong> %s
-					    </p>
-					</div>
-					""";
+
 
 
 	public String validateRules(List<AnalyticsDTO> analytics) {
@@ -46,8 +38,10 @@ public class ControlRulesValidators {
 				continue;
 			}
 
-			var analyticsRecords =
-					analyticsRepository.findLast10ByNameAndLevel(analytic.name(), analytic.level());
+			var analyticsRecords = analyticsRepository.findLast10ByNameAndLevel(analytic.name(), analytic.level())
+					.stream()
+					.filter(record -> !AnalyticsBlackList.BLACK_LIST.contains(record.name()))
+					.toList();
 			var mean = analyticsRecords.getFirst().mean();
 			var stdDev = analyticsRecords.getFirst().sd();
 			var values = analyticsRecords.stream().map(AnalyticsDTO::value).toList();
