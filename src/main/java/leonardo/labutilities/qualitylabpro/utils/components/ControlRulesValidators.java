@@ -15,14 +15,18 @@ public class ControlRulesValidators {
 
 	private final AnalyticsRepository analyticsRepository;
 
+	private static final int RULE_3S_MULTIPLIER = 3;
+	private static final int RULE_4_1S_CONSECUTIVE = 4;
+	private static final int RULE_10X_CONSECUTIVE = 10;
+
 	public ControlRulesValidators(AnalyticsRepository analyticsRepository) {
 		this.analyticsRepository = analyticsRepository;
 	}
 
-
-
-
 	public String validateRules(List<AnalyticsDTO> analytics) {
+		if (analytics == null || analytics.isEmpty()) {
+			return "<div style='font-family: Arial, sans-serif;'>No analytics data provided for validation.</div>";
+		}
 		StringBuilder errors = new StringBuilder();
 		errors.append("<div style='font-family: Arial, sans-serif;'>");
 
@@ -38,16 +42,26 @@ public class ControlRulesValidators {
 				continue;
 			}
 
-			var analyticsRecords = analyticsRepository.findLast10ByNameAndLevel(analytic.name(), analytic.level())
-					.stream()
+			var analyticsRecords = analyticsRepository
+					.findLast10ByNameAndLevel(analytic.name(), analytic.level()).stream()
 					.filter(record -> !AnalyticsBlackList.BLACK_LIST.contains(record.name()))
 					.toList();
+
 			var mean = analyticsRecords.getFirst().mean();
 			var stdDev = analyticsRecords.getFirst().sd();
 			var values = analyticsRecords.stream().map(AnalyticsDTO::value).toList();
 
+			var lastAnalyticsRecords = analyticsRepository
+					.findLastByNameAndLevel(analytic.name(), analytic.level()).stream()
+					.filter(record -> !AnalyticsBlackList.BLACK_LIST.contains(record.name()))
+					.toList();
 
-			if (rule1_3s(values, mean, stdDev)) {
+			var lastMean = lastAnalyticsRecords.getFirst().mean();
+			var lastStdDev = lastAnalyticsRecords.getFirst().sd();
+			var lastValues = lastAnalyticsRecords.stream().map(AnalyticsDTO::value).toList();
+
+
+			if (rule1_3s(lastValues, lastMean, lastStdDev)) {
 				errors.append(String.format(ERROR_MESSAGE_TEMPLATE, "1-3s", analytic.name(),
 						analytic.level(), "One observation exceeds mean ±3 SD",
 						"Random Error. Reject run and investigate for potential systematic errors."));
@@ -76,7 +90,8 @@ public class ControlRulesValidators {
 
 	public boolean rule1_3s(List<Double> values, double mean, double stdDev) {
 		for (double value : values) {
-			if (value > mean + 3 * stdDev || value < mean - 3 * stdDev) {
+			if (value > mean + RULE_3S_MULTIPLIER * stdDev
+					|| value < mean - RULE_3S_MULTIPLIER * stdDev) {
 				return true;
 			}
 		}
@@ -84,7 +99,7 @@ public class ControlRulesValidators {
 	}
 
 	public boolean rule4_1s(List<Double> values, double mean, double stdDev) {
-		if (values.size() < 4) {
+		if (values.size() < RULE_4_1S_CONSECUTIVE) {
 			return false;
 		}
 		int countAbove = 0;
@@ -100,7 +115,7 @@ public class ControlRulesValidators {
 				countAbove = 0;
 				countBelow = 0;
 			}
-			if (countAbove >= 4 || countBelow >= 4) {
+			if (countAbove >= RULE_4_1S_CONSECUTIVE || countBelow >= RULE_4_1S_CONSECUTIVE) {
 				return true;
 			}
 		}
@@ -108,7 +123,7 @@ public class ControlRulesValidators {
 	}
 
 	public boolean rule10x(List<Double> values, double mean, double stdDev) {
-		if (values.size() < 10) {
+		if (values.size() < RULE_10X_CONSECUTIVE) {
 			return false;
 		}
 		int countAbove = 0;
@@ -124,7 +139,7 @@ public class ControlRulesValidators {
 				countAbove = 0;
 				countBelow = 0;
 			}
-			if (countAbove >= 10 || countBelow >= 10) {
+			if (countAbove >= RULE_10X_CONSECUTIVE || countBelow >= RULE_10X_CONSECUTIVE) {
 				return true;
 			}
 		}
