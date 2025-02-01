@@ -36,6 +36,7 @@
 **/*.temp
 **/.env*
 **/*.env
+**/*.gz
 
 # Test and Documentation
 **/test/

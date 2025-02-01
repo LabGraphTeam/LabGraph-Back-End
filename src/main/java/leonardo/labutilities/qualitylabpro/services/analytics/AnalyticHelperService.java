@@ -7,9 +7,11 @@ import leonardo.labutilities.qualitylabpro.utils.components.ControlRulesValidato
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -59,6 +61,24 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 		if (!analyticsRepository.existsByName(name.toUpperCase())) {
 			throw new CustomGlobalErrorHandling.ResourceNotFoundException(
 					"AnalyticsDTO by name not found");
+		}
+	}
+
+
+	private List<AnalyticsDTO> filterFailedRecords(List<AnalyticsDTO> persistedRecords) {
+		return persistedRecords.stream().filter(this::isRuleBroken)
+				.filter(record -> !BLACK_LIST.contains(record.name())).toList();
+	}
+
+	@Async
+	private void processFailedRecordsNotification(List<AnalyticsDTO> failedRecords) {
+		if (!failedRecords.isEmpty()) {
+			try {
+				var content = controlRulesValidators.validateRules(failedRecords);
+				emailService.sendFailedAnalyticsNotification(failedRecords, content);
+			} catch (Exception e) {
+				log.error("Error sending identifier notification: {}", e.getMessage());
+			}
 		}
 	}
 
@@ -162,35 +182,23 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 	}
 
 	@Override
+	@CacheEvict(value = "analyticsByNameAndDateRange", allEntries = true)
 	public void saveNewAnalyticsRecords(List<AnalyticsDTO> valuesOfLevelsList) {
-		var newAnalytics = valuesOfLevelsList.stream().filter(this::isAnalyticsNonExistent)
+		var newRecords = valuesOfLevelsList.stream().filter(this::isAnalyticsNonExistent)
 				.map(AnalyticMapper::toEntity).toList();
 
-		if (newAnalytics.isEmpty()) {
+		if (newRecords.isEmpty()) {
 			log.warn("No new analytics records to save.");
 			throw new CustomGlobalErrorHandling.DataIntegrityViolationException();
 		}
 
-		var analyticsList = analyticsRepository.saveAll(newAnalytics);
+		List<AnalyticsDTO> persistedRecords = analyticsRepository.saveAll(newRecords).stream()
+				.map(AnalyticMapper::toRecord).toList();
 
-		List<AnalyticsDTO> notPassedList = analyticsList.stream().map(AnalyticMapper::toRecord)
-				.filter(this::isRuleBroken).toList();
+		List<AnalyticsDTO> failedRecords = filterFailedRecords(persistedRecords);
 
-		if (notPassedList.isEmpty()) {
-			return;
-		}
-
-		var filteredList = notPassedList.stream()
-				.filter(notPassed -> !BLACK_LIST.contains(notPassed.name())).toList();
-
-		try {
-			var content = controlRulesValidators.validateRules(filteredList);
-			emailService.sendFailedAnalyticsNotification(filteredList, content);
-		} catch (Exception e) {
-			log.error("Error sending identifier notification: {}", e.getMessage());
-		}
+		processFailedRecordsNotification(failedRecords);
 	}
-
 
 
 	@Override
@@ -198,6 +206,7 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 		return analyticsRepository.findPaged(pageable);
 	}
 
+	@Cacheable("AnalyticsByNameWithPagination")
 	@Override
 	public List<AnalyticsDTO> findAnalyticsByNameWithPagination(Pageable pageable, String name) {
 		List<AnalyticsDTO> analyticsList =
@@ -226,6 +235,8 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 	}
 
 	@Override
+	@Cacheable(value = "analyticsByNameAndDateRange",
+			key = "{#names.hashCode(), #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
 	public Page<AnalyticsDTO> findAnalyticsByNameInAndDateBetween(List<String> names,
 			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
 		return analyticsRepository.findByNameInAndDateBetween(names, dateStart, dateEnd, pageable);
@@ -240,6 +251,8 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 		analyticsRepository.deleteById(id);
 	}
 
+	@Cacheable(value = "meanAndStdDeviationCache",
+			key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
 	public MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(String name, String level,
 			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
 		List<AnalyticsDTO> values =
@@ -248,6 +261,8 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 		return computeStatistics(extractRecordValues(values));
 	}
 
+	@Cacheable(value = "calculateGroupedMeanAndStandardDeviation",
+			key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
 	public List<GroupedMeanAndStdByLevelDTO> calculateGroupedMeanAndStandardDeviation(String name,
 			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
 		List<AnalyticsDTO> records = analyticsRepository
