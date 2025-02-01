@@ -114,10 +114,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Cleanup Docker resources
+      - name: Running cleanup script
         run: |
-          chmod +x ./.github/scripts/cleanup_docker.sh
-          ./.github/scripts/cleanup_docker.sh
+          chmod +x ./.github/scripts/cleanup_system.sh
+          ./.github/scripts/cleanup_system.sh
 
   notify:
     runs-on: [ self-hosted, linux, x64, backend ]
