@@ -138,4 +138,5 @@ public class HematologyAnalyticControllerTest {
 		verify(hematologyAnalyticsService).calculateMeanAndStandardDeviation(eq("Hemoglobin"),
 				eq("High"), eq(startDate), eq(endDate), any(Pageable.class));
 	}
+
 }
