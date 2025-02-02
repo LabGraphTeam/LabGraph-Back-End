@@ -1,6 +1,10 @@
 package leonardo.labutilities.qualitylabpro.services.analytics;
 
-import leonardo.labutilities.qualitylabpro.dtos.analytics.*;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedMeanAndStdByLevelDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedResultsByLevelDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedValuesByLevelDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.services.email.EmailService;
 import leonardo.labutilities.qualitylabpro.utils.components.ControlRulesValidators;
@@ -25,14 +29,14 @@ import static leonardo.labutilities.qualitylabpro.utils.blacklist.AnalyticsBlack
 
 @Slf4j
 @Service
-public abstract class AnalyticHelperService implements IAnalyticHelperService {
+public abstract class AbstractAnalyticHelperService implements IAnalyticHelperService {
 
 	private final AnalyticsRepository analyticsRepository;
 	private final EmailService emailService;
 	private final ControlRulesValidators controlRulesValidators;
 
 
-	protected AnalyticHelperService(AnalyticsRepository analyticsRepository,
+	protected AbstractAnalyticHelperService(AnalyticsRepository analyticsRepository,
 			EmailService emailService, ControlRulesValidators controlRulesValidators) {
 		this.analyticsRepository = analyticsRepository;
 		this.emailService = emailService;
@@ -40,7 +44,7 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 	}
 
 	// VALIDATION METHODS
-	private void validateResultsNotEmpty(List<?> results, String message) {
+	private static void validateResultsNotEmpty(List<?> results, String message) {
 		if (results == null || results.isEmpty()) {
 			throw new CustomGlobalErrorHandling.ResourceNotFoundException(message);
 		}
@@ -51,7 +55,7 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 				values.name());
 	}
 
-	private boolean isRuleBroken(AnalyticsDTO analyticsDTO) {
+	private static boolean isRuleBroken(AnalyticsDTO analyticsDTO) {
 		String rules = analyticsDTO.rules();
 		return ("+3s".equals(rules) || "-3s".equals(rules) || "-2s".equals(rules)
 				|| "+2s".equals(rules));
@@ -65,13 +69,13 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 	}
 
 
-	private List<AnalyticsDTO> filterFailedRecords(List<AnalyticsDTO> persistedRecords) {
-		return persistedRecords.stream().filter(this::isRuleBroken)
-				.filter(record -> !BLACK_LIST.contains(record.name())).toList();
+	private static List<AnalyticsDTO> filterFailedRecords(List<AnalyticsDTO> persistedRecords) {
+		return persistedRecords.stream().filter(AbstractAnalyticHelperService::isRuleBroken)
+				.filter(analyticsDTO -> !BLACK_LIST.contains(analyticsDTO.name())).toList();
 	}
 
 	@Async
-	private void processFailedRecordsNotification(List<AnalyticsDTO> failedRecords) {
+	public void processFailedRecordsNotification(List<AnalyticsDTO> failedRecords) {
 		if (!failedRecords.isEmpty()) {
 			try {
 				var content = controlRulesValidators.validateRules(failedRecords);
@@ -83,7 +87,7 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 	}
 
 	// STATISTICS METHODS
-	private MeanAndStdDeviationDTO computeStatistics(List<Double> values) {
+	private static MeanAndStdDeviationDTO computeStatistics(List<Double> values) {
 		double sum = values.stream().mapToDouble(Double::doubleValue).sum();
 		int size = values.size();
 		double mean = sum / size;
@@ -92,8 +96,42 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 		return new MeanAndStdDeviationDTO(mean, Math.sqrt(variance));
 	}
 
-	private List<Double> extractRecordValues(List<AnalyticsDTO> records) {
+	private static List<Double> extractRecordValues(List<AnalyticsDTO> records) {
 		return records.stream().map(AnalyticsDTO::value).toList();
+	}
+
+	@Override
+	public List<GroupedMeanAndStdByLevelDTO> returnMeanAndStandardDeviationForGroups(
+			List<GroupedValuesByLevelDTO> records) {
+		return records.stream()
+				.map(group -> new GroupedMeanAndStdByLevelDTO(group.level(), Collections
+						.singletonList(computeStatistics(extractRecordValues(group.values())))))
+				.toList();
+	}
+
+	@Cacheable(value = "meanAndStdDeviationCache",
+			key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
+	public MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(String name, String level,
+			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
+		List<AnalyticsDTO> values =
+				findAnalyticsByNameAndLevelAndDate(name, level, dateStart, dateEnd, pageable)
+						.stream().filter(this::isRecordValid).toList();
+		return computeStatistics(extractRecordValues(values));
+	}
+
+	@Cacheable(value = "calculateGroupedMeanAndStandardDeviation",
+			key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
+	public List<GroupedMeanAndStdByLevelDTO> calculateGroupedMeanAndStandardDeviation(String name,
+			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+		List<AnalyticsDTO> records = analyticsRepository
+				.findByNameAndDateBetweenGroupByLevel(name, startDate, endDate, pageable).stream()
+				.map(AnalyticMapper::toRecord).toList();
+		var values = records.stream().collect(Collectors.groupingBy(AnalyticsDTO::level)).entrySet()
+				.stream()
+				.map(entry -> new GroupedValuesByLevelDTO(entry.getKey(), entry.getValue()))
+				.toList();
+
+		return returnMeanAndStandardDeviationForGroups(values);
 	}
 
 
@@ -128,16 +166,6 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 				.toList();
 	}
 
-
-
-	@Override
-	public List<GroupedMeanAndStdByLevelDTO> returnMeanAndStandardDeviationForGroups(
-			List<GroupedValuesByLevelDTO> records) {
-		return records.stream()
-				.map(group -> new GroupedMeanAndStdByLevelDTO(group.level(), Collections
-						.singletonList(computeStatistics(extractRecordValues(group.values())))))
-				.toList();
-	}
 
 	@Override
 	public Page<AnalyticsDTO> findAnalyticsByNameInAndDateBetweenWithLinks(List<String> names,
@@ -251,31 +279,6 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 		analyticsRepository.deleteById(id);
 	}
 
-	@Cacheable(value = "meanAndStdDeviationCache",
-			key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
-	public MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(String name, String level,
-			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
-		List<AnalyticsDTO> values =
-				findAnalyticsByNameAndLevelAndDate(name, level, dateStart, dateEnd, pageable)
-						.stream().filter(this::isRecordValid).toList();
-		return computeStatistics(extractRecordValues(values));
-	}
-
-	@Cacheable(value = "calculateGroupedMeanAndStandardDeviation",
-			key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
-	public List<GroupedMeanAndStdByLevelDTO> calculateGroupedMeanAndStandardDeviation(String name,
-			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-		List<AnalyticsDTO> records = analyticsRepository
-				.findByNameAndDateBetweenGroupByLevel(name, startDate, endDate, pageable).stream()
-				.map(AnalyticMapper::toRecord).toList();
-		var values = records.stream().collect(Collectors.groupingBy(AnalyticsDTO::level)).entrySet()
-				.stream()
-				.map(entry -> new GroupedValuesByLevelDTO(entry.getKey(), entry.getValue()))
-				.toList();
-
-		return returnMeanAndStandardDeviationForGroups(values);
-	}
-
 	public List<AnalyticsDTO> findAnalyticsByNameIn(List<String> names, Pageable pageable) {
 		return analyticsRepository.findByNameIn(names, pageable).stream()
 				.map(AnalyticMapper::toRecord).toList();
@@ -304,6 +307,5 @@ public abstract class AnalyticHelperService implements IAnalyticHelperService {
 				"No analytics found for the given name, level, dateStart, dateEnd -> parameters");
 		return results;
 	}
-
 
 }

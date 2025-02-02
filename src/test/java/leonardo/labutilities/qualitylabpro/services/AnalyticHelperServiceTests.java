@@ -5,7 +5,7 @@ import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedValuesByLevelDT
 import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanDTO;
 import leonardo.labutilities.qualitylabpro.entities.Analytic;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
-import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticHelperService;
+import leonardo.labutilities.qualitylabpro.services.analytics.AbstractAnalyticHelperService;
 import leonardo.labutilities.qualitylabpro.services.email.EmailService;
 import leonardo.labutilities.qualitylabpro.utils.components.ControlRulesValidators;
 import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorComponent;
@@ -34,7 +34,7 @@ class AnalyticHelperServiceTests {
 	@Mock
 	private AnalyticsRepository analyticsRepository;
 	@Mock
-	private AnalyticHelperService analyticHelperService;
+	private AbstractAnalyticHelperService analyticHelperService;
 	@Mock
 	private EmailService emailService;
 	@Mock
@@ -43,8 +43,8 @@ class AnalyticHelperServiceTests {
 	@BeforeEach
 	void setUp() {
 		try (AutoCloseable closeable = MockitoAnnotations.openMocks(this)) {
-			analyticHelperService = new AnalyticHelperService(analyticsRepository, emailService,
-					controlRulesValidators) {
+			analyticHelperService = new AbstractAnalyticHelperService(analyticsRepository,
+					emailService, controlRulesValidators) {
 
 				@Override
 				public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable,

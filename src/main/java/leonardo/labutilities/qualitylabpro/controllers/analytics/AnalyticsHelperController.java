@@ -5,7 +5,7 @@ import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedMeanAndStdByLevelDTO;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedResultsByLevelDTO;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanDTO;
-import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticHelperService;
+import leonardo.labutilities.qualitylabpro.services.analytics.AbstractAnalyticHelperService;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,9 +27,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 public class AnalyticsHelperController {
-	private final AnalyticHelperService analyticHelperService;
+	private final AbstractAnalyticHelperService analyticHelperService;
 
-	public AnalyticsHelperController(AnalyticHelperService analyticHelperService) {
+	public AnalyticsHelperController(AbstractAnalyticHelperService analyticHelperService) {
 		this.analyticHelperService = analyticHelperService;
 	}
 

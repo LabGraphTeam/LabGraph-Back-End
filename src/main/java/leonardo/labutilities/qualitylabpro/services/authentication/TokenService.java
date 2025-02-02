@@ -42,7 +42,7 @@ public class TokenService {
 		}
 	}
 
-	private Instant dateExp() {
+	private static Instant dateExp() {
 		return LocalDateTime.now().plusHours(1).atZone(ZoneId.systemDefault()).toInstant();
 	}
 }

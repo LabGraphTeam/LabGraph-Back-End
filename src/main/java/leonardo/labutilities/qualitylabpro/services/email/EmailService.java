@@ -32,10 +32,10 @@ public class EmailService {
 	private final JavaMailSender javaMailSender;
 
 	@Value("${spring.mail.username}")
-	String emailFrom;
+	private String emailFrom;
 
 	@Value("${email.to.send.list}")
-	String emailListString;
+	private String emailListString;
 
 
 	private List<String> emailList;
@@ -87,7 +87,7 @@ public class EmailService {
 			helper.setFrom(emailFrom);
 
 			// Convert identifier list to InternetAddress array
-			InternetAddress[] internetAddresses = emailList.stream().map(emailAddress -> {
+			InternetAddress[] internetAddresses = emailList.stream().map((String emailAddress) -> {
 				try {
 					return new InternetAddress(emailAddress);
 				} catch (AddressException e) {
@@ -130,7 +130,7 @@ public class EmailService {
 		try {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 			helper.setFrom(emailFrom);
-			InternetAddress[] internetAddresses = emailList.stream().map(email -> {
+			InternetAddress[] internetAddresses = emailList.stream().map((String email) -> {
 				try {
 					return new InternetAddress(email);
 				} catch (AddressException e) {
@@ -191,15 +191,15 @@ public class EmailService {
 		sendHtmlEmailWithoutBcc(new EmailDTO(email, subject, content));
 	}
 
-	private String createUserActionEmailContent(String actionType, String username, String email,
-			LocalDateTime date) {
+	private static String createUserActionEmailContent(String actionType, String username,
+			String email, LocalDateTime date) {
 		String message = String.format(
 				"<p>User <b>%s</b> - %s notification<br>Email: <b>%s</b><br>Time: <b>%s</b></p>",
 				username, actionType, email, date);
 		return String.format(HTML_TEMPLATE, message);
 	}
 
-	private String buildEmailBody(String email) {
+	private static String buildEmailBody(String email) {
 		return String.format("%n%n%s%n%nBest regards,%nLabGraph Team", email);
 	}
 }

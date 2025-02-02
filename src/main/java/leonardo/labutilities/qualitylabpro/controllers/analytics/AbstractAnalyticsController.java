@@ -3,7 +3,7 @@ package leonardo.labutilities.qualitylabpro.controllers.analytics;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
-import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticHelperService;
+import leonardo.labutilities.qualitylabpro.services.analytics.AbstractAnalyticHelperService;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,9 +26,9 @@ import java.util.List;
 @SecurityRequirement(name = "bearer-key")
 @RequestMapping("/generic-analytics")
 @RestController()
-public abstract class AnalyticsController extends AnalyticsHelperController {
+public abstract class AbstractAnalyticsController extends AnalyticsHelperController {
 
-	protected AnalyticsController(AnalyticHelperService analyticHelperService) {
+	protected AbstractAnalyticsController(AbstractAnalyticHelperService analyticHelperService) {
 		super(analyticHelperService);
 	}
 

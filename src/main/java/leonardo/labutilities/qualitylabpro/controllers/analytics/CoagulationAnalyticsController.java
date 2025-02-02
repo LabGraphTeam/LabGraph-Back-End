@@ -26,7 +26,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearer-key")
 @RequestMapping("coagulation-analytics")
 @RestController()
-public class CoagulationAnalyticsController extends AnalyticsController {
+public class CoagulationAnalyticsController extends AbstractAnalyticsController {
 
 	private static final List<String> names =
 			new AvailableCoagulationAnalytics().availableCoagulationAnalytics();

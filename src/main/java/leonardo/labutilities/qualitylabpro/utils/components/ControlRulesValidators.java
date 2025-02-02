@@ -13,11 +13,11 @@ import static leonardo.labutilities.qualitylabpro.utils.constants.EmailTemplate.
 @Component
 public class ControlRulesValidators {
 
-	private final AnalyticsRepository analyticsRepository;
-
 	private static final int RULE_3S_MULTIPLIER = 3;
 	private static final int RULE_4_1S_CONSECUTIVE = 4;
 	private static final int RULE_10X_CONSECUTIVE = 10;
+
+	private final AnalyticsRepository analyticsRepository;
 
 	public ControlRulesValidators(AnalyticsRepository analyticsRepository) {
 		this.analyticsRepository = analyticsRepository;
@@ -42,19 +42,21 @@ public class ControlRulesValidators {
 				continue;
 			}
 
-			var analyticsRecords = analyticsRepository
-					.findLast10ByNameAndLevel(analytic.name(), analytic.level()).stream()
-					.filter(record -> !AnalyticsBlackList.BLACK_LIST.contains(record.name()))
-					.toList();
+			var analyticsRecords =
+					analyticsRepository.findLast10ByNameAndLevel(analytic.name(), analytic.level())
+							.stream().filter(analyticsRecord -> !AnalyticsBlackList.BLACK_LIST
+									.contains(analyticsRecord.name()))
+							.toList();
 
 			var mean = analyticsRecords.getFirst().mean();
 			var stdDev = analyticsRecords.getFirst().sd();
 			var values = analyticsRecords.stream().map(AnalyticsDTO::value).toList();
 
-			var lastAnalyticsRecords = analyticsRepository
-					.findLastByNameAndLevel(analytic.name(), analytic.level()).stream()
-					.filter(record -> !AnalyticsBlackList.BLACK_LIST.contains(record.name()))
-					.toList();
+			var lastAnalyticsRecords =
+					analyticsRepository.findLastByNameAndLevel(analytic.name(), analytic.level())
+							.stream().filter(analyticsEntry -> !AnalyticsBlackList.BLACK_LIST
+									.contains(analyticsEntry.name()))
+							.toList();
 
 			var lastMean = lastAnalyticsRecords.getFirst().mean();
 			var lastStdDev = lastAnalyticsRecords.getFirst().sd();
@@ -78,8 +80,12 @@ public class ControlRulesValidators {
 
 			if (rule10x(values, mean, stdDev)) {
 				errors.append(String.format(ERROR_MESSAGE_TEMPLATE, "10x", analytic.name(),
-						analytic.level(), "Ten consecutive measurements on same side of mean",
-						"Systematic Error. Review calibration, reagent stability, and instrument maintenance. Recalibrate if necessary."));
+						analytic.level(),
+						"""
+								Ten consecutive measurements on same side of mean
+								Systematic Error. Review calibration, reagent stability, and instrument
+								maintenance. Recalibrate if necessary.
+								"""));
 				reportedViolations.add(violationKey);
 			}
 		}

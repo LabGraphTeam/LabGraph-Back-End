@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public abstract class AbstractAnalyticService extends AnalyticHelperService {
+public abstract class AbstractAnalyticService extends AbstractAnalyticHelperService {
 
 	public AbstractAnalyticService(AnalyticsRepository analyticsRepository,
 			EmailService emailService, ControlRulesValidators controlRulesValidators) {
