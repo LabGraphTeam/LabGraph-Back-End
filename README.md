@@ -1,10 +1,6 @@
 # QualityLab Pro-API RESTful for internal laboratory quality control.
 
 [![Docker Image CI/CD](https://github.com/LabGraphTeam/LabGraph-Back-End/actions/workflows/backend-deploy.yml/badge.svg?branch=master)](https://github.com/LabGraphTeam/LabGraph-Back-End/actions/workflows/backend-deploy.yml)
-<p align="center">
-
-<img src="https://img.shields.io/static/v1?label=STATUS&message=In%20progress&color=RED&style=for-the-badge" alt="Em desenvolvimento"/>
-</p>
 
 ## Technologies
 
@@ -22,39 +18,33 @@ monitoring and controlling the quality of their processes. This API provides end
 control standards, test results, statistical analyses, and other activities essential for ensuring the accuracy and
 reliability of laboratory data.
 
-## Implemented functionalities
-
-The API efficiently manages package insert values and test values, offering simple and intuitive CRUD operations.
-
 ## Project Structure
 
 ```
-.
 ├── .github/workflows     # GitHub Actions workflow configurations
-├── src
-│   ├── main
-│   │   ├── java/leonardo/labutilities/qualitylabpro
-│   │   │   ├── configs           # Application configurations
-│   │   │   │   ├── date         # Date/time configurations
-│   │   │   │   ├── docs         # API documentation configs
-│   │   │   │   ├── rest         # REST configurations
-│   │   │   │   └── security     # Security configurations
-│   │   │   ├── constants        # Constant definitions
-│   │   │   ├── controllers      # REST controllers
-│   │   │   ├── dtos            # Data Transfer Objects
-│   │   │   ├── entities        # Domain entities
-│   │   │   ├── enums           # Enumerations
-│   │   │   ├── repositories    # Data access layer
-│   │   │   ├── services       # Business logic
-│   │   │   └── utils          # Utility classes
-│   │   └── resources
-│   │       ├── db/migration    # Flyway migrations
-│   │       └── application*.properties
-│   └── test
-│       └── java               # Test classes
-├── database                   # Database scripts
-├── nginx                      # Nginx configurations
-└── docker-compose*.yml        # Docker compose files
+├── src/
+│   ├── main/
+│   │   ├── java/leonardo/labutilities/qualitylabpro/
+│   │   │   ├── configs/           # Application configurations
+│   │   │   │   ├── date/         # Date/time configurations
+│   │   │   │   ├── docs/         # API documentation
+│   │   │   │   ├── rest/         # REST configurations 
+│   │   │   │   └── security/     # Security settings
+│   │   │   ├── controllers/      # REST endpoints
+│   │   │   ├── dtos/            # Data Transfer Objects
+│   │   │   ├── entities/        # Domain entities
+│   │   │   ├── repositories/    # Data access layer
+│   │   │   ├── services/       # Business logic
+│   │   │   └── utils/          # Helper classes
+│   │   └── resources/
+│   │       ├── db/migration/    # Flyway migrations
+│   │       └── application.properties
+│   └── test/
+│       └── java/               # Test classes
+├── database/                   # Database scripts
+├── nginx/                      # Nginx configurations
+├── docker-compose.yml          # Docker compose files
+└── pom.xml                     # Maven configuration
 ```
 
 ### Key Components:
@@ -93,7 +83,7 @@ You can view the workflow configurations in the `.github/workflows` directory.
 Run the command below in Git Bash or Terminal to clone the repository:
 
 ```
-git clone https://github.com/LeonardoMeireles55/QualityLabPro.git
+git clone https://github.com/LabGraphTeam/LabGraph-Back-End.git
 ```
 
 #### Step 2. Running with docker-compose
@@ -101,7 +91,7 @@ git clone https://github.com/LeonardoMeireles55/QualityLabPro.git
 In the project root directory, run the command:
 
 ```
-docker-compose up or docker compose up
+docker compose -f docker-compose-dev.yml up --build    
 ```
 
 ## Usage
@@ -128,48 +118,6 @@ For even more detailed test output:
 ./mvnw test -X
 ```
 
-### With Docker
-
-When running with docker-compose, you can view test output in real-time:
-
-```bash
-docker-compose logs -f app
-```
-
-To see test execution during build:
-
-```bash
-docker-compose up --build --force-recreate
-```
-
-## Services
-
-### CoagulationAnalyticsService
-
-Handles analytic related to coagulation tests.
-
-### BiochemistryAnalyticsService
-
-Handles analytic related to biochemistry tests.
-
-### HematologyAnalyticsService
-
-Handles analytic related to hematology tests.
-
-## Controllers
-
-### CoagulationAnalyticsController
-
-Manages endpoints for coagulation analytic.
-
-### BiochemistryAnalyticsController
-
-Manages endpoints for biochemistry analytic.
-
-### HematologyAnalyticsController
-
-Manages endpoints for hematology analytic.
-
 ## React Recharts.js Front-end
 
 <img width="1470" alt="Screenshot 2024-12-06 at 18 01 35" src="https://github.com/user-attachments/assets/4fca9580-c012-48ef-a3d7-bf264593ccf2">
@@ -177,11 +125,14 @@ Manages endpoints for hematology analytic.
 ## Contributing
 
 1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
+2. Create a new branch (`git checkout -b feature/branch`).
 3. Make your changes.
 4. Commit your changes (`git commit -m 'Add some feature'`).
-5. Push to the branch (`git push origin feature-branch`).
+5. Push to the branch (`git push origin feature/branch`).
 6. Open a pull request.
+
+## Misc
+[![DigitalOcean Referral Badge](https://web-platforms.sfo2.cdn.digitaloceanspaces.com/WWW/Badge%203.svg)](https://www.digitalocean.com/?refcode=c961dfd401d8&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
 
 ## License
 
