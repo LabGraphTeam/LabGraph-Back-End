@@ -49,8 +49,7 @@ public class UserService {
 		var user = userRepository.existsByUsernameAndEmail(username, email);
 
 		if (!user) {
-			throw new CustomGlobalErrorHandling.UserNotFoundException(
-					"User not or invalid arguments");
+			throw new CustomGlobalErrorHandling.UserNotFoundException();
 		}
 
 		String temporaryPassword = passwordRecoveryTokenManager.generateTemporaryPassword();
@@ -90,12 +89,12 @@ public class UserService {
 
 	public User signUp(String username, String email, String password) {
 
-		var user =
-				new User(username, BCryptEncoderComponent.encrypt(password), email, UserRoles.USER);
-
 		if (userRepository.existsByUsernameOrEmail(email, email)) {
 			throw new CustomGlobalErrorHandling.UserAlreadyExistException();
 		}
+
+		var user =
+				new User(username, BCryptEncoderComponent.encrypt(password), email, UserRoles.USER);
 
 		try {
 			emailService.notifyUserSignup(user.getUsername(), user.getEmail(), LocalDateTime.now());
@@ -124,8 +123,11 @@ public class UserService {
 
 	public void updateUserPassword(String name, String email, String password, String newPassword) {
 		var oldPass = userRepository.getReferenceByUsernameAndEmail(name, email);
-		if (!BCryptEncoderComponent.decrypt(password, oldPass.getPassword())
-				|| BCryptEncoderComponent.decrypt(newPassword, oldPass.getPassword())) {
+		boolean oldPasswordMatches =
+				BCryptEncoderComponent.decrypt(password, oldPass.getPassword());
+		boolean newPasswordMatches =
+				BCryptEncoderComponent.decrypt(newPassword, oldPass.getPassword());
+		if (!oldPasswordMatches || newPasswordMatches) {
 			log.error("PasswordNotMatches. {}, {}", name, email);
 			throw new CustomGlobalErrorHandling.PasswordNotMatchesException();
 		} else {

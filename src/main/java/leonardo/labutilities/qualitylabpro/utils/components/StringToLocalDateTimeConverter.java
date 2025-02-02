@@ -47,7 +47,7 @@ public class StringToLocalDateTimeConverter implements Converter<String, LocalDa
 		throw new IllegalArgumentException("Unable to parse date: " + source, lastException);
 	}
 
-	private String sanitizeDate(String date) {
+	private static String sanitizeDate(String date) {
 		return date.trim().replaceAll("--", "-") // Fix double dashes
 				.replaceAll("\\s+", " ") // Fix multiple spaces
 				.replaceAll("T\\s", "T") // Fix space after T

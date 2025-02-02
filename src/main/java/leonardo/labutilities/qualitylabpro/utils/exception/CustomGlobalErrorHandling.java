@@ -25,7 +25,7 @@ public class CustomGlobalErrorHandling {
 	public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex,
 			HttpServletRequest request) {
 		Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
-				.collect(Collectors.toMap(FieldError::getField, error -> {
+				.collect(Collectors.toMap(FieldError::getField, (FieldError error) -> {
 					error.getDefaultMessage();
 					return error.getDefaultMessage();
 				}));
@@ -164,19 +164,13 @@ public class CustomGlobalErrorHandling {
 
 	public static class UserNotFoundException extends RuntimeException {
 		public UserNotFoundException() {
-			super();
-		}
-
-		public UserNotFoundException(String message) {
-			super(message);
+			super("User not found - Invalid credentials or user does not exist");
 		}
 	}
 
 	public static class RecoveryTokenInvalidException extends RuntimeException {
-		private static final long serialVersionUID = 1L;
-
 		public RecoveryTokenInvalidException() {
-			super("Recovery token is invalid or expired");
+			super("Token invalid - Recovery token is invalid or expired");
 		}
 
 		public RecoveryTokenInvalidException(String message) {

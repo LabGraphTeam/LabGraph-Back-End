@@ -5,11 +5,10 @@ import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedValuesByLevelDT
 import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanDTO;
 import leonardo.labutilities.qualitylabpro.entities.Analytic;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
-import leonardo.labutilities.qualitylabpro.services.analytics.AnalyticHelperService;
+import leonardo.labutilities.qualitylabpro.services.analytics.AbstractAnalyticHelperService;
 import leonardo.labutilities.qualitylabpro.services.email.EmailService;
 import leonardo.labutilities.qualitylabpro.utils.components.ControlRulesValidators;
 import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorComponent;
-import leonardo.labutilities.qualitylabpro.utils.constants.AvailableBiochemistryAnalytics;
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,12 +31,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AnalyticHelperServiceTests {
 
-	private static final List<String> ANALYTICS_NAME_LIST =
-			new AvailableBiochemistryAnalytics().availableBioAnalytics();
 	@Mock
 	private AnalyticsRepository analyticsRepository;
 	@Mock
-	private AnalyticHelperService analyticHelperService;
+	private AbstractAnalyticHelperService analyticHelperService;
 	@Mock
 	private EmailService emailService;
 	@Mock
@@ -46,8 +43,8 @@ class AnalyticHelperServiceTests {
 	@BeforeEach
 	void setUp() {
 		try (AutoCloseable closeable = MockitoAnnotations.openMocks(this)) {
-			analyticHelperService = new AnalyticHelperService(analyticsRepository, emailService,
-					controlRulesValidators) {
+			analyticHelperService = new AbstractAnalyticHelperService(analyticsRepository,
+					emailService, controlRulesValidators) {
 
 				@Override
 				public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable,
@@ -71,29 +68,9 @@ class AnalyticHelperServiceTests {
 		}
 	}
 
-	// @Test
-	// public void findAllAnalyticsByLevel() {
-	// var mockPageable = PageRequest.of(0, 10);
-	// var mockLevel = "PCCC1";
-	// var mockList = ANALYTICS_NAME_LIST;
-	// LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
-	// LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
-	//
-	// List<Analytic> expectedRecords =
-	// createDateRangeRecords().stream().map(AnalyticMapper::toEntity).toList();
-	// Page<Ana>
-	// when(analyticsRepository.findByNameInAndLevelAndDateBetween(mockList, mockLevel, startDate,
-	// endDate, mockPageable))
-	// .thenReturn(expectedRecords);
-	//
-	// analyticHelperService.findAnalyticsByNameInByLevelBaseMethod(mockList, mockLevel, startDate,
-	// endDate, mockPageable);
-	// verify(analyticsRepository).findByNameInAndLevelAndDateBetween(mockList, mockLevel,
-	// startDate, endDate, mockPageable);
-	// }
 
 	@Test
-	public void updateAnalyticsMean() {
+	void updateAnalyticsMean() {
 		var mockDto = new UpdateAnalyticsMeanDTO("Glucose", "PCCC1", "076587", 1.0);
 		analyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(mockDto.name(),
 				mockDto.level(), mockDto.levelLot(), mockDto.mean());
