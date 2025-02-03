@@ -31,13 +31,13 @@ echo "      Starting APT Cleanup           "
 echo "====================================="
 
 echo "Cleaning APT cache..."
-apt-get clean -y
+sudo apt-get clean -y
 
 echo "Removing unused packages..."
-apt-get autoremove -y
+sudo apt-get autoremove -y
 
 echo "Removing old downloaded archive files..."
-apt-get autoclean -y
+sudo apt-get autoclean -y
 
 echo "Current disk usage:"
 df -h
