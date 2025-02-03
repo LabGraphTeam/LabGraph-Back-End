@@ -21,7 +21,7 @@ echo "      Starting System Cleanup        "
 echo "====================================="
 echo "Clearing system cache..."
 sync
-echo 3 > /proc/sys/vm/drop_caches
+echo 3 >/proc/sys/vm/drop_caches
 
 echo "Memory usage after cleanup:"
 free -h
@@ -31,13 +31,13 @@ echo "      Starting APT Cleanup           "
 echo "====================================="
 
 echo "Cleaning APT cache..."
-sudo apt-get clean -y
+apt-get clean -y
 
 echo "Removing unused packages..."
-sudo apt-get autoremove -y
+apt-get autoremove -y
 
 echo "Removing old downloaded archive files..."
-sudo apt-get autoclean -y
+apt-get autoclean -y
 
 echo "Current disk usage:"
 df -h

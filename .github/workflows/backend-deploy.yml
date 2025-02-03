@@ -15,6 +15,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: remove buildx cache
+        run: rm -rf /tmp/.buildx-cache
+
+      - name: Clean up Docker Buildx
+        run: docker buildx prune --volumes --all --force
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -116,7 +122,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Running cleanup script
         run: |
-          chmod +x ./.github/scripts/cleanup_system.sh
+          chmod 777 ./.github/scripts/cleanup_system.sh
           ./.github/scripts/cleanup_system.sh
 
   notify:
