@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static leonardo.labutilities.qualitylabpro.utils.AnalyticsHelperMocks.*;
 import static org.junit.jupiter.api.Assertions.*;

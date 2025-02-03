@@ -67,8 +67,8 @@ class AnalyticRepositoryTest {
 						.findByNameInAndLevelAndDateBetween(ANALYTICS_NAME_LIST, "PCCC1",
 								testDate.minusDays(1), testDate.plusDays(1), pageable)
 						.stream().toList();
-		assertThat(results).isNotEmpty();
-		assertThat(results.getFirst().level()).isEqualTo("PCCC1");
+		assertThat(results).as("Results should not be empty for the given date range").isNotEmpty();
+		assertThat(results.getFirst().level()).as("Level should match PCCC1").isEqualTo("PCCC1");
 	}
 
 	@Test
