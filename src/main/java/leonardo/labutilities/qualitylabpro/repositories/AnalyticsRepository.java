@@ -16,69 +16,112 @@ import java.util.List;
 
 @Repository
 public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
-	boolean existsByName(String name);
 
-	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name = ?1")
-	List<Analytic> findByName(String name, Pageable pageable);
+	// Existence Checks
+	boolean existsByName(String name);
 
 	boolean existsByDateAndLevelAndName(LocalDateTime date, String level, String value);
 
-	@Query(value = "SELECT ga FROM generic_analytics ga WHERE ga.name = :name AND ga.level = :level ORDER BY ga.date DESC LIMIT 10")
+	// Fetch Analytics by Name
+	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name = :name")
+	List<Analytic> findByName(@Param("name") String name, Pageable pageable);
+
+	// Fetch Latest Analytics
+	@Query(value = """
+			SELECT ga FROM generic_analytics ga WHERE ga.name = :name AND ga.level = :level ORDER BY ga.date DESC LIMIT 10
+			""")
 	List<AnalyticsDTO> findLast10ByNameAndLevel(@Param("name") String name,
 			@Param("level") String level);
 
-	@Query(value = "SELECT ga FROM generic_analytics ga WHERE ga.name = :name AND ga.level = :level ORDER BY ga.date DESC LIMIT 10")
-	List<AnalyticsDTO> findLast4ByNameAndLevel(@Param("name") String name,
-			@Param("level") String level);
-
-	@Query(value = "SELECT ga FROM generic_analytics ga WHERE ga.name = :name AND ga.level = :level ORDER BY ga.date DESC LIMIT 1")
+	@Query(value = """
+			SELECT ga FROM generic_analytics ga WHERE ga.name = :name AND ga.level = :level ORDER BY ga.date DESC LIMIT 1
+			""")
 	List<AnalyticsDTO> findLastByNameAndLevel(@Param("name") String name,
 			@Param("level") String level);
 
+	// Update Operations
 	@Transactional
 	@Modifying
-	@Query("UPDATE generic_analytics ga SET ga.mean = ?4 WHERE ga.name = ?1 AND ga.level = ?2 AND ga.levelLot = ?3")
-	void updateMeanByNameAndLevelAndLevelLot(String name, String level, String levelLot,
-			double mean);
+	@Query(value = """
+			UPDATE generic_analytics ga SET ga.mean = :mean WHERE
+			 ga.name = :name AND ga.level = :level AND ga.levelLot = :levelLot
+			""")
+	void updateMeanByNameAndLevelAndLevelLot(@Param("name") String name,
+			@Param("level") String level, @Param("levelLot") String levelLot,
+			@Param("mean") double mean);
 
-	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name = ?1 AND ga.level = ?2")
-	List<Analytic> findByNameAndLevel(Pageable pageable, String name, String level);
+	// Fetch Analytics by Name and Level
+	@Query(value = """
+			SELECT ga FROM generic_analytics ga WHERE ga.name = :name AND ga.level = :level
+			""")
+	List<Analytic> findByNameAndLevel(Pageable pageable, @Param("name") String name,
+			@Param("level") String level);
 
-	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) AND ga.level = ?2 AND ga.date BETWEEN ?3 AND ?4")
-	Page<AnalyticsDTO> findByNameInAndLevelAndDateBetween(List<String> names, String level,
-			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+	@Query(value = """
+			SELECT ga FROM generic_analytics ga WHERE ga.name = :name AND ga.level = :level AND ga.levelLot = :levelLot
+			""")
+	List<Analytic> findByNameAndLevelAndLevelLot(Pageable pageable, @Param("name") String name,
+			@Param("level") String level, @Param("levelLot") String levelLot);
 
-	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name = ?1 AND ga.level = ?2 AND ga.levelLot = ?3")
-	List<Analytic> findByNameAndLevelAndLevelLot(Pageable pageable, String name, String level,
-			String levelLot);
+	@Query("""
+			SELECT ga FROM generic_analytics ga WHERE ga.name = :name
+			AND ga.level = :level AND ga.date BETWEEN :startDate AND :endDate ORDER BY ga.date ASC
+			""")
+	List<Analytic> findByNameAndLevelAndDateBetween(@Param("name") String name,
+			@Param("level") String level, @Param("startDate") LocalDateTime startDate,
+			@Param("endDate") LocalDateTime endDate, Pageable pageable);
 
-	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) AND ga.date BETWEEN ?2 AND ?3")
-	Page<AnalyticsDTO> findByNameInAndDateBetween(List<String> names, LocalDateTime startDate,
-			LocalDateTime endDate, Pageable pageable);
+	// Fetch Analytics by Multiple Names and Date
+	@Query(value = """
+			SELECT ga FROM generic_analytics ga WHERE
+			 ga.name IN (:names) AND ga.level = :level AND ga.date BETWEEN
+			  :startDate AND :endDate
+			""")
+	Page<AnalyticsDTO> findByNameInAndLevelAndDateBetween(@Param("names") List<String> names,
+			@Param("level") String level, @Param("startDate") LocalDateTime startDate,
+			@Param("endDate") LocalDateTime endDate, Pageable pageable);
 
-	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) AND ga.date BETWEEN ?2 AND ?3")
-	Page<AnalyticsDTO> findByNameInAndDateBetweenPaged(List<String> names, LocalDateTime startDate,
-			LocalDateTime endDate, Pageable pageable);
+	@Query(value = """
+			SELECT ga FROM generic_analytics ga WHERE ga.name IN (:names) AND ga.date BETWEEN :startDate AND :endDate
+			""")
+	Page<AnalyticsDTO> findByNameInAndDateBetween(@Param("names") List<String> names,
+			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate,
+			Pageable pageable);
 
-	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) ORDER BY ga.date ASC")
-	List<Analytic> findByNameIn(List<String> names, Pageable pageable);
+	@Query(value = """
+			SELECT ga FROM generic_analytics ga WHERE ga.name IN (:names) AND ga.date BETWEEN :startDate AND :endDate
+			""")
+	Page<AnalyticsDTO> findByNameInAndDateBetweenPaged(@Param("names") List<String> names,
+			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate,
+			Pageable pageable);
 
-	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name IN (?1) ORDER BY ga.date ASC")
-	Page<AnalyticsDTO> findByNameInPaged(List<String> names, Pageable pageable);
+	@Query(value = """
+			SELECT ga FROM generic_analytics ga WHERE ga.name IN (:names) ORDER BY ga.date ASC
+			""")
+	List<Analytic> findByNameIn(@Param("names") List<String> names, Pageable pageable);
 
-	@Query("SELECT ga FROM generic_analytics ga ORDER BY ga.date ASC")
+	@Query(value = """
+			SELECT ga FROM generic_analytics ga WHERE ga.name IN (:names) ORDER BY ga.date ASC
+			""")
+	Page<AnalyticsDTO> findByNameInPaged(@Param("names") List<String> names, Pageable pageable);
+
+	// General Paged Analytics
+	@Query(value = """
+			SELECT ga FROM generic_analytics ga ORDER BY ga.date ASC
+			""")
 	Page<AnalyticsDTO> findPaged(Pageable pageable);
 
-	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name = ?1 AND ga.level = ?2 AND ga.date BETWEEN ?3 AND ?4 "
-			+ "ORDER BY ga.date ASC")
-	List<Analytic> findByNameAndLevelAndDateBetween(String name, String level,
-			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+	// Analytics by Date Range
+	@Query("SELECT ga FROM generic_analytics ga WHERE ga.date BETWEEN :startDate AND :endDate ORDER BY ga.date DESC")
+	List<Analytic> findByDateBetween(@Param("startDate") LocalDateTime startDate,
+			@Param("endDate") LocalDateTime endDate);
 
-	@Query("SELECT ga FROM generic_analytics ga WHERE ga.date BETWEEN ?1 AND ?2 ORDER BY ga.date DESC")
-	List<Analytic> findByDateBetween(LocalDateTime startDate, LocalDateTime endDate);
-
-	@Query("SELECT ga FROM generic_analytics ga WHERE ga.name = ?1 AND ga.date BETWEEN ?2 AND ?3 GROUP BY ga.level, "
-			+ "ga.id ORDER BY ga.date ASC")
-	List<Analytic> findByNameAndDateBetweenGroupByLevel(String name, LocalDateTime startDate,
-			LocalDateTime endDate, Pageable pageable);
+	// Grouped Analytics
+	@Query("""
+			SELECT ga FROM generic_analytics ga WHERE ga.name = :name
+			AND ga.date BETWEEN :startDate AND :endDate GROUP BY ga.level, ga.id ORDER BY ga.date ASC
+			""")
+	List<Analytic> findByNameAndDateBetweenGroupByLevel(@Param("name") String name,
+			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate,
+			Pageable pageable);
 }
