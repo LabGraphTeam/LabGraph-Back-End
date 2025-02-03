@@ -20,7 +20,7 @@ jobs:
         run: rm -rf /tmp/.buildx-cache
 
       - name: Clean up Docker Buildx
-        run: docker buildx prune --volumes --all --force
+        run: docker buildx prune --all --force
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
