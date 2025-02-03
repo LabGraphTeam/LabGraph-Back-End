@@ -77,7 +77,6 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 			@Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 	// Fetch Analytics by Multiple Names and Date
-
 	@QueryHints({@QueryHint(name = "org.hibernate.readOnly", value = "true"),
 			@QueryHint(name = "org.hibernate.fetchSize", value = "50"),
 			@QueryHint(name = "org.hibernate.cacheable", value = "true")})
