@@ -1,5 +1,6 @@
 package leonardo.labutilities.qualitylabpro.repositories;
 
+import jakarta.persistence.QueryHint;
 import jakarta.transaction.Transactional;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.entities.Analytic;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -63,6 +65,9 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 	List<Analytic> findByNameAndLevelAndLevelLot(Pageable pageable, @Param("name") String name,
 			@Param("level") String level, @Param("levelLot") String levelLot);
 
+	@QueryHints({@QueryHint(name = "org.hibernate.readOnly", value = "true"),
+			@QueryHint(name = "org.hibernate.fetchSize", value = "50"),
+			@QueryHint(name = "org.hibernate.cacheable", value = "true")})
 	@Query("""
 			SELECT ga FROM generic_analytics ga WHERE ga.name = :name
 			AND ga.level = :level AND ga.date BETWEEN :startDate AND :endDate ORDER BY ga.date ASC
@@ -72,6 +77,10 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 			@Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 	// Fetch Analytics by Multiple Names and Date
+
+	@QueryHints({@QueryHint(name = "org.hibernate.readOnly", value = "true"),
+			@QueryHint(name = "org.hibernate.fetchSize", value = "50"),
+			@QueryHint(name = "org.hibernate.cacheable", value = "true")})
 	@Query(value = """
 			SELECT ga FROM generic_analytics ga WHERE
 			 ga.name IN (:names) AND ga.level = :level AND ga.date BETWEEN
