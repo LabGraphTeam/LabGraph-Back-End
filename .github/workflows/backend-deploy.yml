@@ -2,7 +2,7 @@ name: Backend Deploy Pipeline
 
 on:
   push:
-    branches: [ 'dev' ]
+    branches: [ 'master' ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
