@@ -1,5 +1,10 @@
 package leonardo.labutilities.qualitylabpro.services.users;
 
+import java.time.LocalDateTime;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Service;
 import leonardo.labutilities.qualitylabpro.dtos.authentication.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.dtos.email.EmailDTO;
 import leonardo.labutilities.qualitylabpro.dtos.email.RecoveryEmailDTO;
@@ -13,12 +18,6 @@ import leonardo.labutilities.qualitylabpro.utils.components.PasswordRecoveryToke
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @Service
@@ -41,45 +40,45 @@ public class UserService {
 				Best regards,
 				Your Team""", recoveryEmailDTO.temporaryPassword());
 		log.info("Sending recovery identifier to: {}", recoveryEmailDTO.email());
-		emailService.sendPlainTextEmail(new EmailDTO(recoveryEmailDTO.email(), subject, message));
+		this.emailService.sendPlainTextEmail(new EmailDTO(recoveryEmailDTO.email(), subject, message));
 	}
 
 	public void recoverPassword(String username, String email) {
 
-		var user = userRepository.existsByUsernameAndEmail(username, email);
+		var user = this.userRepository.existsByUsernameAndEmail(username, email);
 
 		if (!user) {
 			throw new CustomGlobalErrorHandling.UserNotFoundException();
 		}
 
-		String temporaryPassword = passwordRecoveryTokenManager.generateTemporaryPassword();
-		passwordRecoveryTokenManager.generateAndStoreToken(email, temporaryPassword);
+		String temporaryPassword = this.passwordRecoveryTokenManager.generateTemporaryPassword();
+		this.passwordRecoveryTokenManager.generateAndStoreToken(email, temporaryPassword);
 
-		sendRecoveryEmail(new RecoveryEmailDTO(email, temporaryPassword));
+		this.sendRecoveryEmail(new RecoveryEmailDTO(email, temporaryPassword));
 	}
 
 	public void changePassword(String email, String temporaryPassword, String newPassword) {
-		if (!passwordRecoveryTokenManager.isRecoveryTokenValid(temporaryPassword, email)) {
+		if (!this.passwordRecoveryTokenManager.isRecoveryTokenValid(temporaryPassword, email)) {
 			throw new CustomGlobalErrorHandling.RecoveryTokenInvalidException();
 		}
-		userRepository.setPasswordWhereByEmail(email, BCryptEncoderComponent.encrypt(newPassword));
+		this.userRepository.setPasswordWhereByEmail(email, BCryptEncoderComponent.encrypt(newPassword));
 	}
 
 	private TokenJwtDTO authenticateAndGenerateToken(User credential, String password) {
 		try {
 			final var authToken =
 					new UsernamePasswordAuthenticationToken(credential.getUsername(), password);
-			final var auth = authenticationManager.authenticate(authToken);
+			final var auth = this.authenticationManager.authenticate(authToken);
 			final var user = (User) auth.getPrincipal();
 
 			if (!auth.isAuthenticated()) {
-				emailService.notifyFailedUserLogin(user.getUsername(), user.getEmail(),
+				this.emailService.notifyFailedUserLogin(user.getUsername(), user.getEmail(),
 						LocalDateTime.now());
 				throw new BadCredentialsException(
 						"Authentication failed for user: " + credential.getUsername());
 			}
 
-			return tokenService.generateToken(user);
+			return this.tokenService.generateToken(user);
 
 		} catch (BadCredentialsException e) {
 			log.error("Authentication failed for user: {}", credential.getUsername(), e);
@@ -89,7 +88,7 @@ public class UserService {
 
 	public User signUp(String username, String email, String password) {
 
-		if (userRepository.existsByUsernameOrEmail(email, email)) {
+		if (this.userRepository.existsByUsernameOrEmail(email, email)) {
 			throw new CustomGlobalErrorHandling.UserAlreadyExistException();
 		}
 
@@ -97,23 +96,23 @@ public class UserService {
 				new User(username, BCryptEncoderComponent.encrypt(password), email, UserRoles.USER);
 
 		try {
-			emailService.notifyUserSignup(user.getUsername(), user.getEmail(), LocalDateTime.now());
+			this.emailService.notifyUserSignup(user.getUsername(), user.getEmail(), LocalDateTime.now());
 		} catch (Exception e) {
 			log.error("Failed signup for user: {}. Exception: ", user.getEmail(), e);
 		}
 
-		return userRepository.save(user);
+		return this.userRepository.save(user);
 	}
 
 	public TokenJwtDTO signIn(String identifier, String password) {
 		try {
-			final var credential = userRepository.findByUsernameOrEmail(identifier, identifier);
+			final var credential = this.userRepository.findOneByUsernameOrEmail(identifier, identifier);
 
 			if (credential == null) {
 				throw new CustomGlobalErrorHandling.UserNotFoundException();
 			}
 
-			return authenticateAndGenerateToken(credential, password);
+			return this.authenticateAndGenerateToken(credential, password);
 
 		} catch (Exception e) {
 			log.error("Sign-in process failed for identifier: {}", identifier, e);
@@ -122,7 +121,7 @@ public class UserService {
 	}
 
 	public void updateUserPassword(String name, String email, String password, String newPassword) {
-		var oldPass = userRepository.getReferenceByUsernameAndEmail(name, email);
+		var oldPass = this.userRepository.getReferenceByUsernameAndEmail(name, email);
 		boolean oldPasswordMatches =
 				BCryptEncoderComponent.decrypt(password, oldPass.getPassword());
 		boolean newPasswordMatches =
@@ -131,7 +130,7 @@ public class UserService {
 			log.error("PasswordNotMatches. {}, {}", name, email);
 			throw new CustomGlobalErrorHandling.PasswordNotMatchesException();
 		} else {
-			userRepository.setPasswordWhereByUsername(oldPass.getUsername(),
+			this.userRepository.setPasswordWhereByUsername(oldPass.getUsername(),
 					BCryptEncoderComponent.encrypt(newPassword));
 		}
 	}

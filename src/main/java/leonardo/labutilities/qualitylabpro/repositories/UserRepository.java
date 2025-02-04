@@ -1,22 +1,26 @@
 package leonardo.labutilities.qualitylabpro.repositories;
 
-import jakarta.transaction.Transactional;
-import leonardo.labutilities.qualitylabpro.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
+import jakarta.transaction.Transactional;
+import leonardo.labutilities.qualitylabpro.entities.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-	UserDetails getReferenceByUsername(String username);
+	boolean existsByUsername(String name);
 
-	User findByUsername(String username);
+	boolean existsByEmail(String email);
 
-	User findByEmail(String email);
+	UserDetails getReferenceOneByUsername(String username);
 
-	User findByUsernameOrEmail(String username, String email);
+	User findOneByUsername(String username);
+
+	User findOneByEmail(String email);
+
+	User findOneByUsernameOrEmail(String username, String email);
 
 	boolean existsByUsernameOrEmail(String username, String email);
 
@@ -26,16 +30,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Transactional
 	@Modifying
-	@Query("UPDATE users u SET u.password = ?2 WHERE u.username = ?1")
+	@Query("UPDATE users u SET u.password = :newPassword WHERE u.username = :username")
 	void setPasswordWhereByUsername(String username, String newPassword);
 
 	@Transactional
 	@Modifying
-	@Query("UPDATE users u SET u.password = ?2 WHERE u.email = ?1")
+	@Query("UPDATE users u SET u.password = :newPassword  WHERE u.email = :username")
 	void setPasswordWhereByEmail(String email, String newPassword);
 
-
-	boolean existsByUsername(String name);
-
-	boolean existsByEmail(String email);
 }

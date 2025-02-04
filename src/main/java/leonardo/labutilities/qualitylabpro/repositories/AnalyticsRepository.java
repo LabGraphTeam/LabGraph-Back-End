@@ -1,9 +1,7 @@
 package leonardo.labutilities.qualitylabpro.repositories;
 
-import jakarta.persistence.QueryHint;
-import jakarta.transaction.Transactional;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.entities.Analytic;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,9 +10,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import jakarta.persistence.QueryHint;
+import jakarta.transaction.Transactional;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.entities.Analytic;
 
 @Repository
 public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
@@ -65,6 +64,7 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 	List<Analytic> findByNameAndLevelAndLevelLot(Pageable pageable, @Param("name") String name,
 			@Param("level") String level, @Param("levelLot") String levelLot);
 
+
 	@QueryHints({@QueryHint(name = "org.hibernate.readOnly", value = "true"),
 			@QueryHint(name = "org.hibernate.fetchSize", value = "50"),
 			@QueryHint(name = "org.hibernate.cacheable", value = "true")})
@@ -75,6 +75,8 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 	List<Analytic> findByNameAndLevelAndDateBetween(@Param("name") String name,
 			@Param("level") String level, @Param("startDate") LocalDateTime startDate,
 			@Param("endDate") LocalDateTime endDate, Pageable pageable);
+
+
 
 	// Fetch Analytics by Multiple Names and Date
 	@QueryHints({@QueryHint(name = "org.hibernate.readOnly", value = "true"),
@@ -88,6 +90,7 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 	Page<AnalyticsDTO> findByNameInAndLevelAndDateBetween(@Param("names") List<String> names,
 			@Param("level") String level, @Param("startDate") LocalDateTime startDate,
 			@Param("endDate") LocalDateTime endDate, Pageable pageable);
+
 
 	@Query(value = """
 			SELECT ga FROM generic_analytics ga WHERE ga.name IN (:names) AND ga.date BETWEEN :startDate AND :endDate

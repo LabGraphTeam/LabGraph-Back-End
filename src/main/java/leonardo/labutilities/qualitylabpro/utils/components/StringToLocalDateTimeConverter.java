@@ -1,8 +1,5 @@
 package leonardo.labutilities.qualitylabpro.utils.components;
 
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.stereotype.Component;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -10,6 +7,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 @Component
 public class StringToLocalDateTimeConverter implements Converter<String, LocalDateTime> {
@@ -21,8 +21,8 @@ public class StringToLocalDateTimeConverter implements Converter<String, LocalDa
 			DateTimeFormatter.ofPattern("yyyy-MM-dd"), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
 	@Override
-	public LocalDateTime convert(String source) {
-		if (source == null || source.trim().isEmpty()) {
+	public LocalDateTime convert(@NonNull String source) {
+		if (source.trim().isEmpty()) {
 			return null;
 		}
 
@@ -48,7 +48,7 @@ public class StringToLocalDateTimeConverter implements Converter<String, LocalDa
 	}
 
 	private static String sanitizeDate(String date) {
-		return date.trim().replaceAll("--", "-") // Fix double dashes
+		return date.trim().replace("--", "-") // Fix double dashes
 				.replaceAll("\\s+", " ") // Fix multiple spaces
 				.replaceAll("T\\s", "T") // Fix space after T
 				.replaceAll("\\s(\\d:\\d)", "T$1") // Add T between date and time if missing

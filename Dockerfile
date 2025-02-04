@@ -6,9 +6,7 @@ COPY src /app/src
 COPY pom.xml /app
 
 WORKDIR /app
-RUN mvn clean package -DskipTests -U \
-    && rm -rf /root/.m2 \
-    && rm -rf /app/src
+RUN mvn clean package -DskipTests -U && rm -rf /root/.m2 && rm -rf /app/src
 
 # Run stage
 FROM eclipse-temurin:21-jre-alpine

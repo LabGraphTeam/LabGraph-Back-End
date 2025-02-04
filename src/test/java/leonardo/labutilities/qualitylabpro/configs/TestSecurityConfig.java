@@ -10,10 +10,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @TestConfiguration
 public class TestSecurityConfig {
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults())
-            .authorizeHttpRequests(req -> req // Public endpoints
-                                              .anyRequest().permitAll());
+                .authorizeHttpRequests(req -> req // Public endpoints
+                        .anyRequest().permitAll());
 
         return http.build();
     }
