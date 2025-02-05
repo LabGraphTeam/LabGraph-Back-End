@@ -1,14 +1,18 @@
 package leonardo.labutilities.qualitylabpro.entities;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import org.springframework.hateoas.RepresentationModel;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorComponent;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.hateoas.RepresentationModel;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -66,7 +70,7 @@ public class Analytic extends RepresentationModel<Analytic> {
 		this.sd = values.sd();
 		this.unitValue = values.unit_value();
 		this.rulesValidatorComponent = rulesValidatorComponent;
-		rulesValidatorComponent.validator(value, mean, sd);
+		rulesValidatorComponent.validator(this.value, this.mean, this.sd);
 		this.rules = rulesValidatorComponent.getRules();
 		this.description = rulesValidatorComponent.getDescription();
 	}

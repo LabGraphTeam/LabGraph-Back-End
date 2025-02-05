@@ -1,13 +1,12 @@
 package leonardo.labutilities.qualitylabpro.services.analytics;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import org.springframework.data.domain.Pageable;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.services.email.EmailService;
 import leonardo.labutilities.qualitylabpro.utils.components.ControlRulesValidators;
-import org.springframework.data.domain.Pageable;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 public abstract class AbstractAnalyticService extends AbstractAnalyticHelperService {
 

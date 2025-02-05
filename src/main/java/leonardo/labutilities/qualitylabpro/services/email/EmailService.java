@@ -1,5 +1,22 @@
 package leonardo.labutilities.qualitylabpro.services.email;
 
+import static leonardo.labutilities.qualitylabpro.utils.constants.EmailTemplate.ANALYTICS_WARNING_HEADER;
+import static leonardo.labutilities.qualitylabpro.utils.constants.EmailTemplate.EMAIL_SUBJECT_PREFIX;
+import static leonardo.labutilities.qualitylabpro.utils.constants.EmailTemplate.HTML_TEMPLATE;
+import static leonardo.labutilities.qualitylabpro.utils.constants.EmailTemplate.LAST_ANALYTICS_PARAGRAPH;
+import static leonardo.labutilities.qualitylabpro.utils.constants.EmailTemplate.TABLE_ROW;
+import static leonardo.labutilities.qualitylabpro.utils.constants.EmailTemplate.TABLE_STYLE;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
@@ -9,20 +26,6 @@ import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.dtos.email.EmailDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static leonardo.labutilities.qualitylabpro.utils.constants.EmailTemplate.*;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -42,35 +45,35 @@ public class EmailService {
 
 	@PostConstruct
 	private void init() {
-		emailList = (emailListString != null && !emailListString.isEmpty())
-				? List.of(emailListString.split(","))
+		this.emailList = (this.emailListString != null && !this.emailListString.isEmpty())
+				? List.of(this.emailListString.split(","))
 				: List.of();
 
-		if (emailList.isEmpty()) {
+		if (this.emailList.isEmpty()) {
 			log.warn("No identifier recipients configured in identifier.to.send.list");
 		}
 	}
 
 	public void sendPlainTextEmail(EmailDTO email) {
 		SimpleMailMessage message = new SimpleMailMessage();
-		message.setFrom(emailFrom);
+		message.setFrom(this.emailFrom);
 		message.setTo(email.to());
 		message.setSubject(EMAIL_SUBJECT_PREFIX + email.subject());
 		message.setText(buildEmailBody(email.body()));
-		javaMailSender.send(message);
+		this.javaMailSender.send(message);
 	}
 
 	public void sendHtmlEmailWithoutBcc(EmailDTO emailDTO) {
-		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+		MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();
 		try {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-			helper.setFrom(emailFrom);
+			helper.setFrom(this.emailFrom);
 
 			helper.addTo(emailDTO.to());
 			helper.setSubject(EMAIL_SUBJECT_PREFIX + emailDTO.subject());
 			helper.setText(buildEmailBody(emailDTO.body()), true);
 
-			javaMailSender.send(mimeMessage);
+			this.javaMailSender.send(mimeMessage);
 			log.info("HTML identifier sent successfully to {} client", emailDTO.to());
 
 		} catch (MessagingException e) {
@@ -81,20 +84,21 @@ public class EmailService {
 
 
 	public void sendHtmlEmail(EmailDTO emailDTO) {
-		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+		MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();
 		try {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-			helper.setFrom(emailFrom);
+			helper.setFrom(this.emailFrom);
 
 			// Convert identifier list to InternetAddress array
-			InternetAddress[] internetAddresses = emailList.stream().map((String emailAddress) -> {
-				try {
-					return new InternetAddress(emailAddress);
-				} catch (AddressException e) {
-					log.error("Invalid identifier address: {}", emailAddress, e);
-					return null;
-				}
-			}).filter(Objects::nonNull).toArray(InternetAddress[]::new);
+			InternetAddress[] internetAddresses =
+					this.emailList.stream().map((String emailAddress) -> {
+						try {
+							return new InternetAddress(emailAddress);
+						} catch (AddressException e) {
+							log.error("Invalid identifier address: {}", emailAddress, e);
+							return null;
+						}
+					}).filter(Objects::nonNull).toArray(InternetAddress[]::new);
 
 			if (internetAddresses.length == 0) {
 				log.error("No valid identifier addresses found");
@@ -105,7 +109,7 @@ public class EmailService {
 			helper.setSubject(EMAIL_SUBJECT_PREFIX + emailDTO.subject());
 			helper.setText(buildEmailBody(emailDTO.body()), true);
 
-			javaMailSender.send(mimeMessage);
+			this.javaMailSender.send(mimeMessage);
 			log.info("HTML identifier sent successfully to {} recipients",
 					internetAddresses.length);
 
@@ -124,13 +128,13 @@ public class EmailService {
 		log.info(validationResults);
 
 
-		String emailBody = generateAnalyticsFailedEmailBody(failedRecords, validationResults);
-		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+		String emailBody = this.generateAnalyticsFailedEmailBody(failedRecords, validationResults);
+		MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();
 
 		try {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-			helper.setFrom(emailFrom);
-			InternetAddress[] internetAddresses = emailList.stream().map((String email) -> {
+			helper.setFrom(this.emailFrom);
+			InternetAddress[] internetAddresses = this.emailList.stream().map((String email) -> {
 				try {
 					return new InternetAddress(email);
 				} catch (AddressException e) {
@@ -142,7 +146,7 @@ public class EmailService {
 			helper.setBcc(internetAddresses);
 			helper.setSubject(EMAIL_SUBJECT_PREFIX + "Quality Control Alert: Failed Analytic");
 			helper.setText(buildEmailBody(emailBody), true);
-			javaMailSender.send(mimeMessage);
+			this.javaMailSender.send(mimeMessage);
 
 			log.info("Failed analytics notification sent for {} records", failedRecords.size());
 		} catch (MessagingException e) {
@@ -165,30 +169,30 @@ public class EmailService {
 	}
 
 	public void notifyUserLogin(String username, String email, LocalDateTime date) {
-		sendUserActionEmail("Successful Login", username, email, date);
+		this.sendUserActionEmail("Successful Login", username, email, date);
 	}
 
 	public void notifyFailedUserLogin(String username, String email, LocalDateTime date) {
-		sendUserActionEmail("Failed Login Attempt", username, email, date);
+		this.sendUserActionEmail("Failed Login Attempt", username, email, date);
 	}
 
 	public void notifyUserSignup(String username, String email, LocalDateTime date) {
-		sendUserActionEmail("Account Creation", username, email, date);
+		this.sendUserActionEmail("Account Creation", username, email, date);
 	}
 
 	public void notifyUserDeletion(String username, String email, LocalDateTime date) {
-		sendUserActionEmail("Account Deletion", username, email, date);
+		this.sendUserActionEmail("Account Deletion", username, email, date);
 	}
 
 	public void notifyUserUpdate(String username, String email, LocalDateTime date) {
-		sendUserActionEmail("Account Update", username, email, date);
+		this.sendUserActionEmail("Account Update", username, email, date);
 	}
 
 	public void sendUserActionEmail(String actionType, String username, String email,
 			LocalDateTime date) {
 		String subject = String.format("User %s - %s", username, actionType);
 		String content = createUserActionEmailContent(actionType, username, email, date);
-		sendHtmlEmailWithoutBcc(new EmailDTO(email, subject, content));
+		this.sendHtmlEmailWithoutBcc(new EmailDTO(email, subject, content));
 	}
 
 	private static String createUserActionEmailContent(String actionType, String username,

@@ -1,17 +1,16 @@
 package leonardo.labutilities.qualitylabpro.services.analytics;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.services.email.EmailService;
 import leonardo.labutilities.qualitylabpro.utils.components.ControlRulesValidators;
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class HematologyAnalyticService extends AbstractAnalyticService {
@@ -30,8 +29,9 @@ public class HematologyAnalyticService extends AbstractAnalyticService {
 	@Override
 	public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable, String name,
 			String level) {
-		ensureNameExists(name);
-		return findAnalyticsByNameAndLevelWithPagination(pageable, name, convertLevel(level));
+		this.ensureNameExists(name);
+		return this.findAnalyticsByNameAndLevelWithPagination(pageable, name,
+				this.convertLevel(level));
 	}
 
 	@Cacheable(value = "analyticsByNameLevelAndDateCache",
@@ -39,8 +39,8 @@ public class HematologyAnalyticService extends AbstractAnalyticService {
 	@Override
 	public List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name, String level,
 			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
-		return findAnalyticsByNameLevelAndDate(name, convertLevel(level), dateStart, dateEnd,
-				pageable);
+		return this.findAnalyticsByNameLevelAndDate(name, this.convertLevel(level), dateStart,
+				dateEnd, pageable);
 	}
 
 	@Override

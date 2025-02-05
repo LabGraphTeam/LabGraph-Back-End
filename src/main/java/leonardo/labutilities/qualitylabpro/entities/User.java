@@ -1,19 +1,22 @@
 package leonardo.labutilities.qualitylabpro.entities;
 
-import jakarta.persistence.*;
-import leonardo.labutilities.qualitylabpro.enums.UserRoles;
-import lombok.Getter;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Objects;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import leonardo.labutilities.qualitylabpro.enums.UserRoles;
+import lombok.Getter;
 
 @Getter
 @Entity(name = "users")
@@ -28,7 +31,7 @@ public class User implements UserDetails {
     private String email;
 
     @Column(name = "user_roles")
-    private UserRoles userRoles;
+    private final UserRoles userRoles;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -39,6 +42,7 @@ public class User implements UserDetails {
     private LocalDateTime updatedAt;
 
     protected User() {
+        this.userRoles = null;
     }
 
     public User(String username, String password) {
@@ -56,18 +60,18 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Arrays.stream(UserRoles.values()).filter(role -> getUserRoles() == role)
-                     .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRole())).toList();
+        return Arrays.stream(UserRoles.values()).filter(role -> this.getUserRoles() == role)
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRole())).toList();
     }
 
     @Override
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
     @Override
     public String getPassword() {
-        return password;
+        return this.password;
     }
 
     @Override
@@ -99,23 +103,23 @@ public class User implements UserDetails {
             return false;
         }
         Class<?> oEffectiveClass = o instanceof HibernateProxy
-                                   ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
-                                   : o.getClass();
+                ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+                : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy
-                                      ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
-                                      : this.getClass();
+                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+                : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) {
             return false;
         }
         User user = (User) o;
-        return getId() != null && Objects.equals(getId(), user.getId());
+        return this.getId() != null && Objects.equals(this.getId(), user.getId());
     }
 
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy
-               ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
-                                        .hashCode()
-               : getClass().hashCode();
+                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+                        .hashCode()
+                : this.getClass().hashCode();
     }
 }
