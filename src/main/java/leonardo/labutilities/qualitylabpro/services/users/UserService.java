@@ -40,7 +40,8 @@ public class UserService {
 				Best regards,
 				Your Team""", recoveryEmailDTO.temporaryPassword());
 		log.info("Sending recovery identifier to: {}", recoveryEmailDTO.email());
-		this.emailService.sendPlainTextEmail(new EmailDTO(recoveryEmailDTO.email(), subject, message));
+		this.emailService
+				.sendPlainTextEmail(new EmailDTO(recoveryEmailDTO.email(), subject, message));
 	}
 
 	public void recoverPassword(String username, String email) {
@@ -61,7 +62,8 @@ public class UserService {
 		if (!this.passwordRecoveryTokenManager.isRecoveryTokenValid(temporaryPassword, email)) {
 			throw new CustomGlobalErrorHandling.RecoveryTokenInvalidException();
 		}
-		this.userRepository.setPasswordWhereByEmail(email, BCryptEncoderComponent.encrypt(newPassword));
+		this.userRepository.setPasswordWhereByEmail(email,
+				BCryptEncoderComponent.encrypt(newPassword));
 	}
 
 	private TokenJwtDTO authenticateAndGenerateToken(User credential, String password) {
@@ -94,19 +96,23 @@ public class UserService {
 
 		var user =
 				new User(username, BCryptEncoderComponent.encrypt(password), email, UserRoles.USER);
+		var savedUser = this.userRepository.save(user);
 
 		try {
-			this.emailService.notifyUserSignup(user.getUsername(), user.getEmail(), LocalDateTime.now());
+			this.emailService.notifyUserSignup(savedUser.getUsername(), savedUser.getEmail(),
+					LocalDateTime.now());
 		} catch (Exception e) {
-			log.error("Failed signup for user: {}. Exception: ", user.getEmail(), e);
+			log.error("Failed to send signup notification for user: {}. Exception: ",
+					savedUser.getEmail(), e);
 		}
 
-		return this.userRepository.save(user);
+		return savedUser;
 	}
 
 	public TokenJwtDTO signIn(String identifier, String password) {
 		try {
-			final var credential = this.userRepository.findOneByUsernameOrEmail(identifier, identifier);
+			final var credential =
+					this.userRepository.findOneByUsernameOrEmail(identifier, identifier);
 
 			if (credential == null) {
 				throw new CustomGlobalErrorHandling.UserNotFoundException();
