@@ -51,7 +51,7 @@ public class BiochemistryAnalyticsController extends AbstractAnalyticsController
 			@RequestParam("startDate") LocalDateTime startDate,
 			@RequestParam("endDate") LocalDateTime endDate,
 			@PageableDefault(sort = "date", direction = Sort.Direction.DESC,
-					size = 500) @ParameterObject Pageable pageable) {
+					size = 1500) @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(this.biochemistryAnalyticsService
 				.findAnalyticsByNameInAndDateBetween(names, startDate, endDate, pageable));
 	}

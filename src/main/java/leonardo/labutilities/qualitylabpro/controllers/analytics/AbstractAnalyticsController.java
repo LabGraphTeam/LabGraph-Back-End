@@ -41,7 +41,7 @@ public abstract class AbstractAnalyticsController extends AnalyticsHelperControl
 	public abstract ResponseEntity<Page<AnalyticsDTO>> getAnalyticsDateBetween(
 			@RequestParam("startDate") LocalDateTime startDate,
 			@RequestParam("endDate") LocalDateTime endDate,
-			@PageableDefault(size = 500, sort = "date",
+			@PageableDefault(size = 1500, sort = "date",
 					direction = Sort.Direction.DESC) @ParameterObject Pageable pageable);
 
 	@GetMapping("/level-date-range")
