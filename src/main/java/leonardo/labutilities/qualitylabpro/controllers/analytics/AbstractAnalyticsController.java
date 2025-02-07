@@ -1,9 +1,7 @@
 package leonardo.labutilities.qualitylabpro.controllers.analytics;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
-import leonardo.labutilities.qualitylabpro.services.analytics.AbstractAnalyticHelperService;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +15,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
+import leonardo.labutilities.qualitylabpro.services.analytics.AbstractAnalyticHelperService;
 
 
 @Validated
@@ -42,7 +41,7 @@ public abstract class AbstractAnalyticsController extends AnalyticsHelperControl
 	public abstract ResponseEntity<Page<AnalyticsDTO>> getAnalyticsDateBetween(
 			@RequestParam("startDate") LocalDateTime startDate,
 			@RequestParam("endDate") LocalDateTime endDate,
-			@PageableDefault(size = 100, sort = "date",
+			@PageableDefault(size = 500, sort = "date",
 					direction = Sort.Direction.DESC) @ParameterObject Pageable pageable);
 
 	@GetMapping("/level-date-range")

@@ -1,10 +1,7 @@
 package leonardo.labutilities.qualitylabpro.controllers.analytics;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
-import leonardo.labutilities.qualitylabpro.services.analytics.HematologyAnalyticService;
-import leonardo.labutilities.qualitylabpro.utils.constants.AvailableHematologyAnalytics;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,9 +15,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
+import leonardo.labutilities.qualitylabpro.services.analytics.HematologyAnalyticService;
+import leonardo.labutilities.qualitylabpro.utils.constants.AvailableHematologyAnalytics;
 
 @Validated
 @SecurityRequirement(name = "bearer-key")
@@ -48,9 +47,10 @@ public class HematologyAnalyticsController extends AbstractAnalyticsController {
 	@GetMapping("/date-range")
 	public ResponseEntity<Page<AnalyticsDTO>> getAnalyticsDateBetween(
 			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate, @PageableDefault(sort = "date",
-					direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
-		return ResponseEntity.ok(hematologyAnalyticsService
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(sort = "date", direction = Sort.Direction.DESC,
+					size = 500) @ParameterObject Pageable pageable) {
+		return ResponseEntity.ok(this.hematologyAnalyticsService
 				.findAnalyticsByNameInAndDateBetween(names, startDate, endDate, pageable));
 	}
 
@@ -60,7 +60,7 @@ public class HematologyAnalyticsController extends AbstractAnalyticsController {
 			@RequestParam String level, @RequestParam("startDate") LocalDateTime startDate,
 			@RequestParam("endDate") LocalDateTime endDate,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
-		return ResponseEntity.ok(hematologyAnalyticsService.findAnalyticsByNameInByLevel(names,
+		return ResponseEntity.ok(this.hematologyAnalyticsService.findAnalyticsByNameInByLevel(names,
 				level, startDate, endDate, pageable));
 	}
 
@@ -71,8 +71,8 @@ public class HematologyAnalyticsController extends AbstractAnalyticsController {
 			@RequestParam("startDate") LocalDateTime startDate,
 			@RequestParam("endDate") LocalDateTime endDate,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
-		return ResponseEntity.ok(hematologyAnalyticsService.findAnalyticsByNameAndLevelAndDate(name,
-				level, startDate, endDate, pageable));
+		return ResponseEntity.ok(this.hematologyAnalyticsService
+				.findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate, pageable));
 	}
 
 
@@ -83,8 +83,8 @@ public class HematologyAnalyticsController extends AbstractAnalyticsController {
 			@RequestParam("startDate") LocalDateTime startDate,
 			@RequestParam("endDate") LocalDateTime endDate,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
-		return ResponseEntity.ok(hematologyAnalyticsService.calculateMeanAndStandardDeviation(name,
-				level, startDate, endDate, pageable));
+		return ResponseEntity.ok(this.hematologyAnalyticsService
+				.calculateMeanAndStandardDeviation(name, level, startDate, endDate, pageable));
 	}
 
 
