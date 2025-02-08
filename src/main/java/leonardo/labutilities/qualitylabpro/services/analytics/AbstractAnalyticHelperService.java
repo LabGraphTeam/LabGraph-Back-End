@@ -41,6 +41,9 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 		this.controlRulesValidators = controlRulesValidators;
 	}
 
+	// ABSTRACT METHODS
+	public abstract String convertLevel(String level);
+
 	// VALIDATION METHODS
 	private static void validateResultsNotEmpty(List<?> results, String message) {
 		if (results == null || results.isEmpty()) {
@@ -208,10 +211,11 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 	}
 
 	@Override
-	@CacheEvict(value = "analyticsByNameAndDateRange", allEntries = true)
+	@CacheEvict(value = "analyticsByNameLevelAndDateCache", allEntries = true)
 	public void saveNewAnalyticsRecords(List<AnalyticsDTO> valuesOfLevelsList) {
+
 		var newRecords = valuesOfLevelsList.stream().filter(this::isAnalyticsNonExistent)
-				.map(AnalyticMapper::toEntity).toList();
+				.map(AnalyticMapper::toNewEntity).toList();
 
 		if (newRecords.isEmpty()) {
 			log.warn("No new analytics records to save.");

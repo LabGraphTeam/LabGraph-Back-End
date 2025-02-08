@@ -131,17 +131,37 @@ public class CustomGlobalErrorHandling {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 	}
 
+	@ExceptionHandler(EmailSendingException.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	public ResponseEntity<ApiError> handleEmailSendingError(EmailSendingException ex,
+			HttpServletRequest request) {
+		ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to send email",
+				request.getRequestURI());
+
+		log.error("Email sending failed at {}: {}", request.getRequestURI(), ex.getMessage());
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
+	}
+
+	// Exception classes
+	public static class EmailSendingException extends RuntimeException {
+		public EmailSendingException(String message) {
+			super(message);
+		}
+
+		public EmailSendingException(String message, Throwable cause) {
+			super(message, cause);
+		}
+	}
+
 	public static class ResourceNotFoundException extends RuntimeException {
 		public ResourceNotFoundException() {
 			super();
 		}
 
-
 		public ResourceNotFoundException(String message) {
 			super(message);
 		}
 	}
-
 
 	public static class PasswordNotMatchesException extends RuntimeException {
 		public PasswordNotMatchesException() {

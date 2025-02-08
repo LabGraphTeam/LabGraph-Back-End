@@ -5,11 +5,17 @@ import leonardo.labutilities.qualitylabpro.entities.Analytic;
 import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorComponent;
 
 public class AnalyticMapper {
-	public static final RulesValidatorComponent rulesValidatorComponent =
-			new RulesValidatorComponent();
 
-	public static Analytic toEntity(AnalyticsDTO analyticsDTO) {
+	private AnalyticMapper() {
+
+	}
+
+	private static RulesValidatorComponent rulesValidatorComponent = new RulesValidatorComponent();
+
+	public static Analytic toEntity(AnalyticsDTO analyticsDTO,
+			RulesValidatorComponent rulesValidatorComponent) {
 		Analytic analytic = new Analytic();
+		analytic.setId(analyticsDTO.id());
 		analytic.setDate(analyticsDTO.date());
 		analytic.setLevelLot(analyticsDTO.level_lot());
 		analytic.setTestLot(analyticsDTO.test_lot());
@@ -25,6 +31,28 @@ public class AnalyticMapper {
 		analytic.setDescription(rulesValidatorComponent.getDescription());
 
 		return analytic;
+	}
+
+	public static Analytic toEntityWithoutComponet(AnalyticsDTO analyticsDTO) {
+		Analytic analytic = new Analytic();
+		analytic.setId(analyticsDTO.id());
+		analytic.setDate(analyticsDTO.date());
+		analytic.setLevelLot(analyticsDTO.level_lot());
+		analytic.setTestLot(analyticsDTO.test_lot());
+		analytic.setName(analyticsDTO.name());
+		analytic.setLevel(analyticsDTO.level());
+		analytic.setValue(analyticsDTO.value());
+		analytic.setMean(analyticsDTO.mean());
+		analytic.setSd(analyticsDTO.sd());
+		analytic.setUnitValue(analyticsDTO.unit_value());
+		analytic.setRules(analyticsDTO.rules());
+		analytic.setDescription(analyticsDTO.description());
+
+		return analytic;
+	}
+
+	public static Analytic toNewEntity(AnalyticsDTO analyticsDTO) {
+		return toEntityWithoutComponet(analyticsDTO);
 	}
 
 	public static AnalyticsDTO toRecord(Analytic analytic) {

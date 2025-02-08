@@ -29,7 +29,7 @@ import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticMapper;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-class AnalyticRepositoryTest {
+class AnalyticRepositoryTests {
 	@Autowired
 	private static final List<String> ANALYTICS_NAME_LIST =
 			new AvailableBiochemistryAnalytics().availableBioAnalytics();

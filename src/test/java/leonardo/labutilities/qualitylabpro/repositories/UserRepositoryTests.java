@@ -17,7 +17,7 @@ import leonardo.labutilities.qualitylabpro.utils.components.BCryptEncoderCompone
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-class UserRepositoryTest {
+class UserRepositoryTests {
 
 	@Autowired
 	UserRepository userRepository;

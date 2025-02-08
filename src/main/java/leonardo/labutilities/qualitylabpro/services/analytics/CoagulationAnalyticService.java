@@ -13,7 +13,7 @@ import leonardo.labutilities.qualitylabpro.utils.components.ControlRulesValidato
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 
 @Service
-public class CoagulationAnalyticService extends AbstractAnalyticService {
+public class CoagulationAnalyticService extends AbstractAnalyticHelperService {
 
 	public CoagulationAnalyticService(AnalyticsRepository analyticsRepository,
 			EmailService emailService, ControlRulesValidators controlRulesValidators) {

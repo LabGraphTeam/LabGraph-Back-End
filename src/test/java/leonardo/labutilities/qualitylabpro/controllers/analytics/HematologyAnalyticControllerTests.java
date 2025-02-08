@@ -1,12 +1,18 @@
-package leonardo.labutilities.qualitylabpro.controllers;
+package leonardo.labutilities.qualitylabpro.controllers.analytics;
 
-import leonardo.labutilities.qualitylabpro.configs.TestSecurityConfig;
-import leonardo.labutilities.qualitylabpro.controllers.analytics.CoagulationAnalyticsController;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
-import leonardo.labutilities.qualitylabpro.repositories.UserRepository;
-import leonardo.labutilities.qualitylabpro.services.analytics.CoagulationAnalyticService;
-import leonardo.labutilities.qualitylabpro.services.authentication.TokenService;
+import static leonardo.labutilities.qualitylabpro.utils.AnalyticsHelperMocks.createSampleRecordList;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,28 +28,19 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
+import leonardo.labutilities.qualitylabpro.configs.TestSecurityConfig;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
+import leonardo.labutilities.qualitylabpro.repositories.UserRepository;
+import leonardo.labutilities.qualitylabpro.services.analytics.HematologyAnalyticService;
+import leonardo.labutilities.qualitylabpro.services.authentication.TokenService;
 
-import static leonardo.labutilities.qualitylabpro.utils.AnalyticsHelperMocks.createSampleRecordList;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-@WebMvcTest(CoagulationAnalyticsController.class)
+@WebMvcTest(HematologyAnalyticsController.class)
 @Import(TestSecurityConfig.class)
 @AutoConfigureMockMvc
 @AutoConfigureJsonTesters
 @ActiveProfiles("test")
-public class CoagulationAnalyticControllerTest {
-
-	@Autowired
-	private MockMvc mockMvc;
+class HematologyAnalyticControllerTests {
 
 	@MockitoBean
 	private TokenService tokenService;
@@ -51,8 +48,11 @@ public class CoagulationAnalyticControllerTest {
 	@MockitoBean
 	private UserRepository userRepository;
 
+	@Autowired
+	private MockMvc mockMvc;
+
 	@MockitoBean
-	private CoagulationAnalyticService coagulationAnalyticsService;
+	private HematologyAnalyticService hematologyAnalyticsService;
 
 	@Autowired
 	private JacksonTester<List<AnalyticsDTO>> jacksonGenericValuesRecord;
@@ -63,25 +63,26 @@ public class CoagulationAnalyticControllerTest {
 		List<AnalyticsDTO> records = createSampleRecordList();
 		Page<AnalyticsDTO> page = new PageImpl<>(records);
 
-		when(coagulationAnalyticsService.findAnalyticsByNameInByLevel(anyList(), any(), any(),
+		when(this.hematologyAnalyticsService.findAnalyticsByNameInByLevel(anyList(), any(), any(),
 				any(), any(Pageable.class))).thenReturn(page);
 
-		mockMvc.perform(get("/coagulation-analytics/level-date-range").param("level", "PCCC1")
+		this.mockMvc.perform(get("/hematology-analytics/level-date-range").param("level", "PCCC1")
 				.param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00"))
 				.andExpect(status().isOk());
 
-		verify(coagulationAnalyticsService, times(1)).findAnalyticsByNameInByLevel(anyList(), any(),
-				any(), any(), any(Pageable.class));
+		verify(this.hematologyAnalyticsService, times(1)).findAnalyticsByNameInByLevel(anyList(),
+				any(), any(), any(), any(Pageable.class));
 	}
 
 	@Test
 	@DisplayName("It should return HTTP code 201 when analytics records are saved")
 	void analytics_post_return_201() throws Exception {
 		List<AnalyticsDTO> records = createSampleRecordList();
-		mockMvc.perform(post("/coagulation-analytics").contentType(MediaType.APPLICATION_JSON)
-				.content(jacksonGenericValuesRecord.write(records).getJson()))
+		this.mockMvc
+				.perform(post("/hematology-analytics").contentType(MediaType.APPLICATION_JSON)
+						.content(this.jacksonGenericValuesRecord.write(records).getJson()))
 				.andExpect(status().isCreated());
-		verify(coagulationAnalyticsService, times(1)).saveNewAnalyticsRecords(anyList());
+		verify(this.hematologyAnalyticsService, times(1)).saveNewAnalyticsRecords(anyList());
 	}
 
 	@Test
@@ -90,15 +91,16 @@ public class CoagulationAnalyticControllerTest {
 		List<AnalyticsDTO> records = createSampleRecordList();
 		Page<AnalyticsDTO> page = new PageImpl<>(records);
 
-		when(coagulationAnalyticsService.findAnalyticsPagedByNameIn(anyList(), any(Pageable.class)))
-				.thenReturn(page);
+		when(this.hematologyAnalyticsService.findAnalyticsPagedByNameIn(anyList(),
+				any(Pageable.class))).thenReturn(page);
 
-		mockMvc.perform(get("/coagulation-analytics").param("page", "0").param("size", "10"))
+		this.mockMvc.perform(get("/hematology-analytics").param("page", "0").param("size", "10"))
 				.andExpect(status().isOk());
 
-		verify(coagulationAnalyticsService, times(1)).findAnalyticsPagedByNameIn(anyList(),
+		verify(this.hematologyAnalyticsService, times(1)).findAnalyticsPagedByNameIn(anyList(),
 				any(Pageable.class));
 	}
+
 
 	@Test
 	@DisplayName("It should return analytics records for a date range")
@@ -106,16 +108,15 @@ public class CoagulationAnalyticControllerTest {
 		List<AnalyticsDTO> records = createSampleRecordList();
 		Page<AnalyticsDTO> page = new PageImpl<>(records);
 
-
-		when(coagulationAnalyticsService.findAnalyticsByNameInAndDateBetween(anyList(), any(),
+		when(this.hematologyAnalyticsService.findAnalyticsByNameInAndDateBetween(anyList(), any(),
 				any(), any())).thenReturn(page);
 
-		mockMvc.perform(get("/coagulation-analytics/date-range")
+		this.mockMvc.perform(get("/hematology-analytics/date-range")
 				.param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00"))
 				.andExpect(status().isOk());
 
-		verify(coagulationAnalyticsService, times(1)).findAnalyticsByNameInAndDateBetween(anyList(),
-				any(), any(), any());
+		verify(this.hematologyAnalyticsService, times(1))
+				.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any());
 	}
 
 	@Test
@@ -127,15 +128,16 @@ public class CoagulationAnalyticControllerTest {
 		LocalDateTime endDate = LocalDateTime.parse("2025-01-05 00:00:00",
 				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-		when(coagulationAnalyticsService.calculateMeanAndStandardDeviation(eq("Hemoglobin"),
+		when(this.hematologyAnalyticsService.calculateMeanAndStandardDeviation(eq("Hemoglobin"),
 				eq("High"), eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(result);
 
-		mockMvc.perform(get("/coagulation-analytics/mean-standard-deviation")
+		this.mockMvc.perform(get("/hematology-analytics/mean-standard-deviation")
 				.param("name", "Hemoglobin").param("level", "High")
 				.param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00")
 				.param("page", "0").param("size", "10")).andExpect(status().isOk());
 
-		verify(coagulationAnalyticsService).calculateMeanAndStandardDeviation(eq("Hemoglobin"),
+		verify(this.hematologyAnalyticsService).calculateMeanAndStandardDeviation(eq("Hemoglobin"),
 				eq("High"), eq(startDate), eq(endDate), any(Pageable.class));
 	}
+
 }
