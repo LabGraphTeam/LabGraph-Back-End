@@ -2,7 +2,6 @@ package leonardo.labutilities.qualitylabpro.services.analytics;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,8 +33,7 @@ public class CoagulationAnalyticService extends AbstractAnalyticHelperService {
 				this.convertLevel(level));
 	}
 
-	@Cacheable(value = "analyticsByNameLevelAndDate",
-			key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
+
 	@Override
 	public List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name, String level,
 			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {

@@ -24,6 +24,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.dtos.email.EmailDTO;
+import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling.EmailSendingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -78,7 +79,7 @@ public class EmailService {
 
 		} catch (MessagingException e) {
 			log.error("Failed to send HTML identifier: {}", e.getMessage(), e);
-			throw new RuntimeException("Email sending failed", e);
+			throw new EmailSendingException("Email sending failed", e);
 		}
 	}
 
@@ -115,7 +116,7 @@ public class EmailService {
 
 		} catch (MessagingException e) {
 			log.error("Failed to send HTML identifier: {}", e.getMessage(), e);
-			throw new RuntimeException("Email sending failed", e);
+			throw new EmailSendingException("Email sending failed", e);
 		}
 	}
 
@@ -151,7 +152,7 @@ public class EmailService {
 			log.info("Failed analytics notification sent for {} records", failedRecords.size());
 		} catch (MessagingException e) {
 			log.error("Failed to send analytics notification identifier", e);
-			throw new RuntimeException("Failed to send analytics notification", e);
+			throw new EmailSendingException("Failed to send analytics notification", e);
 		}
 	}
 

@@ -112,7 +112,7 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 				.toList();
 	}
 
-	@Cacheable(value = "meanAndStdDeviationCache",
+	@Cacheable(value = "meanAndStdDeviation",
 			key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
 	public MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(String name, String level,
 			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
@@ -213,7 +213,10 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 	}
 
 	@Override
-	@CacheEvict(value = "analyticsByNameAndDateRange", allEntries = true)
+	@CacheEvict(
+			value = {"analyticsByNameAndDateRange", "meanAndStdDeviation",
+					"calculateGroupedMeanAndStandardDeviation", "AnalyticsByNameWithPagination"},
+			allEntries = true)
 	public void saveNewAnalyticsRecords(List<AnalyticsDTO> valuesOfLevelsList) {
 
 		var newRecords = valuesOfLevelsList.stream().filter(this::isAnalyticsNonExistent)
