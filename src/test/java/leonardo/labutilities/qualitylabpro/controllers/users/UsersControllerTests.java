@@ -1,4 +1,4 @@
-package leonardo.labutilities.qualitylabpro.controllers;
+package leonardo.labutilities.qualitylabpro.controllers.users;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -33,7 +33,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import leonardo.labutilities.qualitylabpro.configs.TestSecurityConfig;
-import leonardo.labutilities.qualitylabpro.controllers.users.UsersController;
 import leonardo.labutilities.qualitylabpro.dtos.authentication.LoginUserDTO;
 import leonardo.labutilities.qualitylabpro.dtos.authentication.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.dtos.users.RecoverPasswordDTO;
@@ -51,7 +50,7 @@ import leonardo.labutilities.qualitylabpro.services.users.UserService;
 @AutoConfigureMockMvc
 @AutoConfigureJsonTesters
 @ActiveProfiles("test")
-class UsersControllerTest {
+class UsersControllerTests {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -85,67 +84,73 @@ class UsersControllerTest {
 	private JacksonTester<RecoverPasswordDTO> recoverPasswordRecordJacksonTester;
 
 	@Test
-	@DisplayName("Should return 204 when signing up a new user")
+	@DisplayName("Should return no content when successfully registering a new user")
 	void signUp_return_204() throws Exception {
 		SignUpUsersDTO signUpUsersDTO =
 				new SignUpUsersDTO("Leonardo Meireles", "marmotas2024@email.com", "marmotas2024@");
 
-		mockMvc.perform(post("/users/sign-up").contentType(MediaType.APPLICATION_JSON)
-				.content(signUpUsersDTOJacksonTester.write(signUpUsersDTO).getJson()))
+		this.mockMvc
+				.perform(post("/users/sign-up").contentType(MediaType.APPLICATION_JSON)
+						.content(this.signUpUsersDTOJacksonTester.write(signUpUsersDTO).getJson()))
 				.andExpect(status().isNoContent());
 
-		verify(userService).signUp(signUpUsersDTO.identifier(), signUpUsersDTO.email(),
+		verify(this.userService).signUp(signUpUsersDTO.identifier(), signUpUsersDTO.email(),
 				signUpUsersDTO.password());
 	}
 
 	@Test
-	@DisplayName("Should return 200 and call userService.signIn when signing in")
+	@DisplayName("Should return token when user credentials are valid")
 	void signIn_shouldReturn200AndCallUserService() throws Exception {
 		Instant dateExp = LocalDateTime.now().plusHours(1).toInstant(ZoneOffset.of("-00:00"));
 		// Arrange
 		LoginUserDTO loginRecord = new LoginUserDTO("test@example.com", "password");
 		TokenJwtDTO tokenJwtDTO = new TokenJwtDTO("TokenJwt", dateExp);
 
-		when(userService.signIn(loginRecord.identifier(), loginRecord.password()))
+		when(this.userService.signIn(loginRecord.identifier(), loginRecord.password()))
 				.thenReturn(tokenJwtDTO);
 
-		mockMvc.perform(post("/users/sign-in").contentType(MediaType.APPLICATION_JSON)
-				.content(loginRecordJacksonTester.write(loginRecord).getJson()))
+		this.mockMvc
+				.perform(post("/users/sign-in").contentType(MediaType.APPLICATION_JSON)
+						.content(this.loginRecordJacksonTester.write(loginRecord).getJson()))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.tokenJWT").value("TokenJwt"));
 
-		verify(userService).signIn("test@example.com", "password");
+		verify(this.userService).signIn("test@example.com", "password");
 
 	}
 
 	@Test
-	@DisplayName("Should return 204 when requesting password recovery")
+	@DisplayName("Should return no content when password recovery request is valid")
 	void forgotPassword_return_204() throws Exception {
 		UsersDTO usersDTO = new UsersDTO("testUser", "Mandrake2024@", "test@example.com");
 
-		mockMvc.perform(
-				post("/users/password/forgot-password").contentType(MediaType.APPLICATION_JSON)
-						.content(usersRecordJacksonTester.write(usersDTO).getJson()))
+		this.mockMvc
+				.perform(post("/users/password/forgot-password")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(this.usersRecordJacksonTester.write(usersDTO).getJson()))
 				.andExpect(status().isNoContent());
 
-		verify(userService).recoverPassword(usersDTO.username(), usersDTO.email());
+		verify(this.userService).recoverPassword(usersDTO.username(), usersDTO.email());
 	}
 
 	@Test
-	@DisplayName("Should return 204 when changing password with recovery token")
+	@DisplayName("Should return no content when password is changed with valid recovery token")
 	void changePassword_return_204() throws Exception {
 		RecoverPasswordDTO recoverRecord =
 				new RecoverPasswordDTO("test@example.com", "tempPassword", "newPassword");
 
-		mockMvc.perform(patch("/users/password/recover").contentType(MediaType.APPLICATION_JSON)
-				.content(recoverPasswordRecordJacksonTester.write(recoverRecord).getJson()))
+		this.mockMvc
+				.perform(
+						patch("/users/password/recover").contentType(MediaType.APPLICATION_JSON)
+								.content(this.recoverPasswordRecordJacksonTester
+										.write(recoverRecord).getJson()))
 				.andExpect(status().isNoContent());
 
-		verify(userService).changePassword(recoverRecord.email(), recoverRecord.temporaryPassword(),
-				recoverRecord.newPassword());
+		verify(this.userService).changePassword(recoverRecord.email(),
+				recoverRecord.temporaryPassword(), recoverRecord.newPassword());
 	}
 
 	@Test
-	@DisplayName("Should return 204 when updating password for authenticated user")
+	@DisplayName("Should return no content when authenticated user updates password")
 	@WithMockUser
 	void updatePassword_return_204() throws Exception {
 		User user = new User("testUser", "oldPassword", "test@example.com", UserRoles.USER);
@@ -162,37 +167,41 @@ class UsersControllerTest {
 		UpdatePasswordDTO updateRecord = new UpdatePasswordDTO(auth.getUsername(), auth.getEmail(),
 				"oldPassword", "newPassword");
 
-		mockMvc.perform(patch("/users/password").contentType(MediaType.APPLICATION_JSON)
-				.content(updatePasswordRecordJacksonTester.write(updateRecord).getJson())
-				.with(SecurityMockMvcRequestPostProcessors.user(user)))
+		this.mockMvc
+				.perform(patch("/users/password").contentType(MediaType.APPLICATION_JSON)
+						.content(this.updatePasswordRecordJacksonTester.write(updateRecord)
+								.getJson())
+						.with(SecurityMockMvcRequestPostProcessors.user(user)))
 				.andExpect(status().isNoContent());
 
-		verify(userService).updateUserPassword(updateRecord.username(), updateRecord.email(),
+		verify(this.userService).updateUserPassword(updateRecord.username(), updateRecord.email(),
 				updateRecord.oldPassword(), updateRecord.newPassword());
 	}
 
 	@Test
-	@DisplayName("Should return 400 when signing up with invalid data")
+	@DisplayName("Should return bad request when signup data is invalid")
 	void signUp_with_invalid_data_return_400() throws Exception {
 		UsersDTO invalidRecord = new UsersDTO("", "", "invalid-identifier");
 
-		mockMvc.perform(post("/users/sign-up").contentType(MediaType.APPLICATION_JSON)
-				.content(usersRecordJacksonTester.write(invalidRecord).getJson()))
+		this.mockMvc
+				.perform(post("/users/sign-up").contentType(MediaType.APPLICATION_JSON)
+						.content(this.usersRecordJacksonTester.write(invalidRecord).getJson()))
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
-	@DisplayName("Should return 401 when signing in with invalid credentials")
+	@DisplayName("Should return unauthorized when login credentials are invalid")
 	void signIn_with_invalid_credentials_return_401() throws Exception {
 		LoginUserDTO loginRecord = new LoginUserDTO("test@example.com", "wrongpassword");
 
-		when(userService.signIn(any(), any()))
+		when(this.userService.signIn(any(), any()))
 				.thenThrow(new BadCredentialsException("Authentication failed at"));
 
-		mockMvc.perform(post("/users/sign-in").contentType(MediaType.APPLICATION_JSON)
-				.content(loginRecordJacksonTester.write(loginRecord).getJson()))
+		this.mockMvc
+				.perform(post("/users/sign-in").contentType(MediaType.APPLICATION_JSON)
+						.content(this.loginRecordJacksonTester.write(loginRecord).getJson()))
 				.andExpect(status().isUnauthorized());
 
-		verify(userService, times(1)).signIn(loginRecord.identifier(), loginRecord.password());
+		verify(this.userService, times(1)).signIn(loginRecord.identifier(), loginRecord.password());
 	}
 }

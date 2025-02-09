@@ -1,12 +1,11 @@
 package leonardo.labutilities.qualitylabpro.utils.exception;
 
-import lombok.Getter;
-import org.springframework.http.HttpStatus;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.HttpStatus;
+import lombok.Getter;
 
 @Getter
 public class ApiError {
@@ -31,6 +30,7 @@ public class ApiError {
 	}
 
 	public void addValidationErrors(Map<String, String> validationErrors) {
-		validationErrors.forEach((field, message) -> this.details.add(field + ": " + message));
+		validationErrors
+				.forEach((field, errorMessage) -> this.details.add(field + ": " + errorMessage));
 	}
 }

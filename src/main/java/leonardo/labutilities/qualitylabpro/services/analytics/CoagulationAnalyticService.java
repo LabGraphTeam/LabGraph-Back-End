@@ -13,7 +13,7 @@ import leonardo.labutilities.qualitylabpro.utils.components.ControlRulesValidato
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 
 @Service
-public class CoagulationAnalyticService extends AbstractAnalyticService {
+public class CoagulationAnalyticService extends AbstractAnalyticHelperService {
 
 	public CoagulationAnalyticService(AnalyticsRepository analyticsRepository,
 			EmailService emailService, ControlRulesValidators controlRulesValidators) {
@@ -34,7 +34,7 @@ public class CoagulationAnalyticService extends AbstractAnalyticService {
 				this.convertLevel(level));
 	}
 
-	@Cacheable(value = "analyticsByNameLevelAndDateCache",
+	@Cacheable(value = "analyticsByNameLevelAndDate",
 			key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
 	@Override
 	public List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name, String level,

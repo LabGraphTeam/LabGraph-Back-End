@@ -17,7 +17,7 @@ import leonardo.labutilities.qualitylabpro.utils.components.BCryptEncoderCompone
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-class UserRepositoryTest {
+class UserRepositoryTests {
 
 	@Autowired
 	UserRepository userRepository;
@@ -36,7 +36,7 @@ class UserRepositoryTest {
 	}
 
 	@Test
-	@DisplayName("return 200 when user is exists")
+	@DisplayName("Should return user when username exists in database")
 	@Transactional
 	void findByLoginUserDataBaseIsUserExists() {
 		this.setupTestData();
@@ -45,7 +45,7 @@ class UserRepositoryTest {
 	}
 
 	@Test
-	@DisplayName("return null when user is empty")
+	@DisplayName("Should return null when username is empty")
 	@Transactional
 	void findByLoginUserDataBaseIsUserNotExists() {
 		var userEmpty = this.userRepository.getReferenceOneByUsername("");
@@ -53,7 +53,7 @@ class UserRepositoryTest {
 	}
 
 	@Test
-	@DisplayName("return True when update passwords successful")
+	@DisplayName("Should successfully update password when username is valid")
 	@Transactional
 	void setPasswordWhereByUsername() {
 		this.setupTestData();
