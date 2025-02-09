@@ -14,10 +14,6 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Fix git permissions
-        run: |
-          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
-
       - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
