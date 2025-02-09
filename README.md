@@ -119,8 +119,7 @@ For even more detailed test output:
 ```
 
 ## React Recharts.js Front-end
-
-<img width="1470" alt="Screenshot 2024-12-06 at 18 01 35" src="https://github.com/user-attachments/assets/4fca9580-c012-48ef-a3d7-bf264593ccf2">
+![demo2](https://github.com/user-attachments/assets/453af7d7-91b7-4b4c-b9d3-17915f9fe760)
 
 ## Contributing
 
