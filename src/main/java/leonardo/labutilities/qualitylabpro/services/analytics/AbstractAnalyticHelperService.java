@@ -1,6 +1,5 @@
 package leonardo.labutilities.qualitylabpro.services.analytics;
 
-import static leonardo.labutilities.qualitylabpro.utils.blacklist.AnalyticsBlackList.BLACK_LIST;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -18,8 +17,10 @@ import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedMeanAndStdByLev
 import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedResultsByLevelDTO;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedValuesByLevelDTO;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
+import leonardo.labutilities.qualitylabpro.entities.Analytic;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.services.email.EmailService;
+import leonardo.labutilities.qualitylabpro.utils.blacklist.AnalyticsBlackList;
 import leonardo.labutilities.qualitylabpro.utils.components.ControlRulesValidators;
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticMapper;
@@ -56,8 +57,8 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 				values.name());
 	}
 
-	private static boolean isRuleBroken(AnalyticsDTO analyticsDTO) {
-		String rules = analyticsDTO.rules();
+	private static boolean isRuleBroken(Analytic analytic) {
+		String rules = analytic.getRules();
 		return ("+3s".equals(rules) || "-3s".equals(rules) || "-2s".equals(rules)
 				|| "+2s".equals(rules));
 	}
@@ -70,9 +71,10 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 	}
 
 
-	private static List<AnalyticsDTO> filterFailedRecords(List<AnalyticsDTO> persistedRecords) {
-		return persistedRecords.stream().filter(AbstractAnalyticHelperService::isRuleBroken)
-				.filter(analyticsDTO -> !BLACK_LIST.contains(analyticsDTO.name())).toList();
+	private static List<Analytic> filterFailedRecords(List<Analytic> persistedRecords) {
+		return persistedRecords.stream().filter(AbstractAnalyticHelperService::isRuleBroken).filter(
+				analyticsDTO -> !AnalyticsBlackList.BLACK_LIST.contains(analyticsDTO.getName()))
+				.toList();
 	}
 
 	@Async
@@ -211,7 +213,7 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 	}
 
 	@Override
-	@CacheEvict(value = "analyticsByNameLevelAndDateCache", allEntries = true)
+	@CacheEvict(value = "analyticsByNameAndDateRange", allEntries = true)
 	public void saveNewAnalyticsRecords(List<AnalyticsDTO> valuesOfLevelsList) {
 
 		var newRecords = valuesOfLevelsList.stream().filter(this::isAnalyticsNonExistent)
@@ -222,10 +224,10 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 			throw new CustomGlobalErrorHandling.DataIntegrityViolationException();
 		}
 
-		List<AnalyticsDTO> persistedRecords = this.analyticsRepository.saveAll(newRecords).stream()
-				.map(AnalyticMapper::toRecord).toList();
+		List<Analytic> persistedRecords = this.analyticsRepository.saveAll(newRecords);
 
-		List<AnalyticsDTO> failedRecords = filterFailedRecords(persistedRecords);
+		List<AnalyticsDTO> failedRecords = filterFailedRecords(persistedRecords).stream()
+				.map(AnalyticMapper::toRecord).toList();
 
 		this.processFailedRecordsNotification(failedRecords);
 	}

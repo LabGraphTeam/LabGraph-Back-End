@@ -30,7 +30,6 @@ import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticMapper;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 class AnalyticRepositoryTests {
-	@Autowired
 	private static final List<String> ANALYTICS_NAME_LIST =
 			new AvailableBiochemistryAnalytics().availableBioAnalytics();
 	@Transient
@@ -52,12 +51,28 @@ class AnalyticRepositoryTests {
 
 	@BeforeEach
 	void setupTestData() {
-		Analytic analytic = new Analytic(createSampleRecord(), this.rulesValidatorComponent);
-		this.repository.save(analytic);
+		AnalyticsDTO analyticsRecord = createSampleRecord();
+
+		Analytic analytic = new Analytic();
+		analytic.setDate(analyticsRecord.date());
+		analytic.setLevelLot(analyticsRecord.level_lot());
+		analytic.setTestLot(analyticsRecord.test_lot());
+		analytic.setName(analyticsRecord.name());
+		analytic.setLevel(analyticsRecord.level());
+		analytic.setValue(analyticsRecord.value());
+		analytic.setMean(analyticsRecord.mean());
+		analytic.setSd(analyticsRecord.sd());
+		analytic.setUnitValue(analyticsRecord.unit_value());
+		analytic.setRules(analyticsRecord.rules());
+		analytic.setDescription(analyticsRecord.description());
+
+
+		this.repository.saveAndFlush(analytic); // Use saveAndFlush instead of just save
+		this.entityManager.clear(); // Clear again to ensure fresh state
 	}
 
 	@Test()
-	@DisplayName("Should find all Analytic by level")
+	@DisplayName("Should return analytics when searching by level within date range")
 	void testFindAllByLevel() {
 		PageRequest pageable = PageRequest.of(0, 10);
 		List<AnalyticsDTO> results = this.repository
@@ -69,7 +84,7 @@ class AnalyticRepositoryTests {
 	}
 
 	@Test
-	@DisplayName("Should update Analytic.LevelLot by name,level and levelLot and return void")
+	@DisplayName("Should update analytic mean value when searching by name, level and levelLot")
 	void testUpdateLevelLotByNameAndLevelAndLevelLot() {
 		this.repository.updateMeanByNameAndLevelAndLevelLot("ALB2", "PCCC1", "0774693", 3.25);
 		this.entityManager.clear();
@@ -81,14 +96,14 @@ class AnalyticRepositoryTests {
 	}
 
 	@Test
-	@DisplayName("Should find analytics by name when exists")
+	@DisplayName("Should return true when analytic exists by name and false when it doesn't")
 	void testExistsByName() {
 		assertTrue(this.repository.existsByName("ALB2"));
 		assertFalse(this.repository.existsByName("NONEXISTENT"));
 	}
 
 	@Test
-	@DisplayName("Should find all analytics by name with pagination")
+	@DisplayName("Should return paginated analytics when searching by name")
 	void testFindAllByName() {
 		PageRequest pageable = PageRequest.of(0, 10);
 		List<AnalyticsDTO> results = this.repository.findByName("ALB2", pageable).stream()
@@ -98,7 +113,7 @@ class AnalyticRepositoryTests {
 	}
 
 	@Test
-	@DisplayName("Should verify existence by date, level and name")
+	@DisplayName("Should return true when analytic exists by date, level and name combination")
 	void testExistsByDateAndLevelAndName() {
 		boolean exists =
 				this.repository.existsByDateAndLevelAndName(this.testDate, "PCCC1", "ALB2");
@@ -107,7 +122,7 @@ class AnalyticRepositoryTests {
 	}
 
 	@Test
-	@DisplayName("Should find all by name and level with pagination")
+	@DisplayName("Should return paginated analytics when searching by name and level")
 	void testFindAllByNameAndLevel() {
 		PageRequest pageable = PageRequest.of(0, 10);
 
@@ -120,9 +135,8 @@ class AnalyticRepositoryTests {
 	}
 
 	@Test
-	@DisplayName("Should find all by names in list and date range")
+	@DisplayName("Should return analytics when searching by names list and date range")
 	void testFindAllByNameInAndDateBetween() {
-		this.setupTestData();
 		List<String> names = List.of("ALB2");
 
 		Page<AnalyticsDTO> results = this.repository.findByNameInAndDateBetween(names,
@@ -133,9 +147,8 @@ class AnalyticRepositoryTests {
 	}
 
 	@Test
-	@DisplayName("Should find all by names in list with pagination")
+	@DisplayName("Should return paginated analytics when searching by names list")
 	void testFindAllByNameIn() {
-		this.setupTestData();
 		List<String> names = List.of("ALB2");
 		PageRequest pageable = PageRequest.of(0, 10);
 
@@ -147,9 +160,8 @@ class AnalyticRepositoryTests {
 	}
 
 	@Test
-	@DisplayName("Should find all by name, level and date range with pagination")
+	@DisplayName("Should return paginated analytics when searching by name, level and date range")
 	void testFindAllByNameAndLevelAndDateBetween() {
-		this.setupTestData();
 		PageRequest pageable = PageRequest.of(0, 10);
 
 		List<AnalyticsDTO> results = this.repository
@@ -163,9 +175,8 @@ class AnalyticRepositoryTests {
 	}
 
 	@Test
-	@DisplayName("Should find all by date range")
+	@DisplayName("Should return all analytics when searching within date range")
 	void testFindAllByDateBetween() {
-		this.setupTestData();
 		List<AnalyticsDTO> results = this.repository
 				.findByDateBetween(this.testDate.minusDays(1), this.testDate.plusDays(1)).stream()
 				.map(AnalyticMapper::toRecord).toList();
@@ -173,9 +184,8 @@ class AnalyticRepositoryTests {
 	}
 
 	@Test
-	@DisplayName("Should find all by name and date range grouped by level")
+	@DisplayName("Should return analytics grouped by level when searching by name and date range")
 	void testFindAllByNameAndDateBetweenGroupByLevel() {
-		this.setupTestData();
 		PageRequest pageable = PageRequest.of(0, 10);
 
 		List<AnalyticsDTO> results = this.repository

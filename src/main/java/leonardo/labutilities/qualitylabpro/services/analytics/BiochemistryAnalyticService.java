@@ -34,8 +34,8 @@ public class BiochemistryAnalyticService extends AbstractAnalyticHelperService {
 				this.convertLevel(level));
 	}
 
-	@Cacheable(value = "analyticsByNameLevelAndDateCache",
-			key = "{#id, #name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
+	@Cacheable(value = "analyticsByNameLevelAndDate",
+			key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
 	@Override
 	public List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name, String level,
 			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {

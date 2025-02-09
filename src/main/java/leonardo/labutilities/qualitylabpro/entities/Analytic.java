@@ -7,9 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Transient;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorComponent;
 import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticMapper;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -37,8 +35,8 @@ public class Analytic extends RepresentationModel<Analytic> {
 	private String unitValue;
 	private String rules;
 	private String description;
-	@Transient
-	private RulesValidatorComponent rulesValidatorComponent;
+	// @Transient
+	// private RulesValidatorComponent rulesValidatorComponent;
 
 	public Analytic() {}
 
@@ -46,9 +44,9 @@ public class Analytic extends RepresentationModel<Analytic> {
 		AnalyticMapper.toNewEntity(values);
 	}
 
-	public Analytic(AnalyticsDTO values, RulesValidatorComponent rulesValidatorComponent) {
-		AnalyticMapper.toEntity(values, rulesValidatorComponent);
-	}
+	// public Analytic(AnalyticsDTO values, RulesValidatorComponent rulesValidatorComponent) {
+	// AnalyticMapper.toEntity(values, rulesValidatorComponent);
+	// }
 
 	// public Analytic(Long id, LocalDateTime date, String levelLot, String testLot, String name,
 	// String level, double value, double mean, double sd, String unitValue, String rules,

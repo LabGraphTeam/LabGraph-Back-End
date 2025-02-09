@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -83,8 +84,8 @@ class AbstractAnalyticHelperServiceTests {
 		}
 	}
 
-
 	@Test
+	@DisplayName("Should update analytics mean value when valid parameters are provided")
 	void updateAnalyticsMean() {
 		var mockDto = new UpdateAnalyticsMeanDTO("Glucose", "PCCC1", "076587", 1.0);
 		this.abstractAnalyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(
@@ -94,6 +95,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should validate rules when processed by rules validator component")
 	void shouldValidateRulesProcessedByRulesValidatorComponent() {
 		// Arrange: create sample input records
 		List<AnalyticsDTO> records = createSampleRecordList();
@@ -111,6 +113,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should save records successfully when valid analytics data is provided")
 	void saveNewAnalyticsRecords_WithValidRecords_ShouldSaveSuccessfully() {
 		List<AnalyticsDTO> records = createSampleRecordList();
 		when(this.analyticsRepository.existsByDateAndLevelAndName(any(), any(), any()))
@@ -124,6 +127,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should throw exception when trying to save duplicate analytics records")
 	void saveNewAnalyticsRecords_WithDuplicateRecords_ShouldThrowException() {
 		List<AnalyticsDTO> records = createSampleRecordList();
 		when(this.analyticsRepository.existsByDateAndLevelAndName(any(), any(), any()))
@@ -135,6 +139,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should return record when searching by valid ID")
 	void findById_WithValidId_ShouldReturnRecord() {
 		Long id = 1L;
 		Analytic analytic = new Analytic();
@@ -148,6 +153,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should throw exception when searching by invalid ID")
 	void findById_WithInvalidId_ShouldThrowException() {
 		Long id = 999L;
 		when(this.analyticsRepository.findById(id)).thenReturn(Optional.empty());
@@ -157,6 +163,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should return filtered records when searching by name and level")
 	void findAnalyticsByNameAndLevel_WithFilters_ShouldReturnFilteredRecords() {
 		String name = "Glucose";
 		String level = "Normal";
@@ -176,6 +183,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should return filtered records when searching by date range")
 	void findAllAnalyticsByNameAndLevelAndDate_WithDateRange_ShouldReturnFilteredRecords() {
 		String name = "Glucose";
 		String level = "Normal";
@@ -195,6 +203,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should delete analytics when valid ID is provided")
 	void deleteAnalyticsById_WithValidId_ShouldDelete() {
 		Long id = 1L;
 		when(this.analyticsRepository.existsById(id)).thenReturn(true);
@@ -206,6 +215,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should throw exception when deleting analytics with invalid ID")
 	void deleteAnalyticsById_WithInvalidId_ShouldThrowException() {
 		Long id = 999L;
 		when(this.analyticsRepository.existsById(id)).thenReturn(false);
@@ -216,6 +226,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should not throw exception when validating existing analytics name")
 	void ensureNameExists_WithValidName_ShouldNotThrowException() {
 		String name = "Glucose";
 		when(this.analyticsRepository.existsByName(name.toUpperCase())).thenReturn(true);
@@ -224,6 +235,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should throw exception when validating non-existent analytics name")
 	void ensureNameExists_WithInvalidName_ShouldThrowException() {
 		String name = "NonExistentTest";
 		when(this.analyticsRepository.existsByName(name.toUpperCase())).thenReturn(false);
@@ -233,6 +245,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should throw exception when analytics name does not exist")
 	void ensureNameNotExists_WithInvalidName_ShouldThrowException() {
 		String name = "Glucose";
 		when(this.analyticsRepository.existsByName(name.toUpperCase())).thenReturn(false);
@@ -245,6 +258,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should return true when checking non-existent analytics record")
 	void isAnalyticsNonExistent_WithNonExistentRecord_ShouldReturnTrue() {
 		AnalyticsDTO analyticsRecord = createSampleRecord();
 		when(this.analyticsRepository.existsByDateAndLevelAndName(analyticsRecord.date(),
@@ -256,6 +270,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should return false when checking existing analytics record")
 	void isAnalyticsNonExistent_WithExistentRecord_ShouldReturnFalse() {
 		AnalyticsDTO analyticsRecord = createSampleRecord();
 		when(this.analyticsRepository.existsByDateAndLevelAndName(analyticsRecord.date(),
@@ -267,6 +282,7 @@ class AbstractAnalyticHelperServiceTests {
 	}
 
 	@Test
+	@DisplayName("Should return grouped records when searching with valid inputs")
 	void findGroupedAnalyticsByLevel_WithValidInputs_ShouldReturnGroupedRecords() {
 		String name = "Glucose";
 		LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);

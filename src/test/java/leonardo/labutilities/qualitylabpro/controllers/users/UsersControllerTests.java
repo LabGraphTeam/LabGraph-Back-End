@@ -84,7 +84,7 @@ class UsersControllerTests {
 	private JacksonTester<RecoverPasswordDTO> recoverPasswordRecordJacksonTester;
 
 	@Test
-	@DisplayName("Should return 204 when signing up a new user")
+	@DisplayName("Should return no content when successfully registering a new user")
 	void signUp_return_204() throws Exception {
 		SignUpUsersDTO signUpUsersDTO =
 				new SignUpUsersDTO("Leonardo Meireles", "marmotas2024@email.com", "marmotas2024@");
@@ -99,7 +99,7 @@ class UsersControllerTests {
 	}
 
 	@Test
-	@DisplayName("Should return 200 and call userService.signIn when signing in")
+	@DisplayName("Should return token when user credentials are valid")
 	void signIn_shouldReturn200AndCallUserService() throws Exception {
 		Instant dateExp = LocalDateTime.now().plusHours(1).toInstant(ZoneOffset.of("-00:00"));
 		// Arrange
@@ -119,7 +119,7 @@ class UsersControllerTests {
 	}
 
 	@Test
-	@DisplayName("Should return 204 when requesting password recovery")
+	@DisplayName("Should return no content when password recovery request is valid")
 	void forgotPassword_return_204() throws Exception {
 		UsersDTO usersDTO = new UsersDTO("testUser", "Mandrake2024@", "test@example.com");
 
@@ -133,7 +133,7 @@ class UsersControllerTests {
 	}
 
 	@Test
-	@DisplayName("Should return 204 when changing password with recovery token")
+	@DisplayName("Should return no content when password is changed with valid recovery token")
 	void changePassword_return_204() throws Exception {
 		RecoverPasswordDTO recoverRecord =
 				new RecoverPasswordDTO("test@example.com", "tempPassword", "newPassword");
@@ -150,7 +150,7 @@ class UsersControllerTests {
 	}
 
 	@Test
-	@DisplayName("Should return 204 when updating password for authenticated user")
+	@DisplayName("Should return no content when authenticated user updates password")
 	@WithMockUser
 	void updatePassword_return_204() throws Exception {
 		User user = new User("testUser", "oldPassword", "test@example.com", UserRoles.USER);
@@ -179,7 +179,7 @@ class UsersControllerTests {
 	}
 
 	@Test
-	@DisplayName("Should return 400 when signing up with invalid data")
+	@DisplayName("Should return bad request when signup data is invalid")
 	void signUp_with_invalid_data_return_400() throws Exception {
 		UsersDTO invalidRecord = new UsersDTO("", "", "invalid-identifier");
 
@@ -190,7 +190,7 @@ class UsersControllerTests {
 	}
 
 	@Test
-	@DisplayName("Should return 401 when signing in with invalid credentials")
+	@DisplayName("Should return unauthorized when login credentials are invalid")
 	void signIn_with_invalid_credentials_return_401() throws Exception {
 		LoginUserDTO loginRecord = new LoginUserDTO("test@example.com", "wrongpassword");
 

@@ -34,7 +34,7 @@ public class HematologyAnalyticService extends AbstractAnalyticHelperService {
 				this.convertLevel(level));
 	}
 
-	@Cacheable(value = "analyticsByNameLevelAndDateCache",
+	@Cacheable(value = "analyticsByNameLevelAndDate",
 			key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
 	@Override
 	public List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name, String level,

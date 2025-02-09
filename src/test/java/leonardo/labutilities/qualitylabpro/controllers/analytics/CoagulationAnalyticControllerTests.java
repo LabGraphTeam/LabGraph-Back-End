@@ -58,7 +58,7 @@ class CoagulationAnalyticControllerTests {
 	private JacksonTester<List<AnalyticsDTO>> jacksonGenericValuesRecord;
 
 	@Test
-	@DisplayName("It should return a list of all analytics by level")
+	@DisplayName("Should return analytics list when searching by level")
 	void getAllAnalytics_by_level_return_list() throws Exception {
 		List<AnalyticsDTO> records = createSampleRecordList();
 		Page<AnalyticsDTO> page = new PageImpl<>(records);
@@ -75,7 +75,7 @@ class CoagulationAnalyticControllerTests {
 	}
 
 	@Test
-	@DisplayName("It should return HTTP code 201 when analytics records are saved")
+	@DisplayName("Should return created status when saving valid analytics records")
 	void analytics_post_return_201() throws Exception {
 		List<AnalyticsDTO> records = createSampleRecordList();
 		this.mockMvc
@@ -86,7 +86,7 @@ class CoagulationAnalyticControllerTests {
 	}
 
 	@Test
-	@DisplayName("It should return a list of all analytics with pagination")
+	@DisplayName("Should return paginated analytics list when requesting all analytics")
 	void getAllAnalytics_return_list() throws Exception {
 		List<AnalyticsDTO> records = createSampleRecordList();
 		Page<AnalyticsDTO> page = new PageImpl<>(records);
@@ -102,7 +102,7 @@ class CoagulationAnalyticControllerTests {
 	}
 
 	@Test
-	@DisplayName("It should return analytics records for a date range")
+	@DisplayName("Should return analytics records when searching within date range")
 	void getAnalyticsByDateRange_return_analytics() throws Exception {
 		List<AnalyticsDTO> records = createSampleRecordList();
 		Page<AnalyticsDTO> page = new PageImpl<>(records);
@@ -120,7 +120,7 @@ class CoagulationAnalyticControllerTests {
 	}
 
 	@Test
-	@DisplayName("It should return mean and standard deviation for a date range")
+	@DisplayName("Should return mean and standard deviation when searching within date range")
 	void getMeanAndStandardDeviation_return_result() throws Exception {
 		MeanAndStdDeviationDTO result = new MeanAndStdDeviationDTO(10.5, 2.3);
 		LocalDateTime startDate = LocalDateTime.parse("2025-01-01 00:00:00",
