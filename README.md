@@ -1,6 +1,6 @@
 # QualityLab Pro-API RESTful for internal laboratory quality control.
 
-[![Docker Image CI/CD](https://github.com/LabGraphTeam/LabGraph-Back-End/actions/workflows/backend-deploy.yml/badge.svg?branch=master)](https://github.com/LabGraphTeam/LabGraph-Back-End/actions/workflows/backend-deploy.yml)
+[![Docker Image CI/CD](https://github.com/LabGraphTeam/LabGraph-Back-End/actions/workflows/backend-deploy.yml/badge.svg?branch=main)](https://github.com/LabGraphTeam/LabGraph-Back-End/actions/workflows/backend-deploy.yml)
 
 ## Technologies
 

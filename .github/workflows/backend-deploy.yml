@@ -3,6 +3,17 @@ name: Backend Deploy Pipeline
 on:
   push:
     branches: [ 'main' ]
+    paths-ignore:
+      - '**/*.md'
+      - 'README*'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.env.example'
+      - 'docs/**'
+      - 'docker-compose.dev.yml'
+      - 'docker-compose.db.yml'
+      - 'docker-compose.local.yml'
+      - 'docker/**/docker-compose*.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
