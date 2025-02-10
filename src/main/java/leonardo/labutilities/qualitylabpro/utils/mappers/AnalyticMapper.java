@@ -12,27 +12,6 @@ public class AnalyticMapper {
 
 	private static RulesValidatorComponent rulesValidatorComponent = new RulesValidatorComponent();
 
-	// public static Analytic toEntity(AnalyticsDTO analyticsDTO,
-	// RulesValidatorComponent rulesValidatorComponent) {
-	// Analytic analytic = new Analytic();
-	// analytic.setId(analyticsDTO.id());
-	// analytic.setDate(analyticsDTO.date());
-	// analytic.setLevelLot(analyticsDTO.level_lot());
-	// analytic.setTestLot(analyticsDTO.test_lot());
-	// analytic.setName(analyticsDTO.name());
-	// analytic.setLevel(analyticsDTO.level());
-	// analytic.setValue(analyticsDTO.value());
-	// analytic.setMean(analyticsDTO.mean());
-	// analytic.setSd(analyticsDTO.sd());
-	// analytic.setUnitValue(analyticsDTO.unit_value());
-	// rulesValidatorComponent.validator(analyticsDTO.value(), analyticsDTO.mean(),
-	// analyticsDTO.sd());
-	// analytic.setRules(rulesValidatorComponent.getRules());
-	// analytic.setDescription(rulesValidatorComponent.getDescription());
-
-	// return analytic;
-	// }
-
 	private static Analytic toEntityRulesValidator(AnalyticsDTO analyticsDTO) {
 		Analytic analytic = new Analytic();
 		analytic.setId(analyticsDTO.id());
