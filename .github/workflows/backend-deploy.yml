@@ -51,7 +51,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: Dockerfile
+          file: ./.docker/Dockerfile.prod
           push: true
           tags: leonardomeireles55/quality-lab-pro-back-end:latest
           cache-from: type=registry,ref=leonardomeireles55/quality-lab-pro-back-end:latest
@@ -85,7 +85,7 @@ jobs:
           EMAIL_TO_SEND_LIST: ${{ secrets.EMAIL_TO_SEND_LIST }}
         run: |
           for i in 1 2 3; do
-            if docker compose pull && docker compose up -d; then
+            if docker compose pull && docker compose --profile prod up -d; then
               exit 0
             fi
             echo "Retry $i/3..."

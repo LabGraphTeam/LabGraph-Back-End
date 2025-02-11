@@ -5,7 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsWithCalcDTO;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.services.email.EmailService;
 import leonardo.labutilities.qualitylabpro.utils.components.ControlRulesValidators;
@@ -38,6 +39,14 @@ public class BiochemistryAnalyticService extends AbstractAnalyticHelperService {
 	public List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name, String level,
 			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
 		return this.findAnalyticsByNameLevelAndDate(name, this.convertLevel(level), dateStart,
+				dateEnd, pageable);
+	}
+
+
+	@Override
+	public AnalyticsWithCalcDTO findAnalyticsByNameLevelDate(String name, String level,
+			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
+		return this.findAnalyticsByNameLevelDateOptimized(name, this.convertLevel(level), dateStart,
 				dateEnd, pageable);
 	}
 

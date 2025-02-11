@@ -76,31 +76,54 @@ You can view the workflow configurations in the `.github/workflows` directory.
 * [Docker](https://www.docker.com/get-started/)
 * [Git](https://git-scm.com/)
 
-## Installation
+## Installation & Local Development
 
-#### Step 1. Clone the repository
+### Running Locally with Docker (Recommended)
 
-Run the command below in Git Bash or Terminal to clone the repository:
-
-```
+#### 1. Clone the repository
+```bash
 git clone https://github.com/LabGraphTeam/LabGraph-Back-End.git
+cd LabGraph-Back-End
 ```
 
-#### Step 2. Running with docker-compose
+#### 2. Environment Setup
+Create a `.env` file in the root directory with the required environment variables (see `.env.example`).
 
-In the project root directory, run the command:
-
+#### 3. Start Development Environment
+Run the development stack with live reload support:
+```bash
+docker compose --profile dev up --build
 ```
-docker compose -f docker-compose-dev.yml up --build    
+
+This will start:
+- MariaDB database (accessible at localhost:3306)
+- Spring Boot application with live reload (accessible at localhost:8080)
+
+The application will automatically reload when you make changes to the source code.
+
+### Alternative Methods
+
+#### Running with Maven (without Docker)
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-## Usage
-
-#### Step 3. Access API documentation
-
+#### Running Production Environment Locally
+```bash
+docker compose --profile prod up --build
 ```
-http://localhost:8080/swagger-ui.html
-```
+
+## Development
+
+### Live Reload
+The development environment is configured with live reload support:
+- Source code is mounted as a volume in the container
+- Maven is configured to detect changes and reload the application
+- Changes to Java files will trigger automatic recompilation
+
+### Accessing Services
+- API Documentation: http://localhost:8080/swagger-ui.html
+- Database: localhost:3306 (credentials in .env file)
 
 ## Running Tests
 

@@ -12,11 +12,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedMeanAndStdByLevelDTO;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedResultsByLevelDTO;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedValuesByLevelDTO;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsWithCalcDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.GroupedMeanAndStdByLevelDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.GroupedResultsByLevelDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.GroupedValuesByLevelDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.MeanAndStdDeviationDTO;
 import leonardo.labutilities.qualitylabpro.entities.Analytic;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.services.email.EmailService;
@@ -121,6 +122,11 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 						.stream().filter(this::isRecordValid).toList();
 		return computeStatistics(extractRecordValues(values));
 	}
+
+	public MeanAndStdDeviationDTO calcMeanAndStandardDeviationOptimized(List<AnalyticsDTO> values) {
+		return computeStatistics(extractRecordValues(values));
+	}
+
 
 	@Cacheable(value = "calculateGroupedMeanAndStandardDeviation",
 			key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
@@ -307,13 +313,28 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 
 	public List<AnalyticsDTO> findAnalyticsByNameLevelAndDate(String name, String level,
 			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
-		this.ensureNameExists(name);
 		List<AnalyticsDTO> results = this.analyticsRepository
 				.findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd, pageable)
 				.stream().map(AnalyticMapper::toRecord).toList();
 		validateResultsNotEmpty(results,
 				"No analytics found for the given name, level, dateStart, dateEnd -> parameters");
 		return results;
+	}
+
+	public AnalyticsWithCalcDTO findAnalyticsByNameLevelDateOptimized(String name, String level,
+			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
+		List<AnalyticsDTO> results = this.analyticsRepository
+				.findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd, pageable)
+				.stream().map(AnalyticMapper::toRecord).toList();
+
+		var calcSdAndMean = this.calcMeanAndStandardDeviationOptimized(results);
+
+		AnalyticsWithCalcDTO analyticsWithCalcDTO =
+				new AnalyticsWithCalcDTO(results, calcSdAndMean);
+
+		validateResultsNotEmpty(results,
+				"No analytics found for the given name, level, dateStart, dateEnd -> parameters");
+		return analyticsWithCalcDTO;
 	}
 
 }

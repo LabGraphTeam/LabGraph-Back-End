@@ -17,7 +17,7 @@ import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
 import jakarta.mail.internet.MimeMessage;
-import leonardo.labutilities.qualitylabpro.dtos.email.EmailDTO;
+import leonardo.labutilities.qualitylabpro.dtos.email.requests.EmailDTO;
 
 @ExtendWith(MockitoExtension.class)
 class EmailServiceTests {

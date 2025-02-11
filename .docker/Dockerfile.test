@@ -1,0 +1,12 @@
+FROM eclipse-temurin:21-jdk-alpine
+
+RUN apk add --no-cache maven
+
+WORKDIR /usr/src/app
+
+ENV SERVER_PORT=8080 \
+    SPRING_PROFILES_ACTIVE=test
+
+EXPOSE ${SERVER_PORT}
+
+CMD ["mvn", "clean", "test", "-Dspring.profiles.active=test", "-Dsurefire.useFile=false", "-B", "--no-transfer-progress"]

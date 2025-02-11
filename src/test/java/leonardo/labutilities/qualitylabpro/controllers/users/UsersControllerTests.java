@@ -33,12 +33,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import leonardo.labutilities.qualitylabpro.configs.TestSecurityConfig;
-import leonardo.labutilities.qualitylabpro.dtos.authentication.LoginUserDTO;
-import leonardo.labutilities.qualitylabpro.dtos.authentication.TokenJwtDTO;
-import leonardo.labutilities.qualitylabpro.dtos.users.RecoverPasswordDTO;
-import leonardo.labutilities.qualitylabpro.dtos.users.SignUpUsersDTO;
-import leonardo.labutilities.qualitylabpro.dtos.users.UpdatePasswordDTO;
-import leonardo.labutilities.qualitylabpro.dtos.users.UsersDTO;
+import leonardo.labutilities.qualitylabpro.dtos.authentication.requests.LoginUserDTO;
+import leonardo.labutilities.qualitylabpro.dtos.authentication.responses.TokenJwtDTO;
+import leonardo.labutilities.qualitylabpro.dtos.users.requests.ForgotPasswordDTO;
+import leonardo.labutilities.qualitylabpro.dtos.users.requests.RecoverPasswordDTO;
+import leonardo.labutilities.qualitylabpro.dtos.users.requests.SignUpUsersDTO;
+import leonardo.labutilities.qualitylabpro.dtos.users.requests.UpdatePasswordDTO;
+import leonardo.labutilities.qualitylabpro.dtos.users.responses.UsersDTO;
 import leonardo.labutilities.qualitylabpro.entities.User;
 import leonardo.labutilities.qualitylabpro.enums.UserRoles;
 import leonardo.labutilities.qualitylabpro.repositories.UserRepository;
@@ -69,6 +70,9 @@ class UsersControllerTests {
 
 	@Autowired
 	private JacksonTester<UsersDTO> usersRecordJacksonTester;
+
+	@Autowired
+	private JacksonTester<ForgotPasswordDTO> forgotPasswordRecordJacksonTester;
 
 	@Autowired
 	private JacksonTester<SignUpUsersDTO> signUpUsersDTOJacksonTester;
@@ -102,7 +106,6 @@ class UsersControllerTests {
 	@DisplayName("Should return token when user credentials are valid")
 	void signIn_shouldReturn200AndCallUserService() throws Exception {
 		Instant dateExp = LocalDateTime.now().plusHours(1).toInstant(ZoneOffset.of("-00:00"));
-		// Arrange
 		LoginUserDTO loginRecord = new LoginUserDTO("test@example.com", "password");
 		TokenJwtDTO tokenJwtDTO = new TokenJwtDTO("TokenJwt", dateExp);
 
@@ -121,22 +124,25 @@ class UsersControllerTests {
 	@Test
 	@DisplayName("Should return no content when password recovery request is valid")
 	void forgotPassword_return_204() throws Exception {
-		UsersDTO usersDTO = new UsersDTO("testUser", "Mandrake2024@", "test@example.com");
+		ForgotPasswordDTO forgotPasswordDTO = new ForgotPasswordDTO("testUser", "test@example.com");
 
 		this.mockMvc
-				.perform(post("/users/password/forgot-password")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(this.usersRecordJacksonTester.write(usersDTO).getJson()))
+				.perform(
+						post("/users/password/forgot-password")
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(this.forgotPasswordRecordJacksonTester
+										.write(forgotPasswordDTO).getJson()))
 				.andExpect(status().isNoContent());
 
-		verify(this.userService).recoverPassword(usersDTO.username(), usersDTO.email());
+		verify(this.userService).recoverPassword(forgotPasswordDTO.username(),
+				forgotPasswordDTO.email());
 	}
 
 	@Test
 	@DisplayName("Should return no content when password is changed with valid recovery token")
 	void changePassword_return_204() throws Exception {
 		RecoverPasswordDTO recoverRecord =
-				new RecoverPasswordDTO("test@example.com", "tempPassword", "newPassword");
+				new RecoverPasswordDTO("test@example.com", "tempPassword", "newPass@123");
 
 		this.mockMvc
 				.perform(

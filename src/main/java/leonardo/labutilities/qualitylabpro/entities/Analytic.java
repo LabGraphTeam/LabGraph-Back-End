@@ -7,7 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticMapper;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

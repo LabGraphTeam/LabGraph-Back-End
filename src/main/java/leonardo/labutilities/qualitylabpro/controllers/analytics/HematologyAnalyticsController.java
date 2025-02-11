@@ -16,8 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.MeanAndStdDeviationDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.requests.AnalyticsDateRangeParamsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.requests.AnalyticsLevelDateRangeParamsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.requests.AnalyticsNameAndLevelDateRangeParamsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsWithCalcDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.MeanAndStdDeviationDTO;
 import leonardo.labutilities.qualitylabpro.services.analytics.HematologyAnalyticService;
 import leonardo.labutilities.qualitylabpro.utils.constants.AvailableHematologyAnalytics;
 
@@ -46,26 +50,25 @@ public class HematologyAnalyticsController extends AbstractAnalyticsController {
 	@Override
 	@GetMapping("/date-range")
 	public ResponseEntity<Page<AnalyticsDTO>> getAnalyticsDateBetween(
-			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate,
+			@ParameterObject AnalyticsDateRangeParamsDTO params,
 			@PageableDefault(sort = "date", direction = Sort.Direction.DESC,
 					size = 1500) @ParameterObject Pageable pageable) {
-		return ResponseEntity.ok(this.hematologyAnalyticsService
-				.findAnalyticsByNameInAndDateBetween(names, startDate, endDate, pageable));
+		return ResponseEntity
+				.ok(this.hematologyAnalyticsService.findAnalyticsByNameInAndDateBetween(names,
+						params.startDate(), params.endDate(), pageable));
 	}
 
 	@Override
 	@GetMapping("/level-date-range")
 	public ResponseEntity<Page<AnalyticsDTO>> getAllAnalyticsByLevelDateRange(
-			@RequestParam String level, @RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate,
+			@ParameterObject AnalyticsLevelDateRangeParamsDTO params,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(this.hematologyAnalyticsService.findAnalyticsByNameInByLevel(names,
-				level, startDate, endDate, pageable));
+				params.level(), params.startDate(), params.endDate(), pageable));
 	}
 
 	@Override
-	@GetMapping("/name-and-level-date-range")
+	@GetMapping("v1/name-and-level-date-range")
 	public ResponseEntity<List<AnalyticsDTO>> getAllAnalyticsByNameAndLevelDateRange(
 			@RequestParam String name, @RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
@@ -85,6 +88,16 @@ public class HematologyAnalyticsController extends AbstractAnalyticsController {
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(this.hematologyAnalyticsService
 				.calculateMeanAndStandardDeviation(name, level, startDate, endDate, pageable));
+	}
+
+	// V2
+	@Override
+	@GetMapping("/name-and-level-date-range")
+	public ResponseEntity<AnalyticsWithCalcDTO> getAllAnalyticsByNameAndLevelDateRangeV2(
+			@ParameterObject AnalyticsNameAndLevelDateRangeParamsDTO params,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
+		return ResponseEntity.ok(this.hematologyAnalyticsService.findAnalyticsByNameLevelDate(
+				params.name(), params.level(), params.startDate(), params.endDate(), pageable));
 	}
 
 
