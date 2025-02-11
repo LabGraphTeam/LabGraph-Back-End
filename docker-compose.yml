@@ -1,7 +1,7 @@
 services:
   mariadb:
     image: mariadb:11.2
-    restart: always
+    restart: unless-stopped
     environment:
       MARIADB_DATABASE: ${DB_DATABASE}
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
@@ -12,14 +12,21 @@ services:
       - ./database:/docker-entrypoint-initdb.d
     networks:
       - qualitylab-net
+    profiles:
+      - prod
 
   quality-lab-pro:
-    restart: always
+    restart: unless-stopped
     image: leonardomeireles55/quality-lab-pro-back-end:latest
+    build:
+      context: .
+      dockerfile: ./.docker/Dockerfile.prod
     working_dir: /usr/src/app
     container_name: quality-lab-pro
     ports:
       - ${SERVER_LOCAL_PORT}:${SERVER_DOCKER_PORT}
+    depends_on:
+      - mariadb
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
@@ -31,9 +38,10 @@ services:
       SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
       SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
       EMAIL_TO_SEND_LIST: ${EMAIL_TO_SEND_LIST}
-    command: [ "java", "-jar", "-Dspring.profiles.active=prod", "app.jar" ]
     networks:
-      - qualitylab-net
+      - quality-net-dev
+    profiles:
+      - prod
 
   nginx:
     restart: always
@@ -44,13 +52,132 @@ services:
       - ./nginx:/etc/nginx:ro
       - ./nginx/certs:/etc/nginx/certs:ro
     networks:
-      - qualitylab-net
+      - quality-net-dev
     ports:
       - '80:80'
       - '443:443'
+    profiles:
+      - prod
+
+
+  #---------------------
+  # Development services
+  #---------------------
+
+  mariadb-dev:
+    container_name: mariadb-dev
+    image: mariadb:11.2
+    restart: "no"
+    environment:
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "${DB_LOCAL_PORT}:${DB_DOCKER_PORT}"
+    volumes:
+      - mysql-volume-dev:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
+    networks:
+      - quality-net-dev
+    profiles:
+      - dev
+
+  quality-lab-pro-dev:
+    restart: "no"
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.dev
+    working_dir: /usr/src/app
+    container_name: back-end-dev
+    depends_on:
+      - mariadb-dev
+    env_file: ./.env
+    ports:
+      - ${SERVER_LOCAL_PORT}:${SERVER_DOCKER_PORT}
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb-dev:3306/${DB_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_ROOT_PASSWORD}
+      SERVER_PORT: ${SERVER_DOCKER_PORT}
+      API_SECURITY_TOKEN_SECRET: ${API_SECURITY_TOKEN_SECRET}
+      API_SECURITY_ISSUER: ${API_SECURITY_ISSUER}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
+      EMAIL_TO_SEND_LIST: ${EMAIL_TO_SEND_LIST}
+    stdin_open: true
+    tty: true
+    profiles:
+      - dev
+    volumes:
+      - ./:/usr/src/app
+      - ~/.m2:/root/.m2
+    networks:
+      - quality-net-dev
+
+#----------------------------------------------
+# Test Services
+
+  mariadb-test:
+    container_name: mariadb-test
+    restart: "no"
+    image: mariadb:11.2
+    environment:
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - ${DB_DOCKER_PORT}
+    volumes:
+      - mysql-volume-dev:/var/lib/mysql
+    networks:
+      - quality-net-dev
+    profiles:
+      - test
+
+  quality-lab-pro-test:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.test
+    working_dir: /usr/src/app
+    container_name: back-end-test
+    restart: "no"
+    depends_on:
+      - mariadb-test
+    env_file: ./.env
+    ports:
+      - ${SERVER_DOCKER_PORT}
+    environment:
+      SPRING_PROFILES_ACTIVE: test
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb-test:3306/${DB_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_ROOT_PASSWORD}
+      SERVER_PORT: ${SERVER_DOCKER_PORT}
+      API_SECURITY_TOKEN_SECRET: ${API_SECURITY_TOKEN_SECRET}
+      API_SECURITY_ISSUER: ${API_SECURITY_ISSUER}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
+      EMAIL_TO_SEND_LIST: ${EMAIL_TO_SEND_LIST}
+    stdin_open: true
+    tty: true
+    profiles:
+      - test
+    volumes:
+      - ./:/usr/src/app
+      - ~/.m2:/root/.m2
+    networks:
+      - quality-net-dev
+
+    
+#----------------------------------------------
+# Networks
 networks:
-  qualitylab-net:
+  quality-net:
     driver: bridge
-    name: qualitylab-net
+
+  quality-net-dev:
+    driver: bridge
+
+# Volumes
 volumes:
   mysql-volume:
+  mysql-volume-dev:
+#----------------------------------------------

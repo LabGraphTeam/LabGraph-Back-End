@@ -28,9 +28,10 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedValuesByLevelDTO;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.UpdateAnalyticsMeanDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.requests.UpdateAnalyticsMeanDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsWithCalcDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.GroupedValuesByLevelDTO;
 import leonardo.labutilities.qualitylabpro.entities.Analytic;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.services.email.EmailService;
@@ -77,6 +78,13 @@ class AbstractAnalyticHelperServiceTests {
 				@Override
 				public String convertLevel(String level) {
 					throw new UnsupportedOperationException("Unimplemented method 'convertLevel'");
+				}
+
+				@Override
+				public AnalyticsWithCalcDTO findAnalyticsByNameLevelDate(String name, String level,
+						LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
+					throw new UnsupportedOperationException(
+							"Unimplemented method 'findAnalyticsByNameLevelDate'");
 				}
 			};
 		} catch (Exception e) {

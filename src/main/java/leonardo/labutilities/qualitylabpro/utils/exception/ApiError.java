@@ -5,32 +5,40 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
-import lombok.Getter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@Getter
-public class ApiError {
-	private final LocalDateTime timestamp;
-	private final int status;
-	private final String error;
-	private final String message;
-	private final String path;
-	private List<String> details;
+@Schema(description = "Standard API error response format")
+public record ApiError(
+		@Schema(description = "Timestamp when the error occurred",
+				example = "2024-02-13T10:30:00") LocalDateTime timestamp,
 
-	public ApiError(HttpStatus status, String message, String path) {
-		this.timestamp = LocalDateTime.now();
-		this.status = status.value();
-		this.error = status.getReasonPhrase();
-		this.message = message;
-		this.path = path;
-		this.details = new ArrayList<>();
+		@Schema(description = "HTTP status code", example = "400") int status,
+
+		@Schema(description = "HTTP error reason", example = "Bad Request") String error,
+
+		@Schema(description = "Detailed error message",
+				example = "Invalid input parameters") String message,
+
+		@Schema(description = "The path where the error occurred",
+				example = "/api/v1/analytics") String path,
+
+		@Schema(description = "List of detailed error messages",
+				example = "[\"field: validation error message\"]") List<String> details) {
+	public static ApiError of(HttpStatus status, String message, String path) {
+		return new ApiError(LocalDateTime.now(), status.value(), status.getReasonPhrase(), message,
+				path, new ArrayList<>());
 	}
 
-	public void setDetails(List<String> details) {
-		this.details = new ArrayList<>(details);
+	public ApiError withDetails(List<String> newDetails) {
+		return new ApiError(this.timestamp, this.status, this.error, this.message, this.path,
+				new ArrayList<>(newDetails));
 	}
 
-	public void addValidationErrors(Map<String, String> validationErrors) {
+	public ApiError withValidationErrors(Map<String, String> validationErrors) {
+		List<String> newDetails = new ArrayList<>(this.details);
 		validationErrors
-				.forEach((field, errorMessage) -> this.details.add(field + ": " + errorMessage));
+				.forEach((field, errorMessage) -> newDetails.add(field + ": " + errorMessage));
+		return new ApiError(this.timestamp, this.status, this.error, this.message, this.path,
+				newDetails);
 	}
 }

@@ -1,6 +1,6 @@
 package leonardo.labutilities.qualitylabpro.utils.mappers;
 
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.entities.Analytic;
 import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorComponent;
 

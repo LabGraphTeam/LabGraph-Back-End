@@ -1,6 +1,6 @@
 package leonardo.labutilities.qualitylabpro.utils.components;
 
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.utils.blacklist.AnalyticsBlackList;
 import org.springframework.stereotype.Component;

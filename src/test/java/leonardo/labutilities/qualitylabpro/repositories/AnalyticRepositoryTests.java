@@ -20,7 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Transient;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.entities.Analytic;
 import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorComponent;
 import leonardo.labutilities.qualitylabpro.utils.constants.AvailableBiochemistryAnalytics;

@@ -4,9 +4,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedMeanAndStdByLevelDTO;
-import leonardo.labutilities.qualitylabpro.dtos.analytics.GroupedValuesByLevelDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsWithCalcDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.GroupedMeanAndStdByLevelDTO;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.GroupedValuesByLevelDTO;
 
 public interface IAnalyticHelperService {
 
@@ -49,6 +50,11 @@ public interface IAnalyticHelperService {
 
 	List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name, String level,
 			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable);
+
+	AnalyticsWithCalcDTO findAnalyticsByNameLevelDate(String name, String level,
+			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable);
+
+
 
 	void deleteAnalyticsById(Long id);
 }
