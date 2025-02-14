@@ -15,14 +15,14 @@ services:
     profiles:
       - prod
 
-  quality-lab-pro:
+  app_prod:
+    container_name: quality-lab-pro-front-end
     restart: unless-stopped
     image: leonardomeireles55/quality-lab-pro-back-end:latest
     build:
       context: .
       dockerfile: ./.docker/Dockerfile.prod
     working_dir: /usr/src/app
-    container_name: quality-lab-pro
     ports:
       - ${SERVER_LOCAL_PORT}:${SERVER_DOCKER_PORT}
     depends_on:
@@ -39,7 +39,7 @@ services:
       SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
       EMAIL_TO_SEND_LIST: ${EMAIL_TO_SEND_LIST}
     networks:
-      - quality-net-dev
+      - quality-net
     profiles:
       - prod
 
@@ -52,7 +52,7 @@ services:
       - ./nginx:/etc/nginx:ro
       - ./nginx/certs:/etc/nginx/certs:ro
     networks:
-      - quality-net-dev
+      - quality-net
     ports:
       - '80:80'
       - '443:443'
@@ -81,13 +81,13 @@ services:
     profiles:
       - dev
 
-  quality-lab-pro-dev:
+  app_dev:
+    container_name: quality-lab-pro-front-end-dev
     restart: "no"
     build:
       context: .
       dockerfile: .docker/Dockerfile.dev
     working_dir: /usr/src/app
-    container_name: back-end-dev
     depends_on:
       - mariadb-dev
     env_file: ./.env
@@ -168,6 +168,7 @@ services:
 
     
 #----------------------------------------------
+
 # Networks
 networks:
   quality-net:
@@ -176,8 +177,11 @@ networks:
   quality-net-dev:
     driver: bridge
 
+#----------------------------------------------
+
 # Volumes
 volumes:
   mysql-volume:
   mysql-volume-dev:
+
 #----------------------------------------------
