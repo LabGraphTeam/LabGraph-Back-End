@@ -80,11 +80,10 @@ public class ControlRulesValidators {
 			if (this.tenConsecutiveRule(values, mean, stdDev)) {
 				errors.append(String.format(ERROR_MESSAGE_TEMPLATE, "10x", analytic.name(),
 						analytic.level(),
-						"""
-								Ten consecutive measurements on same side of mean
-								Systematic Error. Review calibration, reagent stability, and instrument
-								maintenance. Recalibrate if necessary.
-								"""));
+						"Ten consecutive measurements on same side of mean, exceeding ±1 SD",
+						"Systematic Error. Review calibration, reagent stability, and instrument maintenance. Recalibrate if necessary. "
+								+ "If problem persists, consider retesting patient samples."));
+
 				reportedViolations.add(violationKey);
 			}
 		}
