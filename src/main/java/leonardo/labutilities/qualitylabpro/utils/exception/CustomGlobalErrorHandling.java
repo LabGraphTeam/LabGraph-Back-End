@@ -1,5 +1,6 @@
 package leonardo.labutilities.qualitylabpro.utils.exception;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,10 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -166,6 +169,23 @@ public class CustomGlobalErrorHandling {
 
 		log.error("Email sending failed at {}: {}", request.getRequestURI(), ex.getMessage());
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
+	}
+
+	@ExceptionHandler(NoHandlerFoundException.class)
+	public ResponseEntity<ApiError> handleNotFound(NoHandlerFoundException ex,
+			HttpServletRequest request) {
+		ApiError apiError = new ApiError(LocalDateTime.now(), HttpStatus.NOT_FOUND.value(),
+				HttpStatus.NOT_FOUND.getReasonPhrase(), "The requested resource was not found",
+				request.getRequestURI(), List.of());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+	}
+
+
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<String> handleMethodNotAllowed(
+			HttpRequestMethodNotSupportedException ex) {
+		return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+				.body("Method Not Allowed: " + ex.getMessage());
 	}
 
 	// Exception classes

@@ -31,8 +31,8 @@ import leonardo.labutilities.qualitylabpro.utils.constants.AvailableBiochemistry
 @RestController()
 public class BiochemistryAnalyticsController extends AbstractAnalyticsController {
 
-	private static final List<String> names =
-			new AvailableBiochemistryAnalytics().availableBioAnalytics();
+	private static final List<String> names = AvailableBiochemistryAnalytics.DEFAULT_BIO_ANALYTICS;
+
 	private final BiochemistryAnalyticService biochemistryAnalyticsService;
 
 	public BiochemistryAnalyticsController(
@@ -69,17 +69,6 @@ public class BiochemistryAnalyticsController extends AbstractAnalyticsController
 				names, params.level(), params.startDate(), params.endDate(), pageable));
 	}
 
-	@Override
-	@GetMapping("v1/name-and-level-date-range")
-	public ResponseEntity<List<AnalyticsDTO>> getAllAnalyticsByNameAndLevelDateRange(
-			@RequestParam String name, @RequestParam String level,
-			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate,
-			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
-		return ResponseEntity.ok(this.biochemistryAnalyticsService
-				.findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate, pageable));
-	}
-
 
 	@Override
 	@GetMapping("/mean-standard-deviation")
@@ -91,8 +80,6 @@ public class BiochemistryAnalyticsController extends AbstractAnalyticsController
 		return ResponseEntity.ok(this.biochemistryAnalyticsService
 				.calculateMeanAndStandardDeviation(name, level, startDate, endDate, pageable));
 	}
-
-	// V2
 
 	@Override
 	@GetMapping("/name-and-level-date-range")

@@ -23,15 +23,14 @@ import jakarta.persistence.Transient;
 import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.entities.Analytic;
 import leonardo.labutilities.qualitylabpro.utils.components.RulesValidatorComponent;
-import leonardo.labutilities.qualitylabpro.utils.constants.AvailableBiochemistryAnalytics;
+import leonardo.labutilities.qualitylabpro.utils.constants.AvailableAnalyticsNames;
 import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticMapper;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 class AnalyticRepositoryTests {
-	private static final List<String> ANALYTICS_NAME_LIST =
-			new AvailableBiochemistryAnalytics().availableBioAnalytics();
+	private static final List<String> ANALYTICS_NAME_LIST = AvailableAnalyticsNames.ALL_ANALYTICS;
 	@Transient
 	static Flyway flyway;
 	@Transient

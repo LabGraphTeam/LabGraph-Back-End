@@ -31,8 +31,7 @@ import leonardo.labutilities.qualitylabpro.utils.constants.AvailableHematologyAn
 @RestController()
 public class HematologyAnalyticsController extends AbstractAnalyticsController {
 
-	private static final List<String> names =
-			new AvailableHematologyAnalytics().availableHematologyAnalytics();
+	private static final List<String> names = AvailableHematologyAnalytics.DEFAULT_HEMATO_ANALYTICS;
 	private final HematologyAnalyticService hematologyAnalyticsService;
 
 	public HematologyAnalyticsController(HematologyAnalyticService hematologyAnalyticsService) {
@@ -65,17 +64,6 @@ public class HematologyAnalyticsController extends AbstractAnalyticsController {
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(this.hematologyAnalyticsService.findAnalyticsByNameInByLevel(names,
 				params.level(), params.startDate(), params.endDate(), pageable));
-	}
-
-	@Override
-	@GetMapping("v1/name-and-level-date-range")
-	public ResponseEntity<List<AnalyticsDTO>> getAllAnalyticsByNameAndLevelDateRange(
-			@RequestParam String name, @RequestParam String level,
-			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate,
-			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
-		return ResponseEntity.ok(this.hematologyAnalyticsService
-				.findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate, pageable));
 	}
 
 

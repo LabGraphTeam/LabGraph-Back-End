@@ -31,8 +31,8 @@ import leonardo.labutilities.qualitylabpro.utils.constants.AvailableCoagulationA
 @RestController()
 public class CoagulationAnalyticsController extends AbstractAnalyticsController {
 
-	private static final List<String> names =
-			new AvailableCoagulationAnalytics().availableCoagulationAnalytics();
+	private static final List<String> names = AvailableCoagulationAnalytics.DEFAULT_COAG_ANALYTICS;
+
 	private final CoagulationAnalyticService coagulationAnalyticsService;
 
 	public CoagulationAnalyticsController(CoagulationAnalyticService coagulationAnalyticsService) {
@@ -66,18 +66,6 @@ public class CoagulationAnalyticsController extends AbstractAnalyticsController 
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		return ResponseEntity.ok(this.coagulationAnalyticsService.findAnalyticsByNameInByLevel(
 				names, params.level(), params.startDate(), params.endDate(), pageable));
-	}
-
-
-	@Override
-	@GetMapping("v1/name-and-level-date-range")
-	public ResponseEntity<List<AnalyticsDTO>> getAllAnalyticsByNameAndLevelDateRange(
-			@RequestParam String name, @RequestParam String level,
-			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate,
-			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
-		return ResponseEntity.ok(this.coagulationAnalyticsService
-				.findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate, pageable));
 	}
 
 

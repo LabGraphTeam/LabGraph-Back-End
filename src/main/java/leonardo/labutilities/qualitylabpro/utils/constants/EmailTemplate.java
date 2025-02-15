@@ -2,6 +2,8 @@ package leonardo.labutilities.qualitylabpro.utils.constants;
 
 public class EmailTemplate {
 
+	private EmailTemplate() {}
+
 	public static final String ERROR_MESSAGE_TEMPLATE =
 			"""
 					<div style="margin: 10px 0; padding: 15px; border-left: 4px solid #ff4444; background-color: #fff3f3;">

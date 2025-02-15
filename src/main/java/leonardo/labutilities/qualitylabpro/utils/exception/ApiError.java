@@ -20,7 +20,7 @@ public record ApiError(
 				example = "Invalid input parameters") String message,
 
 		@Schema(description = "The path where the error occurred",
-				example = "/api/v1/analytics") String path,
+				example = "/api/analytics") String path,
 
 		@Schema(description = "List of detailed error messages",
 				example = "[\"field: validation error message\"]") List<String> details) {

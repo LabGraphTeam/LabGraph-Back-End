@@ -39,11 +39,7 @@ public class SpringDocConfiguration {
                                                 .url("https://github.com/LabGraphTeam"))
                                 .license(new License().name("GPL 3.0").url(
                                                 "https://github.com/LabGraphTeam/LabGraph-Back-End/blob/main/LICENSE")))
-                                .servers(List.of(
-                                                new Server().url("http://localhost:8080")
-                                                                .description("Development server"),
-                                                new Server().url("https://api.qualitylab.pro")
-                                                                .description("Production server")))
+                                .servers(List.of(new Server().url("http://localhost:8080")))
                                 .components(new Components().addSecuritySchemes("bearer-key",
                                                 new SecurityScheme().type(SecurityScheme.Type.HTTP)
                                                                 .scheme("bearer")

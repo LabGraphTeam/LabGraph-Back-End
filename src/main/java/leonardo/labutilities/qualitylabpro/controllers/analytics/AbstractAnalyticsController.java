@@ -1,7 +1,6 @@
 package leonardo.labutilities.qualitylabpro.controllers.analytics;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,14 +50,6 @@ public abstract class AbstractAnalyticsController extends AnalyticsHelperControl
 	public abstract ResponseEntity<Page<AnalyticsDTO>> getAllAnalyticsByLevelDateRange(
 			@ParameterObject AnalyticsLevelDateRangeParamsDTO params,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable);
-
-	@GetMapping("v1/name-and-level-date-range")
-	public abstract ResponseEntity<List<AnalyticsDTO>> getAllAnalyticsByNameAndLevelDateRange(
-			@RequestParam String name, @RequestParam String level,
-			@RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate,
-			@PageableDefault(size = 100) @ParameterObject Pageable pageable);
-
 
 	@GetMapping("/name-and-level-date-range")
 	public abstract ResponseEntity<AnalyticsWithCalcDTO> getAllAnalyticsByNameAndLevelDateRangeV2(

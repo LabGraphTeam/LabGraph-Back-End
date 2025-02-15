@@ -11,12 +11,12 @@ services:
       - mysql-volume:/var/lib/mysql
       - ./database:/docker-entrypoint-initdb.d
     networks:
-      - qualitylab-net
+      - quality-net
     profiles:
       - prod
 
-  app_prod:
-    container_name: quality-lab-pro-front-end
+  app-prod:
+    container_name: quality-lab-pro-back-end
     restart: unless-stopped
     image: leonardomeireles55/quality-lab-pro-back-end:latest
     build:
@@ -25,8 +25,6 @@ services:
     working_dir: /usr/src/app
     ports:
       - ${SERVER_LOCAL_PORT}:${SERVER_DOCKER_PORT}
-    depends_on:
-      - mariadb
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
@@ -56,6 +54,8 @@ services:
     ports:
       - '80:80'
       - '443:443'
+    depends_on:
+      - app-prod
     profiles:
       - prod
 
@@ -81,15 +81,13 @@ services:
     profiles:
       - dev
 
-  app_dev:
-    container_name: quality-lab-pro-front-end-dev
+  app-dev:
+    container_name: quality-lab-pro-back-end-dev
     restart: "no"
     build:
       context: .
       dockerfile: .docker/Dockerfile.dev
     working_dir: /usr/src/app
-    depends_on:
-      - mariadb-dev
     env_file: ./.env
     ports:
       - ${SERVER_LOCAL_PORT}:${SERVER_DOCKER_PORT}
@@ -117,7 +115,7 @@ services:
 #----------------------------------------------
 # Test Services
 
-  mariadb-test:
+  db-test:
     container_name: mariadb-test
     restart: "no"
     image: mariadb:11.2
@@ -133,15 +131,13 @@ services:
     profiles:
       - test
 
-  quality-lab-pro-test:
+  app-test:
+    container_name: quality-lab-pro-back-end-test
     build:
       context: .
       dockerfile: .docker/Dockerfile.test
     working_dir: /usr/src/app
-    container_name: back-end-test
     restart: "no"
-    depends_on:
-      - mariadb-test
     env_file: ./.env
     ports:
       - ${SERVER_DOCKER_PORT}
@@ -169,12 +165,15 @@ services:
     
 #----------------------------------------------
 
-# Networks
 networks:
   quality-net:
+    name: quality-net
+    external: true
     driver: bridge
 
   quality-net-dev:
+    name: quality-net-dev
+    external: true
     driver: bridge
 
 #----------------------------------------------
