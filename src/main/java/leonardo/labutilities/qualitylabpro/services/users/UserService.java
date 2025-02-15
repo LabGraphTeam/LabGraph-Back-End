@@ -122,7 +122,7 @@ public class UserService {
 
 		} catch (Exception e) {
 			log.error("Sign-in process failed for identifier: {}", identifier, e);
-			throw new BadCredentialsException("Sign-in failed for identifier: " + identifier);
+			throw new BadCredentialsException("Sign-in failed: " + identifier);
 		}
 	}
 

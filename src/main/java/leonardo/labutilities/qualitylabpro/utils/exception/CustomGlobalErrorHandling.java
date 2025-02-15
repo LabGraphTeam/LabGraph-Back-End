@@ -65,15 +65,15 @@ public class CustomGlobalErrorHandling {
 	public ResponseEntity<ApiError> handleAuthenticationErrors(Exception ex,
 			HttpServletRequest request) {
 		String errorMessage = (ex.getMessage() != null) ? ex.getMessage()
-				: "Invalid credentials or password does not match";
+				: "invalid credentials or password does not match";
 
 		List<String> details = new ArrayList<>();
-		details.add("Authentication failed: " + errorMessage);
+		details.add(errorMessage);
 
 		if (ex instanceof BadCredentialsException) {
-			details.add("Invalid username/email or password");
+			details.add(" invalid username/email or password.");
 		} else if (ex instanceof PasswordNotMatchesException) {
-			details.add("Password does not match");
+			details.add(" Password does not match.");
 		}
 
 		ApiError apiError =
