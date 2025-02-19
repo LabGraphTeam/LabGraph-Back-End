@@ -1,26 +1,39 @@
 package leonardo.labutilities.qualitylabpro.services.users;
 
+import static leonardo.labutilities.qualitylabpro.utils.AnalyticsHelperMocks.createSampleRecordList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.dtos.authentication.responses.TokenJwtDTO;
+import leonardo.labutilities.qualitylabpro.entities.Analytic;
 import leonardo.labutilities.qualitylabpro.entities.User;
 import leonardo.labutilities.qualitylabpro.enums.UserRoles;
 import leonardo.labutilities.qualitylabpro.repositories.UserRepository;
+import leonardo.labutilities.qualitylabpro.services.authentication.TokenService;
 import leonardo.labutilities.qualitylabpro.services.email.EmailService;
 import leonardo.labutilities.qualitylabpro.utils.components.BCryptEncoderComponent;
 import leonardo.labutilities.qualitylabpro.utils.components.PasswordRecoveryTokenManager;
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
+import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticMapper;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTests {
@@ -34,6 +47,12 @@ class UserServiceTests {
 	@Mock
 	private EmailService emailService;
 
+	@Mock
+	private TokenService tokenService;
+
+	@Mock
+	private AuthenticationManager authenticationManager;
+
 	@InjectMocks
 	private UserService userService;
 
@@ -41,13 +60,10 @@ class UserServiceTests {
 	void testRecoverPassword_UserExists() {
 		when(this.userRepository.existsByUsernameAndEmail(anyString(), anyString()))
 				.thenReturn(true);
-		when(this.passwordRecoveryTokenManager.generateTemporaryPassword())
-				.thenReturn("tempPassword");
 
 		this.userService.recoverPassword("identifier", "identifier@example.com");
 
-		verify(this.passwordRecoveryTokenManager).generateAndStoreToken("identifier@example.com",
-				"tempPassword");
+		verify(this.passwordRecoveryTokenManager).generateAndStoreToken("identifier@example.com");
 		verify(this.emailService).sendPlainTextEmail(any());
 	}
 
@@ -126,5 +142,61 @@ class UserServiceTests {
 		assertThrows(CustomGlobalErrorHandling.PasswordNotMatchesException.class,
 				() -> this.userService.updateUserPassword("identifier", "identifier@example.com",
 						"wrongPassword", "newPassword"));
+	}
+
+	@Test
+	void testFindAnalyticsByUserValidated() {
+		List<Analytic> expectedAnalytics =
+				createSampleRecordList().stream().map((AnalyticMapper::toEntity)).toList();
+		when(this.userRepository.findAnalyticsByUserValidatedId(1L)).thenReturn(expectedAnalytics);
+
+		List<AnalyticsDTO> result = this.userService.findAnalyticsByUserValidated(1L);
+		assertNotNull(result);
+		assertEquals(4, result.size());
+	}
+
+	@Test
+	void testSignIn_UserNotFound() {
+		when(this.userRepository.findOneByUsernameOrEmail(anyString(), anyString()))
+				.thenReturn(null);
+		assertThrows(CustomGlobalErrorHandling.UserNotFoundException.class,
+				() -> this.userService.signIn("username", "password"));
+	}
+
+	@Test
+	void testSignIn_Successful() {
+		User user = new User("username", "encrypted", "user@example.com", UserRoles.USER);
+		when(this.userRepository.findOneByUsernameOrEmail(anyString(), anyString()))
+				.thenReturn(user);
+
+		Authentication auth = mock(Authentication.class);
+		when(auth.isAuthenticated()).thenReturn(true);
+		when(auth.getPrincipal()).thenReturn(user);
+		when(this.authenticationManager
+				.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
+
+		TokenJwtDTO token = new TokenJwtDTO("tokenValue", null);
+		when(this.tokenService.generateToken(user)).thenReturn(token);
+
+		TokenJwtDTO result = this.userService.signIn("username", "password");
+		assertNotNull(result);
+		assertEquals("tokenValue", result.tokenJWT());
+	}
+
+	@Test
+	void testUpdateUserPassword_Successful() {
+		String rawOldPassword = "oldPassword";
+		String rawNewPassword = "newPassword";
+		String encryptedOldPassword = BCryptEncoderComponent.encrypt(rawOldPassword);
+		User user = new User("username", encryptedOldPassword, "user@example.com", UserRoles.USER);
+
+		when(this.userRepository.getReferenceByUsernameAndEmail(anyString(), anyString()))
+				.thenReturn(user);
+		doNothing().when(this.userRepository).setPasswordWhereByUsername(anyString(), anyString());
+
+		this.userService.updateUserPassword("username", "user@example.com", rawOldPassword,
+				rawNewPassword);
+
+		verify(this.userRepository).setPasswordWhereByUsername(eq("username"), anyString());
 	}
 }

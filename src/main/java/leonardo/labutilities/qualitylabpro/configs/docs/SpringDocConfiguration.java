@@ -14,7 +14,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
-@Profile("!prod")
+@Profile("dev")
 public class SpringDocConfiguration {
 
         @Value("${spring.application.name:QualityLab-Pro}")

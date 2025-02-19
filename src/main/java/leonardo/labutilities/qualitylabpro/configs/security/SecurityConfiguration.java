@@ -14,6 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import leonardo.labutilities.qualitylabpro.configs.constants.ApiEndpoints;
+import leonardo.labutilities.qualitylabpro.enums.UserRoles;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -29,38 +31,54 @@ public class SecurityConfiguration {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(req -> {
                // Public endpoints
-               req.requestMatchers(HttpMethod.POST, "/users/sign-in").permitAll();
-               req.requestMatchers(HttpMethod.POST, "/users/sign-up").permitAll();
-               req.requestMatchers(HttpMethod.POST, "/hematology-analytics/**").permitAll();
-
-               // Swagger/OpenAPI endpoints
-               req.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
+               req.requestMatchers(HttpMethod.POST, ApiEndpoints.SIGN_IN_PATH).permitAll();
+               req.requestMatchers(HttpMethod.POST, ApiEndpoints.SIGN_UP_PATH).permitAll();
+               req.requestMatchers(HttpMethod.POST, ApiEndpoints.HEMATOLOGY_ANALYTICS_PATH)
                      .permitAll();
 
-               // Health check endpoints
-               req.requestMatchers("/actuator/**").permitAll();
+               req.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**",
+                     "/actuator/**");
 
                // Admin-only endpoints
-               req.requestMatchers(HttpMethod.DELETE, "/generic-analytics/**").hasRole("ADMIN");
-               req.requestMatchers(HttpMethod.DELETE, "/biochemistry-analytics/**")
-                     .hasRole("ADMIN");
-               req.requestMatchers(HttpMethod.DELETE, "/hematology-analytics/**").hasRole("ADMIN");
-               req.requestMatchers(HttpMethod.DELETE, "/coagulation-analytics/**").hasRole("ADMIN");
+               req.requestMatchers(HttpMethod.DELETE, ApiEndpoints.GENERIC_ANALYTICS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
+               req.requestMatchers(HttpMethod.DELETE, ApiEndpoints.BIOCHEMISTRY_ANALYTICS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
+               req.requestMatchers(HttpMethod.DELETE, ApiEndpoints.COAGULATION_ANALYTICS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
 
                // Add PUT and PATCH restrictions for admin
-               req.requestMatchers(HttpMethod.PUT, "/generic-analytics/**").hasRole("ADMIN");
+               req.requestMatchers(HttpMethod.PUT, ApiEndpoints.GENERIC_ANALYTICS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
+               req.requestMatchers(HttpMethod.PUT, ApiEndpoints.BIOCHEMISTRY_ANALYTICS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
+               req.requestMatchers(HttpMethod.PUT, ApiEndpoints.HEMATOLOGY_ANALYTICS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
+               req.requestMatchers(HttpMethod.PUT, ApiEndpoints.COAGULATION_ANALYTICS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
 
-               req.requestMatchers(HttpMethod.PUT, "/biochemistry-analytics/**").hasRole("ADMIN");
-               req.requestMatchers(HttpMethod.PUT, "/hematology-analytics/**").hasRole("ADMIN");
-               req.requestMatchers(HttpMethod.PUT, "/coagulation-analytics/**").hasRole("ADMIN");
+               req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.GENERIC_ANALYTICS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
+               req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.BIOCHEMISTRY_ANALYTICS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
+               req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.HEMATOLOGY_ANALYTICS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
+               req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.COAGULATION_ANALYTICS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
 
-               req.requestMatchers(HttpMethod.PATCH, "/generic-analytics/**").hasRole("ADMIN");
+               req.requestMatchers(HttpMethod.DELETE, ApiEndpoints.USERS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
+               req.requestMatchers(HttpMethod.PUT, ApiEndpoints.USERS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
+               req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.USERS_PATH)
+                     .hasRole(UserRoles.ADMIN.name());
 
-               req.requestMatchers(HttpMethod.PATCH, "/biochemistry-analytics/**").hasRole("ADMIN");
-               req.requestMatchers(HttpMethod.PATCH, "/hematology-analytics/**").hasRole("ADMIN");
-               req.requestMatchers(HttpMethod.PATCH, "/coagulation-analytics/**").hasRole("ADMIN");
+               req.requestMatchers(HttpMethod.POST, ApiEndpoints.USERS_PATH).permitAll();
 
-               req.requestMatchers(HttpMethod.DELETE, "/users/**");
+               req.requestMatchers(HttpMethod.POST, ApiEndpoints.PASSWORD_PATH).permitAll();
+
+               req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.PASSWORD_PATH).permitAll();
+
 
                // All other endpoints require authentication
                req.anyRequest().authenticated();

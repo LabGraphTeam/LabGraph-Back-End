@@ -1,8 +1,10 @@
 package leonardo.labutilities.qualitylabpro.entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -15,10 +17,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import leonardo.labutilities.qualitylabpro.enums.UserRoles;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Entity(name = "users")
 public class User implements UserDetails {
 
@@ -26,8 +32,14 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToMany(mappedBy = "user")
+    private List<Analytic> analytics = new ArrayList<>();
+
     private String username;
+
+    @Setter(AccessLevel.NONE)
     private String password;
+
     private String email;
 
     @Column(name = "user_roles")
@@ -41,8 +53,11 @@ public class User implements UserDetails {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    protected User() {
-        this.userRoles = null;
+    @OneToMany(mappedBy = "validatedBy")
+    private List<Analytic> validatedAnalytics = new ArrayList<>();
+
+    public User() {
+        this.userRoles = UserRoles.USER;
     }
 
     public User(String username, String password) {
@@ -99,14 +114,14 @@ public class User implements UserDetails {
         if (this == o) {
             return true;
         }
-        if (o == null) {
+        if (!(o instanceof User)) {
             return false;
         }
-        Class<?> oEffectiveClass = o instanceof HibernateProxy
-                ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+        Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass()
                 : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy hibernateProxy2
+                ? hibernateProxy2.getHibernateLazyInitializer().getPersistentClass()
                 : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) {
             return false;
@@ -117,9 +132,14 @@ public class User implements UserDetails {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
-                        .hashCode()
+        return this instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass().hashCode()
                 : this.getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("User(id=%d, username='%s', email='%s', role=%s)", this.id,
+                this.username, this.email, this.userRoles);
     }
 }

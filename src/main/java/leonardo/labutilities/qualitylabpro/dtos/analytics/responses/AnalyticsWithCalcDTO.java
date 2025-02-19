@@ -10,4 +10,5 @@ public record AnalyticsWithCalcDTO(
 
 		@Schema(description = "Statistical calculations (mean and standard deviation) for the measurements",
 				requiredMode = Schema.RequiredMode.REQUIRED) MeanAndStdDeviationDTO calcMeanAndStdDTO) {
+
 }

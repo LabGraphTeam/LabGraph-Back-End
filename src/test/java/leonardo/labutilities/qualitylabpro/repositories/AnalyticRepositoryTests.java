@@ -27,8 +27,8 @@ import leonardo.labutilities.qualitylabpro.utils.constants.AvailableAnalyticsNam
 import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticMapper;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class AnalyticRepositoryTests {
 	private static final List<String> ANALYTICS_NAME_LIST = AvailableAnalyticsNames.ALL_ANALYTICS;
 	@Transient

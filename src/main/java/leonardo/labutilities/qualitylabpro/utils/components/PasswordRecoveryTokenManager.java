@@ -1,31 +1,36 @@
 package leonardo.labutilities.qualitylabpro.utils.components;
 
-import org.springframework.stereotype.Component;
-
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.HashMap;
+import org.springframework.stereotype.Component;
 
 @Component
 public class PasswordRecoveryTokenManager {
 	private static final HashMap<String, String> stringHashMap = new HashMap<>();
+	private static final SecureRandom secureRandom = new SecureRandom();
 
 	public String generateTemporaryPassword() {
-		return java.util.UUID.randomUUID().toString();
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(new byte[16]);
 	}
 
-	public void generateAndStoreToken(String email, String password) {
-		String hashedPassword = generateRecoveryToken(email, password);
-		stringHashMap.put(hashedPassword, email);
-	}
-
-	public String retrieveEmailFromToken(String hashedPassword) {
-		return stringHashMap.get(hashedPassword);
+	public String generateAndStoreToken(String email) {
+		String token = generateRecoveryToken();
+		stringHashMap.put(token, email);
+		return token;
 	}
 
 	public boolean isRecoveryTokenValid(String token, String email) {
-		return stringHashMap.get(token).equals(email);
+		String storedEmail = stringHashMap.get(token);
+		if (storedEmail == null) {
+			return false;
+		}
+		return storedEmail.equals(email);
 	}
 
-	private static String generateRecoveryToken(String email, String password) {
-		return BCryptEncoderComponent.encrypt(email + password);
+	private static String generateRecoveryToken() {
+		byte[] tokenBytes = new byte[32];
+		secureRandom.nextBytes(tokenBytes);
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
 	}
 }

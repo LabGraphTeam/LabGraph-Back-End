@@ -45,7 +45,7 @@ public class EmailService {
 	private List<String> emailList;
 
 	@PostConstruct
-	private void init() {
+	void init() {
 		this.emailList = (this.emailListString != null && !this.emailListString.isEmpty())
 				? List.of(this.emailListString.split(","))
 				: List.of();

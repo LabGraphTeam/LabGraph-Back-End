@@ -26,7 +26,7 @@ services:
     ports:
       - ${SERVER_LOCAL_PORT}:${SERVER_DOCKER_PORT}
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_ROOT_PASSWORD}
@@ -59,7 +59,6 @@ services:
     profiles:
       - prod
 
-
   #---------------------
   # Development services
   #---------------------
@@ -83,7 +82,7 @@ services:
 
   app-dev:
     container_name: quality-lab-pro-back-end-dev
-    restart: "no"
+    restart: "on-failure"
     build:
       context: .
       dockerfile: .docker/Dockerfile.dev
@@ -106,6 +105,8 @@ services:
     tty: true
     profiles:
       - dev
+    depends_on:
+      - mariadb-dev
     volumes:
       - ./:/usr/src/app
       - ~/.m2:/root/.m2

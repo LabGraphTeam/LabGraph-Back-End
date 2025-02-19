@@ -1,9 +1,11 @@
 package leonardo.labutilities.qualitylabpro.controllers.users;
 
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.dtos.authentication.requests.LoginUserDTO;
 import leonardo.labutilities.qualitylabpro.dtos.authentication.responses.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.dtos.users.requests.ForgotPasswordDTO;
@@ -19,6 +22,7 @@ import leonardo.labutilities.qualitylabpro.dtos.users.requests.SignUpUsersDTO;
 import leonardo.labutilities.qualitylabpro.dtos.users.requests.UpdatePasswordDTO;
 import leonardo.labutilities.qualitylabpro.entities.User;
 import leonardo.labutilities.qualitylabpro.services.users.UserService;
+
 
 @SecurityRequirement(name = "bearer-key")
 @RequestMapping("/users")
@@ -29,6 +33,18 @@ public class UsersController {
     public UsersController(final UserService userService) {
         this.userService = userService;
     }
+
+    @GetMapping("/validated-analytics")
+    public ResponseEntity<List<AnalyticsDTO>> getAnalyticsValidatedByUserId() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof User user) {
+            var id = user.getId();
+            return ResponseEntity.ok(this.userService.findAnalyticsByUserValidated(id));
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
 
     @Transactional
     @PatchMapping("/password")

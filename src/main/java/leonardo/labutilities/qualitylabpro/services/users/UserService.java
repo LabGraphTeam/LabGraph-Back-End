@@ -1,10 +1,12 @@
 package leonardo.labutilities.qualitylabpro.services.users;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import leonardo.labutilities.qualitylabpro.dtos.analytics.responses.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.dtos.authentication.responses.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.dtos.email.requests.EmailDTO;
 import leonardo.labutilities.qualitylabpro.dtos.email.requests.RecoveryEmailDTO;
@@ -16,6 +18,7 @@ import leonardo.labutilities.qualitylabpro.services.email.EmailService;
 import leonardo.labutilities.qualitylabpro.utils.components.BCryptEncoderComponent;
 import leonardo.labutilities.qualitylabpro.utils.components.PasswordRecoveryTokenManager;
 import leonardo.labutilities.qualitylabpro.utils.exception.CustomGlobalErrorHandling;
+import leonardo.labutilities.qualitylabpro.utils.mappers.AnalyticMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +32,11 @@ public class UserService {
 	private final EmailService emailService;
 	private final AuthenticationManager authenticationManager;
 	private final TokenService tokenService;
+
+	public List<AnalyticsDTO> findAnalyticsByUserValidated(Long id) {
+		return this.userRepository.findAnalyticsByUserValidatedId(id).stream()
+				.map(AnalyticMapper::toRecord).toList();
+	}
 
 	private void sendRecoveryEmail(RecoveryEmailDTO recoveryEmailDTO) {
 		String subject = "Password Recovery";
@@ -52,10 +60,9 @@ public class UserService {
 			throw new CustomGlobalErrorHandling.UserNotFoundException();
 		}
 
-		String temporaryPassword = this.passwordRecoveryTokenManager.generateTemporaryPassword();
-		this.passwordRecoveryTokenManager.generateAndStoreToken(email, temporaryPassword);
+		var token = this.passwordRecoveryTokenManager.generateAndStoreToken(email);
 
-		this.sendRecoveryEmail(new RecoveryEmailDTO(email, temporaryPassword));
+		this.sendRecoveryEmail(new RecoveryEmailDTO(email, token));
 	}
 
 	public void changePassword(String email, String temporaryPassword, String newPassword) {
@@ -122,7 +129,7 @@ public class UserService {
 
 		} catch (Exception e) {
 			log.error("Sign-in process failed for identifier: {}", identifier, e);
-			throw new BadCredentialsException("Sign-in failed: " + identifier);
+			throw new CustomGlobalErrorHandling.UserNotFoundException();
 		}
 	}
 

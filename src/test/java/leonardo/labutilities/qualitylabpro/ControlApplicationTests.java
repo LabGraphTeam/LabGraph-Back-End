@@ -10,5 +10,10 @@ import org.springframework.test.context.ActiveProfiles;
 class ControlApplicationTests {
 
 	@Test
-	void contextLoads() {}
+	void contextLoads() {
+		/*
+		 * This test method is intentionally empty. Its purpose is to verify that the Spring
+		 * application context loads successfully.
+		 */
+	}
 }

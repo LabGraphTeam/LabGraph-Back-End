@@ -18,6 +18,7 @@
 --
 -- Table structure for table `flyway_schema_history`
 --
+CREATE DATABASE IF NOT EXISTS lab_api_test;
 
 DROP TABLE IF EXISTS `flyway_schema_history`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
