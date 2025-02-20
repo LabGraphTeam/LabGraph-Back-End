@@ -6,12 +6,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile("dev")
-
+@Profile({"dev", "local"})
 public class FlywayConfig {
 
 	@Bean
-	public FlywayMigrationStrategy repairFlywayStrategy() {
+	FlywayMigrationStrategy repairFlywayStrategy() {
 		return flyway -> {
 			flyway.repair();
 			flyway.migrate();

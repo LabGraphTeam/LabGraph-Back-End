@@ -8,6 +8,8 @@ public final class ApiEndpoints {
 	public static final String GENERIC_ANALYTICS_PATH = "/generic-analytics/**";
 	public static final String USERS_PATH = "/users/**";
 	public static final String PASSWORD_PATH = "/users/password/**";
+	public static final String RECOVER_PASSWORD_PATH = "/users/password/recover";
+
 
 	public static final String SIGN_IN_PATH = "/users/sign-in";
 	public static final String SIGN_UP_PATH = "/users/sign-up";

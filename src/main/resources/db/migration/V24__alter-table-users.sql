@@ -1,0 +1,3 @@
+ALTER TABLE users
+    ADD COLUMN enabled BOOLEAN NOT NULL DEFAULT true,
+    ADD COLUMN non_locked BOOLEAN NOT NULL DEFAULT true;

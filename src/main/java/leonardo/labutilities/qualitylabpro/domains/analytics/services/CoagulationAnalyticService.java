@@ -1,0 +1,60 @@
+package leonardo.labutilities.qualitylabpro.domains.analytics.services;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesProviderComponent;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
+import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
+import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
+
+@Service
+public class CoagulationAnalyticService extends AbstractAnalyticHelperService {
+
+	public CoagulationAnalyticService(AnalyticsRepository analyticsRepository,
+			EmailService emailService, RulesProviderComponent controlRulesValidators) {
+		super(analyticsRepository, emailService, controlRulesValidators);
+	}
+
+	public Page<AnalyticsDTO> findAnalyticsByNameInByLevel(List<String> names, String level,
+			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+		return this.findAnalyticsByNameInByLevelBaseMethod(names, this.convertLevel(level),
+				startDate, endDate, pageable);
+	}
+
+	@Override
+	public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable, String name,
+			String level) {
+		this.ensureNameExists(name);
+		return this.findAnalyticsByNameAndLevelWithPagination(pageable, name,
+				this.convertLevel(level));
+	}
+
+	@Override
+	public List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name, String level,
+			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
+		return this.findAnalyticsByNameLevelAndDate(name, this.convertLevel(level), dateStart,
+				dateEnd, pageable);
+	}
+
+	@Override
+	public AnalyticsWithCalcDTO findAnalyticsByNameLevelDate(String name, String level,
+			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
+		return this.findAnalyticsByNameLevelDateOptimized(name, this.convertLevel(level), dateStart,
+				dateEnd, pageable);
+	}
+
+	@Override
+	public String convertLevel(String inputLevel) {
+		return switch (inputLevel) {
+			case "1" -> "Normal C. Assayed";
+			case "2" -> "Low Abn C. Assayed";
+			default -> throw new CustomGlobalErrorHandling.ResourceNotFoundException(
+					"Level not found.");
+		};
+	}
+}

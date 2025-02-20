@@ -9,8 +9,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import leonardo.labutilities.qualitylabpro.repositories.UserRepository;
-import leonardo.labutilities.qualitylabpro.services.authentication.TokenService;
+import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenService;
+import leonardo.labutilities.qualitylabpro.domains.users.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

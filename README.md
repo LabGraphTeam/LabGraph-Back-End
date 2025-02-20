@@ -21,27 +21,44 @@ reliability of laboratory data.
 ## Project Structure
 
 ```
-├── .github/workflows     # GitHub Actions workflow configurations
+├── .github/workflows      # GitHub Actions workflow configurations
 ├── src/
 │   ├── main/
 │   │   ├── java/leonardo/labutilities/qualitylabpro/
-│   │   │   ├── configs/           # Application configurations
-│   │   │   │   ├── date/         # Date/time configurations
-│   │   │   │   ├── docs/         # API documentation
-│   │   │   │   ├── rest/         # REST configurations 
-│   │   │   │   └── security/     # Security settings
-│   │   │   ├── controllers/      # REST endpoints
-│   │   │   ├── dtos/            # Data Transfer Objects
-│   │   │   ├── entities/        # Domain entities
-│   │   │   ├── repositories/    # Data access layer
-│   │   │   ├── services/       # Business logic
-│   │   │   └── utils/          # Helper classes
+│   │   │   ├── ControlApplication.java
+│   │   │   ├── configs/            # Application configurations
+│   │   │   │   ├── constants/     # System constants
+│   │   │   │   ├── database/      # Database configurations
+│   │   │   │   ├── date/          # Date/time configurations
+│   │   │   │   ├── docs/          # API documentation
+│   │   │   │   ├── rest/          # REST configurations 
+│   │   │   │   └── security/      # Security settings
+│   │   │   └── domains/           # Domain-driven modules
+│   │   │       ├── analytics/     # Analytics domain
+│   │   │       │   ├── controllers/
+│   │   │       │   ├── dtos/
+│   │   │       │   ├── models/
+│   │   │       │   ├── repositories/
+│   │   │       │   └── services/
+│   │   │       ├── shared/        # Shared components
+│   │   │       │   ├── enums/
+│   │   │       │   ├── exceptions/
+│   │   │       │   └── utils/
+│   │   │       └── users/         # User management domain
+│   │   │           ├── controllers/
+│   │   │           ├── dtos/
+│   │   │           ├── models/
+│   │   │           ├── repositories/
+│   │   │           └── services/
 │   │   └── resources/
-│   │       ├── db/migration/    # Flyway migrations
+│   │       ├── db/migration/     # Flyway migrations
 │   │       └── application.properties
 │   └── test/
-│       └── java/               # Test classes
-├── database/                   # Database scripts
+│       └── java/                # Test classes
+├── database/                    # Database scripts
+├── docker/                      # Docker configurations
+│   ├── dev/                    # Development environment
+│   └── prod/                   # Production environment
 ├── nginx/                      # Nginx configurations
 ├── docker-compose.yml          # Docker compose files
 └── pom.xml                     # Maven configuration
@@ -49,14 +66,21 @@ reliability of laboratory data.
 
 ### Key Components:
 
-- `configs/`: Configuration classes for security, documentation, and more
-- `controllers/`: REST API endpoints organized by domain
-- `services/`: Business logic implementations
-- `dtos/`: Data Transfer Objects for API requests/responses
-- `entities/`: Domain model classes
-- `repositories/`: Database access layer
-- `utils/`: Helper classes and utilities
-- `.github/workflows/`: CI/CD pipeline configurations
+- `configs/`: Configuration classes organized by purpose
+  - `constants/`: System-wide constants
+  - `database/`: Database configurations
+  - `security/`: Security settings and configurations
+- `domains/`: Domain-driven design modules
+  - `analytics/`: Analytics domain components
+  - `shared/`: Cross-cutting concerns and utilities
+  - `users/`: User management domain
+- Each domain contains:
+  - `controllers/`: REST endpoints
+  - `dtos/`: Data Transfer Objects
+  - `models/`: Domain entities and components
+  - `repositories/`: Data access layer
+  - `services/`: Business logic
+- `docker/`: Environment-specific Docker configurations
 
 ## Continuous Integration
 

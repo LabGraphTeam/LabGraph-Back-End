@@ -11,11 +11,22 @@ RUN mvn clean package -DskipTests -U && rm -rf /root/.m2 && rm -rf /app/src
 # Run stage
 FROM eclipse-temurin:21-jre-alpine
 
-WORKDIR /usr/src/app
-COPY --from=build /app/target/QualityLabPro-0.8.jar ./app.jar
+# Create non-root user
+RUN addgroup -S appgroup && \
+    adduser -S appuser -G appgroup
 
+WORKDIR /usr/src/app
+
+# Copy jar from build stage and set ownership
+COPY --from=build /app/target/QualityLabPro-0.8.jar ./app.jar
+RUN chown -R appuser:appgroup /usr/src/app
+
+# Set environment variables
 ENV SPRING_PROFILES_ACTIVE=prod \
     SERVER_PORT=8080
+
+# Switch to non-root user
+USER appuser
 
 CMD [ "java", "-jar", "-Dspring.profiles.active=prod", "app.jar" ]
 

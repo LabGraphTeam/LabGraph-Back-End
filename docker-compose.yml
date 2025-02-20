@@ -82,7 +82,7 @@ services:
 
   app-dev:
     container_name: quality-lab-pro-back-end-dev
-    restart: "on-failure"
+    restart: "unless-stopped"
     build:
       context: .
       dockerfile: .docker/Dockerfile.dev
