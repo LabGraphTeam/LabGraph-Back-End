@@ -32,8 +32,8 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 	@Query(value = """
 			SELECT ga FROM analytics ga WHERE ga.testName = :name AND ga.controlLevel = :level ORDER BY ga.measurementDate DESC LIMIT 10
 			""")
-	List<AnalyticsDTO> findLast10ByTestNameAndControlLevel(@Param("testName") String name,
-			@Param("controlLevel") String level);
+	List<AnalyticsDTO> findLast10ByTestNameAndControlLevel(@Param("name") String name,
+			@Param("level") String level);
 
 	@Query(value = """
 			SELECT ga FROM analytics ga WHERE ga.testName = :name AND ga.controlLevel = :level ORDER BY ga.measurementDate DESC LIMIT 1

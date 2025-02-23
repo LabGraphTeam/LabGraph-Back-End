@@ -28,7 +28,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.util.ReflectionTestUtils;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesProviderComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.UpdateAnalyticsMeanDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
@@ -89,9 +88,6 @@ class AbstractAnalyticHelperServiceTests {
 							"Unimplemented method 'findAnalyticsByNameLevelDate'");
 				}
 			};
-
-			ReflectionTestUtils.setField(this.abstractAnalyticHelperService, "self",
-					this.abstractAnalyticHelperService);
 
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to initialize mocks", e);

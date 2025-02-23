@@ -8,12 +8,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import jakarta.annotation.Resource;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesProviderComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
@@ -37,9 +35,9 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 	private final EmailService emailService;
 	private final RulesProviderComponent controlRulesValidators;
 
-	@Lazy
-	@Resource
-	private AbstractAnalyticHelperService self;
+	// @Lazy
+	// @Resource
+	// private AbstractAnalyticHelperService self;
 
 	protected AbstractAnalyticHelperService(AnalyticsRepository analyticsRepository,
 			EmailService emailService, RulesProviderComponent controlRulesValidators) {
@@ -78,7 +76,7 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 
 	private static List<Analytic> filterFailedRecords(List<Analytic> persistedRecords) {
 		return persistedRecords.stream().filter(AbstractAnalyticHelperService::isRuleBroken).filter(
-				analyticsDTO -> !AnalyticsBlackList.BLACK_LIST.contains(analyticsDTO.getTestName()))
+				analytics -> !AnalyticsBlackList.BLACK_LIST.contains(analytics.getTestName()))
 				.toList();
 	}
 
@@ -89,7 +87,7 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 				var content = this.controlRulesValidators.validateRules(failedRecords);
 				this.emailService.sendFailedAnalyticsNotification(failedRecords, content);
 			} catch (Exception e) {
-				log.error("Error sending identifier notification: {}", e.getMessage());
+				log.error("Error sending identifier notification: {}", e);
 			}
 		}
 	}
@@ -239,7 +237,7 @@ public abstract class AbstractAnalyticHelperService implements IAnalyticHelperSe
 		List<AnalyticsDTO> failedRecords = filterFailedRecords(persistedRecords).stream()
 				.map(AnalyticMapper::toRecord).toList();
 
-		self.processFailedRecordsNotification(failedRecords);
+		processFailedRecordsNotification(failedRecords);
 	}
 
 	@Override
