@@ -12,8 +12,7 @@ RUN mvn clean package -DskipTests -U && rm -rf /root/.m2 && rm -rf /app/src
 FROM eclipse-temurin:21-jre-alpine
 
 # Create non-root user
-RUN addgroup -S appgroup && \
-    adduser -S appuser -G appgroup
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 WORKDIR /usr/src/app
 
