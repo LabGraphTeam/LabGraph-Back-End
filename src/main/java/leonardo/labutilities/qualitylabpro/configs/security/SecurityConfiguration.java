@@ -24,6 +24,9 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfiguration {
 
       private final SecurityFilter securityFilter;
+      private static final String[] PUBLIC_PATHS =
+                  {"/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/actuator/**"};
+
 
       @Bean
       protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -32,79 +35,31 @@ public class SecurityConfiguration {
                                     sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                         .authorizeHttpRequests(req -> {
                               // Public endpoints
-                              req.requestMatchers(HttpMethod.POST, ApiEndpoints.SIGN_IN_PATH)
+                              req.requestMatchers(PUBLIC_PATHS).permitAll();
+                              req.requestMatchers(HttpMethod.POST, ApiEndpoints.PUBLIC_POST_PATHS)
                                           .permitAll();
-                              req.requestMatchers(HttpMethod.POST, ApiEndpoints.SIGN_UP_PATH)
+                              req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.PASSWORD_PATH)
                                           .permitAll();
-                              req.requestMatchers(HttpMethod.POST,
-                                          ApiEndpoints.HEMATOLOGY_ANALYTICS_PATH).permitAll();
 
-                              req.requestMatchers("/v3/api-docs/**", "/swagger-ui.html",
-                                          "/swagger-ui/**", "/actuator/**").permitAll();
-
-                              // Admin-only endpoints
+                              // Admin endpoints
                               req.requestMatchers(HttpMethod.DELETE,
-                                          ApiEndpoints.GENERIC_ANALYTICS_PATH)
+                                          ApiEndpoints.ADMIN_MODIFY_PATHS)
                                           .hasRole(UserRoles.ADMIN.name());
-                              req.requestMatchers(HttpMethod.DELETE,
-                                          ApiEndpoints.BIOCHEMISTRY_ANALYTICS_PATH)
+                              req.requestMatchers(HttpMethod.PUT, ApiEndpoints.ADMIN_MODIFY_PATHS)
                                           .hasRole(UserRoles.ADMIN.name());
-                              req.requestMatchers(HttpMethod.DELETE,
-                                          ApiEndpoints.COAGULATION_ANALYTICS_PATH)
+                              req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.ADMIN_MODIFY_PATHS)
                                           .hasRole(UserRoles.ADMIN.name());
 
-                              // Add PUT and PATCH restrictions for admin
-                              req.requestMatchers(HttpMethod.PUT,
-                                          ApiEndpoints.GENERIC_ANALYTICS_PATH)
-                                          .hasRole(UserRoles.ADMIN.name());
-                              req.requestMatchers(HttpMethod.PUT,
-                                          ApiEndpoints.BIOCHEMISTRY_ANALYTICS_PATH)
-                                          .hasRole(UserRoles.ADMIN.name());
-                              req.requestMatchers(HttpMethod.PUT,
-                                          ApiEndpoints.HEMATOLOGY_ANALYTICS_PATH)
-                                          .hasRole(UserRoles.ADMIN.name());
-                              req.requestMatchers(HttpMethod.PUT,
-                                          ApiEndpoints.COAGULATION_ANALYTICS_PATH)
-                                          .hasRole(UserRoles.ADMIN.name());
-
-                              req.requestMatchers(HttpMethod.PATCH,
-                                          ApiEndpoints.GENERIC_ANALYTICS_PATH)
-                                          .hasRole(UserRoles.ADMIN.name());
-                              req.requestMatchers(HttpMethod.PATCH,
-                                          ApiEndpoints.BIOCHEMISTRY_ANALYTICS_PATH)
-                                          .hasRole(UserRoles.ADMIN.name());
-                              req.requestMatchers(HttpMethod.PATCH,
-                                          ApiEndpoints.HEMATOLOGY_ANALYTICS_PATH)
-                                          .hasRole(UserRoles.ADMIN.name());
-                              req.requestMatchers(HttpMethod.PATCH,
-                                          ApiEndpoints.COAGULATION_ANALYTICS_PATH)
-                                          .hasRole(UserRoles.ADMIN.name());
-
+                              // User management (admin only)
                               req.requestMatchers(HttpMethod.DELETE, ApiEndpoints.USERS_PATH)
                                           .hasRole(UserRoles.ADMIN.name());
                               req.requestMatchers(HttpMethod.PUT, ApiEndpoints.USERS_PATH)
                                           .hasRole(UserRoles.ADMIN.name());
 
-                              req.requestMatchers(HttpMethod.POST, ApiEndpoints.USERS_PATH)
-                                          .permitAll();
-
-                              req.requestMatchers(HttpMethod.POST, ApiEndpoints.SIGN_IN_PATH)
-                                          .permitAll();
-
-
-                              req.requestMatchers(HttpMethod.POST, ApiEndpoints.SIGN_UP_PATH)
-                                          .permitAll();
-
-                              req.requestMatchers(HttpMethod.POST, ApiEndpoints.PASSWORD_PATH)
-                                          .permitAll();
-
-                              req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.PASSWORD_PATH)
-                                          .permitAll();
-
-                              // All other endpoints require authentication
-                              req.anyRequest().permitAll();
-                        }).addFilterBefore(this.securityFilter,
-                                    UsernamePasswordAuthenticationFilter.class)
+                              // Require authentication for all other requests
+                              req.anyRequest().authenticated();
+                        })
+                        .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                         .build();
       }
 

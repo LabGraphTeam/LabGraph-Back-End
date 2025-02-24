@@ -14,7 +14,16 @@ public final class ApiEndpoints {
 	public static final String SIGN_IN_PATH = "/users/sign-in";
 	public static final String SIGN_UP_PATH = "/users/sign-up";
 
-	private ApiEndpoints() {
-		// Private constructor to prevent instantiation
-	}
+	public static final String[] PUBLIC_PATHS =
+			{"/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/actuator/**"};
+
+	public static final String[] PUBLIC_POST_PATHS = {ApiEndpoints.SIGN_IN_PATH,
+			ApiEndpoints.SIGN_UP_PATH, ApiEndpoints.HEMATOLOGY_ANALYTICS_PATH,
+			ApiEndpoints.USERS_PATH, ApiEndpoints.PASSWORD_PATH};
+
+	public static final String[] ADMIN_MODIFY_PATHS = {ApiEndpoints.GENERIC_ANALYTICS_PATH,
+			ApiEndpoints.BIOCHEMISTRY_ANALYTICS_PATH, ApiEndpoints.HEMATOLOGY_ANALYTICS_PATH,
+			ApiEndpoints.COAGULATION_ANALYTICS_PATH};
+
+	private ApiEndpoints() {}
 }

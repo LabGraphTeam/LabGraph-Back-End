@@ -165,6 +165,26 @@ services:
 
     
 #----------------------------------------------
+# DB only
+
+  maria-db-only:
+    container_name: mariadb-dev
+    restart: "no"
+    image: mariadb:11.2
+    environment:
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - ${DB_DOCKER_PORT}:${DB_LOCAL_PORT}
+    volumes:
+      - mysql-volume:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
+    profiles:
+      - db
+
+
+#----------------------------------------------
+# Networks
 
 networks:
   quality-net:
