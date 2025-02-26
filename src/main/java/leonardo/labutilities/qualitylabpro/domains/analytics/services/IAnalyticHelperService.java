@@ -20,9 +20,6 @@ public interface IAnalyticHelperService {
 	Page<AnalyticsDTO> findAnalyticsByNameInAndDateBetweenWithLinks(List<String> names,
 			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable);
 
-	List<GroupedValuesByLevelDTO> findFilteredGroupedAnalytics(
-			List<GroupedValuesByLevelDTO> records);
-
 	void updateAnalyticsMeanByNameAndLevelAndLevelLot(String name, String level, String levelLot,
 			double mean);
 
@@ -34,9 +31,8 @@ public interface IAnalyticHelperService {
 
 	void saveNewAnalyticsRecords(List<AnalyticsDTO> valuesOfLevelsList);
 
-	Page<AnalyticsDTO> findAnalytics(Pageable pageable);
-
-	List<AnalyticsDTO> findAnalyticsByNameWithPagination(Pageable pageable, String name);
+	List<AnalyticsDTO> findAnalyticsByNameWithPagination(List<String> names, String name,
+			Pageable pageable);
 
 	Page<AnalyticsDTO> findAnalyticsByNameInByLevelBaseMethod(List<String> names, String level,
 			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);

@@ -35,33 +35,37 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.Anal
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedValuesByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
-import leonardo.labutilities.qualitylabpro.domains.analytics.services.AbstractAnalyticHelperService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 
 @ExtendWith(MockitoExtension.class)
-class AbstractAnalyticHelperServiceTests {
+class AnalyticHelperServiceTests {
 
 	@Mock
 	private AnalyticsRepository analyticsRepository;
 	@Mock
-	private AbstractAnalyticHelperService abstractAnalyticHelperService;
+	private AnalyticHelperService analyticHelperService;
 	@Mock
 	private EmailService emailService;
 	@Mock
 	private RulesProviderComponent controlRulesValidators;
 
+	public AnalyticHelperServiceTests() {
+		super();
+	}
+
 	@BeforeEach
 	void setUp() {
 		try (AutoCloseable closeable = MockitoAnnotations.openMocks(this)) {
-			this.abstractAnalyticHelperService = new AbstractAnalyticHelperService(
-					this.analyticsRepository, this.emailService, this.controlRulesValidators) {
+			this.analyticHelperService = new AnalyticHelperService(this.analyticsRepository,
+					this.emailService, this.controlRulesValidators) {
 
 				@Override
 				public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable,
 						String name, String level) {
-					return AbstractAnalyticHelperServiceTests.this.analyticsRepository
+					return AnalyticHelperServiceTests.this.analyticsRepository
 							.findByNameAndLevel(pageable, name, level).stream()
 							.map(AnalyticMapper::toRecord).toList();
 				}
@@ -70,7 +74,7 @@ class AbstractAnalyticHelperServiceTests {
 				public List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name,
 						String level, LocalDateTime dateStart, LocalDateTime dateEnd,
 						Pageable pageable) {
-					return AbstractAnalyticHelperServiceTests.this.analyticsRepository
+					return AnalyticHelperServiceTests.this.analyticsRepository
 							.findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd,
 									PageRequest.of(0, 200))
 							.stream().map(AnalyticMapper::toRecord).toList();
@@ -98,8 +102,8 @@ class AbstractAnalyticHelperServiceTests {
 	@DisplayName("Should update analytics mean value when valid parameters are provided")
 	void updateAnalyticsMean() {
 		var mockDto = new UpdateAnalyticsMeanDTO("Glucose", "PCCC1", "076587", 1.0);
-		this.abstractAnalyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(
-				mockDto.name(), mockDto.level(), mockDto.levelLot(), mockDto.mean());
+		this.analyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(mockDto.name(),
+				mockDto.level(), mockDto.levelLot(), mockDto.mean());
 		verify(this.analyticsRepository).updateMeanByNameAndLevelAndLevelLot(mockDto.name(),
 				mockDto.level(), mockDto.levelLot(), mockDto.mean());
 	}
@@ -129,8 +133,7 @@ class AbstractAnalyticHelperServiceTests {
 		when(this.analyticsRepository.saveAll(any()))
 				.thenAnswer(invocation -> invocation.getArgument(0));
 
-		assertDoesNotThrow(
-				() -> this.abstractAnalyticHelperService.saveNewAnalyticsRecords(records));
+		assertDoesNotThrow(() -> this.analyticHelperService.saveNewAnalyticsRecords(records));
 		verify(this.analyticsRepository, times(1)).saveAll(any());
 	}
 
@@ -142,7 +145,7 @@ class AbstractAnalyticHelperServiceTests {
 				any(), any())).thenReturn(true);
 
 		assertThrows(CustomGlobalErrorHandling.DataIntegrityViolationException.class,
-				() -> this.abstractAnalyticHelperService.saveNewAnalyticsRecords(records));
+				() -> this.analyticHelperService.saveNewAnalyticsRecords(records));
 		verify(this.analyticsRepository, never()).saveAll(any());
 	}
 
@@ -155,7 +158,7 @@ class AbstractAnalyticHelperServiceTests {
 
 		when(this.analyticsRepository.findById(id)).thenReturn(Optional.of(analytic));
 
-		AnalyticsDTO result = this.abstractAnalyticHelperService.findOneById(id);
+		AnalyticsDTO result = this.analyticHelperService.findOneById(id);
 
 		assertNotNull(result);
 
@@ -169,7 +172,7 @@ class AbstractAnalyticHelperServiceTests {
 		when(this.analyticsRepository.findById(id)).thenReturn(Optional.empty());
 
 		assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
-				() -> this.abstractAnalyticHelperService.findOneById(id));
+				() -> this.analyticHelperService.findOneById(id));
 	}
 
 	@Test
@@ -185,8 +188,8 @@ class AbstractAnalyticHelperServiceTests {
 		when(this.analyticsRepository.findByNameAndLevel(pageable, name, level))
 				.thenReturn(expectedRecords);
 
-		List<AnalyticsDTO> result = this.abstractAnalyticHelperService
-				.findAnalyticsByNameAndLevel(pageable, name, level);
+		List<AnalyticsDTO> result =
+				this.analyticHelperService.findAnalyticsByNameAndLevel(pageable, name, level);
 
 		assertEquals(expectedRecords.size(), result.size());
 		verify(this.analyticsRepository).findByNameAndLevel(pageable, name, level);
@@ -205,7 +208,7 @@ class AbstractAnalyticHelperServiceTests {
 		when(this.analyticsRepository.findByNameAndLevelAndDateBetween(eq(name), eq(level),
 				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(expectedRecords);
 
-		List<AnalyticsDTO> result = this.abstractAnalyticHelperService
+		List<AnalyticsDTO> result = this.analyticHelperService
 				.findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate, null);
 
 		assertNotNull(result);
@@ -219,7 +222,7 @@ class AbstractAnalyticHelperServiceTests {
 		when(this.analyticsRepository.existsById(id)).thenReturn(true);
 		doNothing().when(this.analyticsRepository).deleteById(id);
 
-		assertDoesNotThrow(() -> this.abstractAnalyticHelperService.deleteAnalyticsById(id));
+		assertDoesNotThrow(() -> this.analyticHelperService.deleteAnalyticsById(id));
 
 		verify(this.analyticsRepository).deleteById(id);
 	}
@@ -231,7 +234,7 @@ class AbstractAnalyticHelperServiceTests {
 		when(this.analyticsRepository.existsById(id)).thenReturn(false);
 
 		assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
-				() -> this.abstractAnalyticHelperService.deleteAnalyticsById(id));
+				() -> this.analyticHelperService.deleteAnalyticsById(id));
 		verify(this.analyticsRepository, never()).deleteById(id);
 	}
 
@@ -241,7 +244,7 @@ class AbstractAnalyticHelperServiceTests {
 		String name = "Glucose";
 		when(this.analyticsRepository.existsByTestName(name.toUpperCase())).thenReturn(true);
 
-		assertDoesNotThrow(() -> this.abstractAnalyticHelperService.ensureNameExists(name));
+		assertDoesNotThrow(() -> this.analyticHelperService.ensureNameExists(name));
 	}
 
 	@Test
@@ -251,7 +254,7 @@ class AbstractAnalyticHelperServiceTests {
 		when(this.analyticsRepository.existsByTestName(name.toUpperCase())).thenReturn(false);
 
 		assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
-				() -> this.abstractAnalyticHelperService.ensureNameExists(name));
+				() -> this.analyticHelperService.ensureNameExists(name));
 	}
 
 	@Test
@@ -262,7 +265,7 @@ class AbstractAnalyticHelperServiceTests {
 
 		CustomGlobalErrorHandling.ResourceNotFoundException exception =
 				assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
-						() -> this.abstractAnalyticHelperService.ensureNameExists(name));
+						() -> this.analyticHelperService.ensureNameExists(name));
 
 		assertEquals("AnalyticsDTO by name not found", exception.getMessage());
 	}
@@ -275,7 +278,7 @@ class AbstractAnalyticHelperServiceTests {
 				analyticsRecord.date(), analyticsRecord.level(), analyticsRecord.name()))
 						.thenReturn(false);
 
-		boolean result = this.abstractAnalyticHelperService.isAnalyticsNonExistent(analyticsRecord);
+		boolean result = this.analyticHelperService.isAnalyticsNonExistent(analyticsRecord);
 
 		assertTrue(result);
 	}
@@ -288,7 +291,7 @@ class AbstractAnalyticHelperServiceTests {
 				analyticsRecord.date(), analyticsRecord.level(), analyticsRecord.name()))
 						.thenReturn(true);
 
-		boolean result = this.abstractAnalyticHelperService.isAnalyticsNonExistent(analyticsRecord);
+		boolean result = this.analyticHelperService.isAnalyticsNonExistent(analyticsRecord);
 
 		assertFalse(result);
 	}
@@ -305,7 +308,7 @@ class AbstractAnalyticHelperServiceTests {
 		when(this.analyticsRepository.findByNameAndDateBetweenGroupByLevel(eq(name), eq(startDate),
 				eq(endDate), any(Pageable.class))).thenReturn(records);
 
-		List<GroupedValuesByLevelDTO> result = this.abstractAnalyticHelperService
+		List<GroupedValuesByLevelDTO> result = this.analyticHelperService
 				.findGroupedAnalyticsByLevel(name, startDate, endDate, Pageable.unpaged());
 
 		assertNotNull(result);
@@ -329,8 +332,8 @@ class AbstractAnalyticHelperServiceTests {
 				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(analytics);
 
 		// Act
-		var result = this.abstractAnalyticHelperService.calculateMeanAndStandardDeviation(name,
-				level, startDate, endDate, Pageable.unpaged());
+		var result = this.analyticHelperService.calculateMeanAndStandardDeviation(name, level,
+				startDate, endDate, Pageable.unpaged());
 
 		// Assert
 		assertNotNull(result);
@@ -347,7 +350,7 @@ class AbstractAnalyticHelperServiceTests {
 		doNothing().when(this.emailService).sendFailedAnalyticsNotification(any(), any());
 
 		// Act
-		this.abstractAnalyticHelperService.processFailedRecordsNotification(failedRecords);
+		this.analyticHelperService.processFailedRecordsNotification(failedRecords);
 
 		// Assert
 		verify(this.emailService).sendFailedAnalyticsNotification(eq(failedRecords), any());
@@ -361,7 +364,7 @@ class AbstractAnalyticHelperServiceTests {
 		List<AnalyticsDTO> emptyList = List.of();
 
 		// Act
-		this.abstractAnalyticHelperService.processFailedRecordsNotification(emptyList);
+		this.analyticHelperService.processFailedRecordsNotification(emptyList);
 
 		// Assert
 		verify(this.emailService, never()).sendFailedAnalyticsNotification(any(), any());
@@ -384,7 +387,7 @@ class AbstractAnalyticHelperServiceTests {
 				new GroupedValuesByLevelDTO("Normal", validRecords);
 
 		// Act
-		boolean result = this.abstractAnalyticHelperService.isGroupedRecordValid(groupedRecords);
+		boolean result = this.analyticHelperService.isGroupedRecordValid(groupedRecords);
 
 		// Assert
 		assertTrue(result);
@@ -404,7 +407,7 @@ class AbstractAnalyticHelperServiceTests {
 				new GroupedValuesByLevelDTO("Normal", invalidRecords);
 
 		// Act
-		boolean result = this.abstractAnalyticHelperService.isGroupedRecordValid(groupedRecords);
+		boolean result = this.analyticHelperService.isGroupedRecordValid(groupedRecords);
 
 		// Assert
 		assertFalse(result);
@@ -424,8 +427,8 @@ class AbstractAnalyticHelperServiceTests {
 				eq(endDate), any(Pageable.class))).thenReturn(analytics);
 
 		// Act
-		var result = this.abstractAnalyticHelperService.calculateGroupedMeanAndStandardDeviation(
-				name, startDate, endDate, Pageable.unpaged());
+		var result = this.analyticHelperService.calculateGroupedMeanAndStandardDeviation(name,
+				startDate, endDate, Pageable.unpaged());
 
 		// Assert
 		assertNotNull(result);
@@ -451,7 +454,7 @@ class AbstractAnalyticHelperServiceTests {
 
 		// Act
 		List<AnalyticsDTO> result =
-				this.abstractAnalyticHelperService.findAnalyticsByDate(startDate, endDate);
+				this.analyticHelperService.findAnalyticsByDate(startDate, endDate);
 
 		// Assert
 		assertNotNull(result);

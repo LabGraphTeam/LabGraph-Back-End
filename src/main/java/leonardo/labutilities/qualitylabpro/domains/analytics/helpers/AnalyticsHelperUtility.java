@@ -9,6 +9,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import leonardo.labutilities.qualitylabpro.domains.analytics.controllers.AnalyticsHelperController;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
 
 public class AnalyticsHelperUtility {
@@ -16,7 +17,7 @@ public class AnalyticsHelperUtility {
 	private AnalyticsHelperUtility() {}
 
 	public static EntityModel<AnalyticsDTO> createEntityModel(AnalyticsDTO analyticsRecord,
-			Pageable pageable, AnalyticsHelperController controller) {
+			AnalyticsHelperController controller) {
 		return EntityModel.of(analyticsRecord, Link.of(ServletUriComponentsBuilder
 				.fromCurrentContextPath().path("/backend")
 				.path(linkTo(methodOn(controller.getClass()).getAnalyticsById(analyticsRecord.id()))
