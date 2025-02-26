@@ -140,7 +140,7 @@ class BiochemistryAnalyticControllerTests {
 
 	@Test
 	@DisplayName("Should return analytics records when searching within date range")
-	@WithMockUser(username = "admin", roles = {"ADMIN"})
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
 	void shouldReturnAnalyticsRecordsWhenSearchingWithinDateRange() throws Exception {
 		Page<AnalyticsDTO> records = new PageImpl<>(createSampleRecordList());
 

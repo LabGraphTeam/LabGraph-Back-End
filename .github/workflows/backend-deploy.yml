@@ -78,8 +78,8 @@ jobs:
           SPRING_MAIL_PASSWORD: ${{ secrets.SPRING_MAIL_PASSWORD }}
           EMAIL_TO_SEND_LIST: ${{ secrets.EMAIL_TO_SEND_LIST }}
         run: |
-          docker compose pull
-          docker compose --profile prod up -d
+          docker pull leonardomeireles55/quality-lab-pro-back-end:latest
+          docker compose --profile prod up -d --remove-orphans
 
   health-check:
     runs-on: [ self-hosted, linux, x64, backend ]
@@ -105,7 +105,7 @@ jobs:
 
   notify:
     runs-on: [ self-hosted, linux, x64, backend ]
-    needs: [deploy, health-check, health-check]
+    needs: [deploy, health-check]
     if: always()
 
     steps:

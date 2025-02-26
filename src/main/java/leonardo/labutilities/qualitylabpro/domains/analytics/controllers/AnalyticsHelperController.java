@@ -1,4 +1,4 @@
-package leonardo.labutilities.qualitylabpro.domains.analytics.helpers;
+package leonardo.labutilities.qualitylabpro.domains.analytics.controllers;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,12 +22,13 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.Updat
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedResultsByLevelDTO;
-import leonardo.labutilities.qualitylabpro.domains.analytics.services.AbstractAnalyticHelperService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.helpers.AnalyticsHelperUtility;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
 
 public class AnalyticsHelperController {
-	private final AbstractAnalyticHelperService analyticHelperService;
+	protected final AnalyticHelperService analyticHelperService;
 
-	public AnalyticsHelperController(AbstractAnalyticHelperService analyticHelperService) {
+	protected AnalyticsHelperController(AnalyticHelperService analyticHelperService) {
 		this.analyticHelperService = analyticHelperService;
 	}
 
@@ -40,23 +41,6 @@ public class AnalyticsHelperController {
 	@Transactional
 	public ResponseEntity<Void> deleteAnalyticsResultById(@PathVariable Long id) {
 		this.analyticHelperService.deleteAnalyticsById(id);
-		return ResponseEntity.noContent().build();
-	}
-
-	@PostMapping
-	@Transactional
-	public ResponseEntity<List<AnalyticsDTO>> postAnalytics(
-			@Valid @RequestBody List<AnalyticsDTO> values) {
-		this.analyticHelperService.saveNewAnalyticsRecords(values);
-		return ResponseEntity.status(201).build();
-	}
-
-	@PatchMapping()
-	public ResponseEntity<Void> updateAnalyticsMean(
-			@Valid @RequestBody UpdateAnalyticsMeanDTO updateAnalyticsMeanDTO) {
-		this.analyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(
-				updateAnalyticsMeanDTO.name(), updateAnalyticsMeanDTO.level(),
-				updateAnalyticsMeanDTO.levelLot(), updateAnalyticsMeanDTO.mean());
 		return ResponseEntity.noContent().build();
 	}
 
@@ -80,14 +64,31 @@ public class AnalyticsHelperController {
 		return ResponseEntity.ok(groupedData);
 	}
 
+	@PostMapping
+	@Transactional
+	public ResponseEntity<List<AnalyticsDTO>> postAnalytics(
+			@Valid @RequestBody List<AnalyticsDTO> values) {
+		this.analyticHelperService.saveNewAnalyticsRecords(values);
+		return ResponseEntity.status(201).build();
+	}
+
+	@PatchMapping()
+	public ResponseEntity<Void> updateAnalyticsMean(
+			@Valid @RequestBody UpdateAnalyticsMeanDTO updateAnalyticsMeanDTO) {
+		this.analyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(
+				updateAnalyticsMeanDTO.name(), updateAnalyticsMeanDTO.level(),
+				updateAnalyticsMeanDTO.levelLot(), updateAnalyticsMeanDTO.mean());
+		return ResponseEntity.noContent().build();
+	}
+
 	public ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAllAnalyticsWithLinks(
 			List<String> names, @PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 		Page<AnalyticsDTO> resultsList =
 				this.analyticHelperService.findAnalyticsPagedByNameIn(names, pageable);
 
-		var entityModels =
-				resultsList.getContent().stream().map(analyticsRecord -> AnalyticsHelperUtility
-						.createEntityModel(analyticsRecord, pageable, this)).toList();
+		var entityModels = resultsList.getContent().stream().map(
+				analyticsRecord -> AnalyticsHelperUtility.createEntityModel(analyticsRecord, this))
+				.toList();
 
 		var result = AnalyticsHelperUtility.addPaginationLinks(CollectionModel.of(entityModels),
 				resultsList, pageable);
@@ -105,9 +106,8 @@ public class AnalyticsHelperController {
 			return ResponseEntity.noContent().build();
 		}
 
-		var entityModels = analyticsRecordPaged.getContent().stream()
-				.map(analyticsRecord -> AnalyticsHelperUtility.createEntityModel(analyticsRecord,
-						pageable, this))
+		var entityModels = analyticsRecordPaged.getContent().stream().map(
+				analyticsRecord -> AnalyticsHelperUtility.createEntityModel(analyticsRecord, this))
 				.toList();
 
 		var collectionModel = CollectionModel.of(entityModels);
