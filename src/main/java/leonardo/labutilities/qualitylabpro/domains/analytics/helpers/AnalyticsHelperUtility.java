@@ -10,7 +10,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import leonardo.labutilities.qualitylabpro.domains.analytics.controllers.AnalyticsHelperController;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 
 public class AnalyticsHelperUtility {
 

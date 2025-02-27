@@ -1,7 +1,7 @@
 package leonardo.labutilities.qualitylabpro.domains.shared.mappers;
 
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.SpecsValidatorComponent;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 
 public class AnalyticMapper {

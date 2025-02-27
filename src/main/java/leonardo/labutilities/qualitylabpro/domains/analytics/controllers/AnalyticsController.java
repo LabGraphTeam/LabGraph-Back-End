@@ -10,26 +10,30 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDateRangeParamsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsLevelDateRangeParamsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsNameAndLevelDateRangeParamsDTO;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.UpdateAnalyticsMeanDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedResultsByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Validated
-@SecurityRequirement(name = "bearer-key")
-@RequestMapping("/generic-analytics")
-@RestController()
 public class AnalyticsController extends AnalyticsHelperController {
 
 	private final List<String> names;
@@ -37,6 +41,22 @@ public class AnalyticsController extends AnalyticsHelperController {
 	protected AnalyticsController(AnalyticHelperService analyticHelperService, List<String> names) {
 		super(analyticHelperService);
 		this.names = names;
+	}
+
+	@DeleteMapping("/{id}")
+	@Transactional
+	public ResponseEntity<Void> deleteAnalyticsResultById(@PathVariable Long id) {
+		this.analyticHelperService.deleteAnalyticsById(id);
+		return ResponseEntity.noContent().build();
+	}
+
+
+	@PostMapping
+	@Transactional
+	public ResponseEntity<List<AnalyticsDTO>> postAnalytics(
+			@RequestBody @Valid List<AnalyticsDTO> values) {
+		this.analyticHelperService.saveNewAnalyticsRecords(values);
+		return ResponseEntity.status(201).build();
 	}
 
 	@GetMapping
@@ -106,5 +126,36 @@ public class AnalyticsController extends AnalyticsHelperController {
 		log.debug("Retrieved analytics with calculated values: analytics={}, calcs={}",
 				result.analyticsDTO(), result.calcMeanAndStdDTO());
 		return ResponseEntity.ok(result);
+	}
+
+
+	@GetMapping("/grouped-by-level")
+	public ResponseEntity<List<GroupedResultsByLevelDTO>> getGroupedByLevel(
+			@RequestParam String name, @RequestParam("startDate") LocalDateTime startDate,
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
+		List<GroupedResultsByLevelDTO> groupedData = this.analyticHelperService
+				.findAnalyticsWithGroupedResults(name, startDate, endDate, pageable);
+		return ResponseEntity.ok(groupedData);
+	}
+
+	@GetMapping("/grouped-by-level/mean-deviation")
+	public ResponseEntity<List<GroupedMeanAndStdByLevelDTO>> getMeanAndDeviationGrouped(
+			@RequestParam String name, @RequestParam("startDate") LocalDateTime startDate,
+			@RequestParam("endDate") LocalDateTime endDate,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
+		List<GroupedMeanAndStdByLevelDTO> groupedData = this.analyticHelperService
+				.calculateGroupedMeanAndStandardDeviation(name, startDate, endDate, pageable);
+		return ResponseEntity.ok(groupedData);
+	}
+
+
+	@PatchMapping()
+	public ResponseEntity<Void> updateAnalyticsMean(
+			@Valid @RequestBody UpdateAnalyticsMeanDTO updateAnalyticsMeanDTO) {
+		this.analyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(
+				updateAnalyticsMeanDTO.name(), updateAnalyticsMeanDTO.level(),
+				updateAnalyticsMeanDTO.levelLot(), updateAnalyticsMeanDTO.mean());
+		return ResponseEntity.noContent().build();
 	}
 }

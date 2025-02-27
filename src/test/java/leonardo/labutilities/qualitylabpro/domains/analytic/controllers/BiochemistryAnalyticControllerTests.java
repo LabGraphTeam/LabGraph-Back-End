@@ -32,8 +32,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import leonardo.labutilities.qualitylabpro.configs.TestSecurityConfig;
 import leonardo.labutilities.qualitylabpro.domains.analytics.controllers.BiochemistryAnalyticsController;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.UpdateAnalyticsMeanDTO;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedResultsByLevelDTO;
@@ -140,7 +140,7 @@ class BiochemistryAnalyticControllerTests {
 
 	@Test
 	@DisplayName("Should return analytics records when searching within date range")
-	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	@WithMockUser(username = "admin", roles = {"ADMIN"})
 	void shouldReturnAnalyticsRecordsWhenSearchingWithinDateRange() throws Exception {
 		Page<AnalyticsDTO> records = new PageImpl<>(createSampleRecordList());
 

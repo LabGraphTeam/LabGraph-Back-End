@@ -13,7 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesProviderComponent;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.constants.ThresholdAnalyticsRules;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedResultsByLevelDTO;
@@ -60,8 +61,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
 
         private static boolean isRuleBroken(Analytic analytic) {
                 String rules = analytic.getControlRules();
-                return ("+3s".equals(rules) || "-3s".equals(rules) || "-2s".equals(rules)
-                                || "+2s".equals(rules));
+                return (ThresholdAnalyticsRules.RULES.contains(rules));
         }
 
         public void ensureNameExists(String name) {
@@ -218,9 +218,9 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         }
 
         @Override
-        @CacheEvict(value = { "analyticsByNameAndDateRange", "meanAndStdDeviation",
+        @CacheEvict(value = {"analyticsByNameAndDateRange", "meanAndStdDeviation",
                         "calculateGroupedMeanAndStandardDeviation",
-                        "AnalyticsByNameWithPagination" }, allEntries = true)
+                        "AnalyticsByNameWithPagination"}, allEntries = true)
         public void saveNewAnalyticsRecords(List<AnalyticsDTO> valuesOfLevelsList) {
 
                 var newRecords = valuesOfLevelsList.stream().filter(this::isAnalyticsNonExistent)
@@ -236,7 +236,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 List<AnalyticsDTO> failedRecords = filterFailedRecords(persistedRecords).stream()
                                 .map(AnalyticMapper::toRecord).toList();
 
-                processFailedRecordsNotification(failedRecords);
+                this.processFailedRecordsNotification(failedRecords);
         }
 
         @Cacheable("AnalyticsByNameWithPagination")

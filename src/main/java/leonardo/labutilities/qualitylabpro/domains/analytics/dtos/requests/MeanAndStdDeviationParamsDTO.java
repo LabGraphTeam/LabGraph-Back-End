@@ -14,10 +14,10 @@ public record MeanAndStdDeviationParamsDTO(
 				requiredMode = Schema.RequiredMode.REQUIRED) @NotNull String level,
 
 		@Schema(description = "Start date for the date range filter",
-				example = "2023-01-01T00:00:00",
+				example = "2023-01-01 00:00:00",
 				requiredMode = Schema.RequiredMode.REQUIRED) @NotNull LocalDateTime startDate,
 
-		@Schema(description = "End date for the date range filter", example = "2023-12-31T23:59:59",
+		@Schema(description = "End date for the date range filter", example = "2023-12-31 23:59:59",
 				requiredMode = Schema.RequiredMode.REQUIRED) @NotNull LocalDateTime endDate) {
 
 }
