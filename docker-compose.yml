@@ -14,6 +14,10 @@ services:
       - quality-net
     profiles:
       - prod
+    deploy:
+      resources:
+        limits:
+          memory: 128M
 
   app-prod:
     container_name: quality-lab-pro-back-end
@@ -24,7 +28,7 @@ services:
       dockerfile: ./.docker/Dockerfile.prod
     working_dir: /usr/src/app
     ports:
-      - ${SERVER_LOCAL_PORT}:${SERVER_DOCKER_PORT}
+      - ${SERVER_DOCKER_PORT}
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
@@ -40,6 +44,10 @@ services:
       - quality-net
     profiles:
       - prod
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
   nginx:
     restart: always
@@ -62,7 +70,6 @@ services:
   #---------------------
   # Development services
   #---------------------
-
   mariadb-dev:
     container_name: mariadb-dev
     image: mariadb:11.2
@@ -79,6 +86,10 @@ services:
       - quality-net-dev
     profiles:
       - dev
+    deploy:
+      resources:
+        limits:
+          memory: 50M
 
   app-dev:
     container_name: quality-lab-pro-back-end-dev
@@ -112,10 +123,14 @@ services:
       - ~/.m2:/root/.m2
     networks:
       - quality-net-dev
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
 #----------------------------------------------
 # Test Services
-
+#----------------------------------------------
   db-test:
     container_name: mariadb-test
     restart: "no"
@@ -166,7 +181,7 @@ services:
     
 #----------------------------------------------
 # DB only
-
+#----------------------------------------------
   maria-db-only:
     container_name: mariadb-dev
     restart: "no"
@@ -181,11 +196,15 @@ services:
       - ./database:/docker-entrypoint-initdb.d
     profiles:
       - db
+    deploy:
+      resources:
+        limits:
+          memory: 50M
 
 
 #----------------------------------------------
 # Networks
-
+#----------------------------------------------
 networks:
   quality-net:
     name: quality-net
@@ -199,10 +218,8 @@ networks:
 
 
 #----------------------------------------------
-
 # Volumes
 volumes:
   mysql-volume:
   mysql-volume-dev:
-
 #----------------------------------------------
