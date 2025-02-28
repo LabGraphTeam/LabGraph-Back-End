@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.requests.LoginUserDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.responses.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.ForgotPasswordDTO;
+import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.SignInUserDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.RecoverPasswordDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.SignUpUsersDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.UpdatePasswordDTO;
@@ -86,7 +86,8 @@ public class UsersController {
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<TokenJwtDTO> singIn(@RequestBody @Valid final LoginUserDTO loginUserDTO) {
+    public ResponseEntity<TokenJwtDTO> singIn(
+            @RequestBody @Valid final SignInUserDTO loginUserDTO) {
         final var token =
                 this.userService.signIn(loginUserDTO.identifier(), loginUserDTO.password());
         return ResponseEntity.ok(token);

@@ -34,10 +34,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import leonardo.labutilities.qualitylabpro.configs.TestSecurityConfig;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenService;
-import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.requests.LoginUserDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.responses.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.controllers.UsersController;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.ForgotPasswordDTO;
+import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.SignInUserDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.RecoverPasswordDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.SignUpUsersDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.UpdatePasswordDTO;
@@ -79,7 +79,7 @@ class UsersControllerTests {
 
 
 	@Autowired
-	private JacksonTester<LoginUserDTO> loginRecordJacksonTester;
+	private JacksonTester<SignInUserDTO> loginRecordJacksonTester;
 
 	@Autowired
 	private JacksonTester<UpdatePasswordDTO> updatePasswordRecordJacksonTester;
@@ -106,7 +106,7 @@ class UsersControllerTests {
 	@DisplayName("Should return token when user credentials are valid")
 	void signIn_shouldReturn200AndCallUserService() throws Exception {
 		Instant dateExp = LocalDateTime.now().plusHours(1).toInstant(ZoneOffset.of("-00:00"));
-		LoginUserDTO loginRecord = new LoginUserDTO("test@example.com", "password");
+		SignInUserDTO loginRecord = new SignInUserDTO("test@example.com", "password");
 		TokenJwtDTO tokenJwtDTO = new TokenJwtDTO("TokenJwt", dateExp);
 
 		when(this.userService.signIn(loginRecord.identifier(), loginRecord.password()))
@@ -198,7 +198,7 @@ class UsersControllerTests {
 	@Test
 	@DisplayName("Should return unauthorized when login credentials are invalid")
 	void signIn_with_invalid_credentials_return_401() throws Exception {
-		LoginUserDTO loginRecord = new LoginUserDTO("test@example.com", "wrongpassword");
+		SignInUserDTO loginRecord = new SignInUserDTO("test@example.com", "wrongpassword");
 
 		when(this.userService.signIn(any(), any()))
 				.thenThrow(new BadCredentialsException("Authentication failed at"));

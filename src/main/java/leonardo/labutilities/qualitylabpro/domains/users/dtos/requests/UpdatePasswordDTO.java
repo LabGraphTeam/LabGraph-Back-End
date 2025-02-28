@@ -11,7 +11,7 @@ public record UpdatePasswordDTO(
 				requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank String username,
 
 		@Schema(description = "User's email address for verification",
-				example = "john.doe@example.com",
+				example = "leomeireles55@outlook.com",
 				requiredMode = Schema.RequiredMode.REQUIRED) @Email String email,
 
 		@Schema(description = "Current password", example = "currentPass123!",
