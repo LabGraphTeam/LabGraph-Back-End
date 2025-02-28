@@ -11,7 +11,7 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.services.Coagulatio
 
 @Validated
 @SecurityRequirement(name = "bearer-key")
-@RequestMapping("coagulation-analytics")
+@RequestMapping("/coagulation-analytics")
 @RestController()
 public class CoagulationAnalyticsController extends AnalyticsController {
 

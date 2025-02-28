@@ -10,7 +10,7 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.services.Hematology
 
 @Validated
 @SecurityRequirement(name = "bearer-key")
-@RequestMapping("hematology-analytics")
+@RequestMapping("/hematology-analytics")
 @RestController()
 public class HematologyAnalyticsController extends AnalyticsController {
 

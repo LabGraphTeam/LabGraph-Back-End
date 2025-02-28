@@ -2,6 +2,7 @@ package leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests;
 
 import java.time.LocalDateTime;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Schema(description = "Data Transfer Object for filtering analytics by level and date range")
@@ -14,5 +15,4 @@ public record AnalyticsLevelDateRangeParamsDTO(
 				requiredMode = Schema.RequiredMode.REQUIRED) @NotNull LocalDateTime endDate,
 
 		@Schema(description = "Control level identifier to filter", example = "Level 1",
-				requiredMode = Schema.RequiredMode.REQUIRED) @NotNull String level) {
-}
+				requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank String level) {}

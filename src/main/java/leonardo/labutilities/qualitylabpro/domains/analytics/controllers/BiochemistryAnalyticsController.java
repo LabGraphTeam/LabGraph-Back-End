@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Validated
 @SecurityRequirement(name = "bearer-key")
-@RequestMapping("biochemistry-analytics")
+@RequestMapping("/biochemistry-analytics")
 @Slf4j
 @RestController()
 public class BiochemistryAnalyticsController extends AnalyticsController {

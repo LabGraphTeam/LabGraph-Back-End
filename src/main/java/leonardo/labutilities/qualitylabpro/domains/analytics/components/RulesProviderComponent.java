@@ -22,7 +22,7 @@ public class RulesProviderComponent {
 		this.analyticsRepository = analyticsRepository;
 	}
 
-	public String validateRules(List<AnalyticsDTO> analytics) {
+	public final String validateRules(List<AnalyticsDTO> analytics) {
 		if (analytics == null || analytics.isEmpty()) {
 			return "<div style='font-family: Arial, sans-serif;'>No analytics data provided for validation.</div>";
 		}

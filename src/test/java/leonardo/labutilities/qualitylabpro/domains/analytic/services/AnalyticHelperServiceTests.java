@@ -28,6 +28,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticFailedNotificationComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesProviderComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.UpdateAnalyticsMeanDTO;
@@ -48,6 +49,8 @@ class AnalyticHelperServiceTests {
 	@Mock
 	private AnalyticHelperService analyticHelperService;
 	@Mock
+	private AnalyticFailedNotificationComponent analyticFailedNotificationComponent;
+	@Mock
 	private EmailService emailService;
 	@Mock
 	private RulesProviderComponent controlRulesValidators;
@@ -60,7 +63,7 @@ class AnalyticHelperServiceTests {
 	void setUp() {
 		try (AutoCloseable closeable = MockitoAnnotations.openMocks(this)) {
 			this.analyticHelperService = new AnalyticHelperService(this.analyticsRepository,
-					this.emailService, this.controlRulesValidators) {
+					this.analyticFailedNotificationComponent) {
 
 				@Override
 				public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable,
@@ -267,7 +270,7 @@ class AnalyticHelperServiceTests {
 				assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
 						() -> this.analyticHelperService.ensureNameExists(name));
 
-		assertEquals("AnalyticsDTO by name not found", exception.getMessage());
+		assertEquals("Analytics by name not available", exception.getMessage());
 	}
 
 	@Test
@@ -346,15 +349,11 @@ class AnalyticHelperServiceTests {
 	void processFailedRecordsNotification_WithFailedRecords_ShouldSendNotification() {
 		// Arrange
 		List<AnalyticsDTO> failedRecords = createSampleRecordList();
-		when(this.controlRulesValidators.validateRules(any())).thenReturn("Validation Results");
-		doNothing().when(this.emailService).sendFailedAnalyticsNotification(any(), any());
-
 		// Act
-		this.analyticHelperService.processFailedRecordsNotification(failedRecords);
-
+		this.analyticFailedNotificationComponent.processFailedRecordsNotification(failedRecords);
 		// Assert
-		verify(this.emailService).sendFailedAnalyticsNotification(eq(failedRecords), any());
-		verify(this.controlRulesValidators).validateRules(failedRecords);
+		verify(this.analyticFailedNotificationComponent)
+				.processFailedRecordsNotification(failedRecords);
 	}
 
 	@Test
@@ -364,7 +363,7 @@ class AnalyticHelperServiceTests {
 		List<AnalyticsDTO> emptyList = List.of();
 
 		// Act
-		this.analyticHelperService.processFailedRecordsNotification(emptyList);
+		this.analyticFailedNotificationComponent.processFailedRecordsNotification(emptyList);
 
 		// Assert
 		verify(this.emailService, never()).sendFailedAnalyticsNotification(any(), any());

@@ -25,7 +25,7 @@ public interface IAnalyticHelperService {
 
 	boolean isGroupedRecordValid(GroupedValuesByLevelDTO groupedValuesByLevelDTO);
 
-	boolean isRecordValid(AnalyticsDTO analyticsDTO);
+	boolean isNotThreeSigma(AnalyticsDTO analyticsDTO);
 
 	AnalyticsDTO findOneById(Long id);
 
@@ -34,7 +34,7 @@ public interface IAnalyticHelperService {
 	List<AnalyticsDTO> findAnalyticsByNameWithPagination(List<String> names, String name,
 			Pageable pageable);
 
-	Page<AnalyticsDTO> findAnalyticsByNameInByLevelBaseMethod(List<String> names, String level,
+	Page<AnalyticsDTO> findAnalyticsByNameInByLevel(List<String> names, String level,
 			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
 	List<AnalyticsDTO> findAnalyticsByDate(LocalDateTime dateStart, LocalDateTime dateEnd);

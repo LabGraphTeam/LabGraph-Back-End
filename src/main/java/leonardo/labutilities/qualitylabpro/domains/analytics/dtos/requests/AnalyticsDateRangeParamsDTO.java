@@ -11,5 +11,4 @@ public record AnalyticsDateRangeParamsDTO(
 				requiredMode = Schema.RequiredMode.REQUIRED) @NotNull LocalDateTime startDate,
 
 		@Schema(description = "End date for the date range filter", example = "2023-12-31 23:59:59",
-				requiredMode = Schema.RequiredMode.REQUIRED) @NotNull LocalDateTime endDate) {
-}
+				requiredMode = Schema.RequiredMode.REQUIRED) @NotNull LocalDateTime endDate) {}

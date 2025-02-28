@@ -10,5 +10,4 @@ public record GroupedValuesByLevelDTO(
 				requiredMode = Schema.RequiredMode.REQUIRED) String level,
 
 		@Schema(description = "List of analytical measurements for this control level",
-				requiredMode = Schema.RequiredMode.REQUIRED) List<AnalyticsDTO> values) {
-}
+				requiredMode = Schema.RequiredMode.REQUIRED) List<AnalyticsDTO> values) {}

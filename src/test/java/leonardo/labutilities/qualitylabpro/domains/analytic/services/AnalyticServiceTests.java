@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticFailedNotificationComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesProviderComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.AvailableAnalyticsNames;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
@@ -36,6 +37,8 @@ class AnalyticServiceTests {
 
         @Mock
         private RulesProviderComponent controlRulesValidators;
+        @Mock
+        private AnalyticFailedNotificationComponent analyticFailedNotificationComponent;
 
         private AnalyticHelperService analyticHelperService;
 
@@ -46,7 +49,7 @@ class AnalyticServiceTests {
         @BeforeEach
         void setUp() {
                 this.analyticHelperService = new AnalyticHelperService(this.analyticsRepository,
-                                this.emailService, this.controlRulesValidators);
+                                this.analyticFailedNotificationComponent);
                 this.pageable = PageRequest.of(0, 10);
                 this.startDate = LocalDateTime.now().minusDays(7);
                 this.endDate = LocalDateTime.now();
@@ -74,8 +77,6 @@ class AnalyticServiceTests {
                 String name = "ALB2";
                 List<Analytic> analytics = createSampleRecordList().stream()
                                 .map(AnalyticMapper::toEntity).toList();
-
-                when(this.analyticsRepository.existsByTestName(name)).thenReturn(true);
 
                 when(this.analyticsRepository.findByNameAndLevel(any(), any(), any()))
                                 .thenReturn(analytics);
