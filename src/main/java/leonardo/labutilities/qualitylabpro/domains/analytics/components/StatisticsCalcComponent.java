@@ -1,9 +1,11 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.components;
 
 import java.util.List;
+import org.springframework.stereotype.Component;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
 
+@Component
 public class StatisticsCalcComponent {
 
     private StatisticsCalcComponent() {}
