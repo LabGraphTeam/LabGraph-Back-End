@@ -51,4 +51,7 @@ public interface IAnalyticHelperService {
 			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable);
 
 	void deleteAnalyticsById(Long id);
+
+	AnalyticsDTO validateAnalyticByUser(Long id);
+
 }

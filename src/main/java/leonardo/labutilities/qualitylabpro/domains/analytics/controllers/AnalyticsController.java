@@ -50,6 +50,13 @@ public class AnalyticsController extends AnalyticsHelperController {
 		return ResponseEntity.noContent().build();
 	}
 
+	@PatchMapping("/{id}/validate")
+	@Transactional
+	public ResponseEntity<AnalyticsDTO> patchValidateAnalyticByUser(@PathVariable Long id) {
+		var respose = analyticHelperService.validateAnalyticByUser(id);
+		return ResponseEntity.ok(respose);
+	}
+
 
 	@PostMapping
 	@Transactional

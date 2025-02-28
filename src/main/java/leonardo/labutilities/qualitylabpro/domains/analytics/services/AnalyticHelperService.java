@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticFailedNotificationComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticObjectValidationComponent;
@@ -24,6 +25,7 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
+import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -32,6 +34,20 @@ public class AnalyticHelperService implements IAnalyticHelperService {
 
         private final AnalyticsRepository analyticsRepository;
         private final AnalyticFailedNotificationComponent analyticFailedNotificationComponent;
+
+
+        @Override
+        public AnalyticsDTO validateAnalyticByUser(Long id) {
+                Analytic analytic = analyticsRepository.getReferenceById(id);
+
+                var authentication = SecurityContextHolder.getContext().getAuthentication();
+                if (authentication != null && authentication.isAuthenticated()
+                                && authentication.getPrincipal() instanceof User user) {
+                        analytic.setValidatorUserId(user);
+
+                }
+                return AnalyticMapper.toRecord(analytic);
+        }
 
         public AnalyticHelperService(AnalyticsRepository analyticsRepository,
                         AnalyticFailedNotificationComponent analyticFailedNotificationComponent) {
@@ -45,6 +61,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                                 () -> new CustomGlobalErrorHandling.ResourceNotFoundException(
                                                 "AnalyticsDTO by id not found")));
         }
+
 
         @Override
         public void deleteAnalyticsById(Long id) {
@@ -175,9 +192,9 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         }
 
         @Override
-        @CacheEvict(value = { "analyticsByNameAndDateRange", "meanAndStdDeviation",
+        @CacheEvict(value = {"analyticsByNameAndDateRange", "meanAndStdDeviation",
                         "calculateGroupedMeanAndStandardDeviation",
-                        "AnalyticsByNameWithPagination" }, allEntries = true)
+                        "AnalyticsByNameWithPagination"}, allEntries = true)
         public void saveNewAnalyticsRecords(List<AnalyticsDTO> valuesOfLevelsList) {
 
                 var newRecords = valuesOfLevelsList.stream().filter(this::isAnalyticsNonExistent)
@@ -292,5 +309,6 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                                 "No analytics found for the given name, level, dateStart, dateEnd -> parameters");
                 return analyticsWithCalcDTO;
         }
+
 
 }

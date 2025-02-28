@@ -47,6 +47,8 @@ public class SecurityConfiguration {
                                           .hasRole(UserRoles.ADMIN.name());
                               req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.ADMIN_MODIFY_PATHS)
                                           .hasRole(UserRoles.ADMIN.name());
+                              req.requestMatchers(HttpMethod.POST, ApiEndpoints.ADMIN_MODIFY_PATHS)
+                                          .hasRole(UserRoles.ADMIN.name());
 
                               // User management (admin only)
                               req.requestMatchers(HttpMethod.DELETE, ApiEndpoints.USERS_PATH)
