@@ -9,8 +9,9 @@ import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobal
 public class CoagulationAnalyticService extends AnalyticHelperService {
 
 	public CoagulationAnalyticService(AnalyticsRepository analyticsRepository,
-			AnalyticFailedNotificationComponent analyticFailedNotificationComponent) {
-		super(analyticsRepository, analyticFailedNotificationComponent);
+			AnalyticFailedNotificationComponent analyticFailedNotificationComponent,
+			AnalyticsValidationService analyticsValidationService) {
+		super(analyticsRepository, analyticFailedNotificationComponent, analyticsValidationService);
 	}
 
 	@Override

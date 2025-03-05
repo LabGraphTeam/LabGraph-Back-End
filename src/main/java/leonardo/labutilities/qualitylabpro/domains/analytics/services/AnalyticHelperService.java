@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -33,8 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AnalyticHelperService implements IAnalyticHelperService {
 
         private final AnalyticsRepository analyticsRepository;
+        private final IAnalyticsValidationService analyticsValidationService;
         private final AnalyticFailedNotificationComponent analyticFailedNotificationComponent;
-
 
         @Override
         public AnalyticsDTO validateAnalyticByUser(Long id) {
@@ -50,9 +49,11 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         }
 
         public AnalyticHelperService(AnalyticsRepository analyticsRepository,
-                        AnalyticFailedNotificationComponent analyticFailedNotificationComponent) {
+                        AnalyticFailedNotificationComponent analyticFailedNotificationComponent,
+                        IAnalyticsValidationService analyticsValidationService) {
                 this.analyticsRepository = analyticsRepository;
                 this.analyticFailedNotificationComponent = analyticFailedNotificationComponent;
+                this.analyticsValidationService = analyticsValidationService;
         }
 
         @Override
@@ -76,20 +77,6 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 return level.toUpperCase();
         }
 
-        // VALIDATION METHODS
-
-        public boolean isAnalyticsNonExistent(AnalyticsDTO values) {
-                return !this.analyticsRepository.existsByMeasurementDateAndControlLevelAndTestName(
-                                values.date(), values.level(), values.name());
-        }
-
-        public void ensureNameExists(String name) {
-                if (!this.analyticsRepository.existsByTestName(name.toUpperCase())) {
-                        throw new CustomGlobalErrorHandling.ResourceNotFoundException(
-                                        "Analytics by name not available");
-                }
-        }
-
         @Override
         public List<GroupedMeanAndStdByLevelDTO> returnMeanAndStandardDeviationForGroups(
                         List<GroupedValuesByLevelDTO> records) {
@@ -100,6 +87,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                                 .toList();
         }
 
+        @Override
         @Cacheable(value = "meanAndStdDeviation",
                         key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
         public MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(String name, String level,
@@ -107,10 +95,12 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 List<AnalyticsDTO> values = this
                                 .findAnalyticsByNameAndLevelAndDate(name, level, dateStart, dateEnd,
                                                 pageable)
-                                .stream().filter(this::isNotThreeSigma).toList();
+                                .stream().filter(analyticsValidationService::isNotThreeSigma)
+                                .toList();
                 return StatisticsCalcComponent.calcMeanAndStandardDeviationOptimized(values);
         }
 
+        @Override
         @Cacheable(value = "calculateGroupedMeanAndStandardDeviation",
                         key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
         public List<GroupedMeanAndStdByLevelDTO> calculateGroupedMeanAndStandardDeviation(
@@ -130,6 +120,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         }
 
         // BUSINESS LOGIC METHODS
+        @Override
         public List<GroupedResultsByLevelDTO> findAnalyticsWithGroupedResults(String name,
                         LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
                 List<GroupedValuesByLevelDTO> analytics = this.findGroupedAnalyticsByLevel(name,
@@ -178,18 +169,6 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                                 mean);
         }
 
-        @Override
-        public boolean isGroupedRecordValid(GroupedValuesByLevelDTO groupedValuesByLevelDTO) {
-                return groupedValuesByLevelDTO.values().stream().allMatch(
-                                groupedValue -> !Objects.equals(groupedValue.rules(), "+3s")
-                                                && !Objects.equals(groupedValue.rules(), "-3s"));
-        }
-
-        @Override
-        public boolean isNotThreeSigma(AnalyticsDTO analyticsDTO) {
-                String rules = analyticsDTO.rules();
-                return (!Objects.equals(rules, "+3s") || !Objects.equals(rules, "-3s"));
-        }
 
         @Override
         @CacheEvict(value = {"analyticsByNameAndDateRange", "meanAndStdDeviation",
@@ -197,7 +176,8 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                         "AnalyticsByNameWithPagination"}, allEntries = true)
         public void saveNewAnalyticsRecords(List<AnalyticsDTO> valuesOfLevelsList) {
 
-                var newRecords = valuesOfLevelsList.stream().filter(this::isAnalyticsNonExistent)
+                var newRecords = valuesOfLevelsList.stream()
+                                .filter(this.analyticsValidationService::isNewAnalyticRecord)
                                 .map(AnalyticMapper::toNewEntity).toList();
 
                 if (newRecords.isEmpty()) {
@@ -262,6 +242,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                                 dateEnd, pageable);
         }
 
+        @Override
         public Page<AnalyticsDTO> findAnalyticsPagedByNameIn(List<String> names,
                         Pageable pageable) {
                 return this.analyticsRepository.findByNameInPaged(names, pageable);

@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.helpers.AnalyticsHelperUtility;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.IAnalyticHelperService;
 
 public class AnalyticsHelperController {
-	protected final AnalyticHelperService analyticHelperService;
+
+	protected final IAnalyticHelperService analyticHelperService;
 
 	protected AnalyticsHelperController(AnalyticHelperService analyticHelperService) {
 		this.analyticHelperService = analyticHelperService;

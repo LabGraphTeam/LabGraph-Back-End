@@ -7,9 +7,22 @@ import org.springframework.data.domain.Pageable;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedResultsByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedValuesByLevelDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
 
 public interface IAnalyticHelperService {
+
+	List<GroupedResultsByLevelDTO> findAnalyticsWithGroupedResults(String name,
+			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+
+	List<GroupedMeanAndStdByLevelDTO> calculateGroupedMeanAndStandardDeviation(String name,
+			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+
+	MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(String name, String level,
+			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable);
+
+	Page<AnalyticsDTO> findAnalyticsPagedByNameIn(List<String> names, Pageable pageable);
 
 	List<GroupedValuesByLevelDTO> findGroupedAnalyticsByLevel(String name, LocalDateTime startDate,
 			LocalDateTime endDate, Pageable pageable);
@@ -22,10 +35,6 @@ public interface IAnalyticHelperService {
 
 	void updateAnalyticsMeanByNameAndLevelAndLevelLot(String name, String level, String levelLot,
 			double mean);
-
-	boolean isGroupedRecordValid(GroupedValuesByLevelDTO groupedValuesByLevelDTO);
-
-	boolean isNotThreeSigma(AnalyticsDTO analyticsDTO);
 
 	AnalyticsDTO findOneById(Long id);
 
