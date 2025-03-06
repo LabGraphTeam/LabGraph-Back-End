@@ -28,7 +28,7 @@ LabGraph-API is a comprehensive RESTful API designed to revolutionize internal q
 
 ## Architecture
 
-LabGraph-API follows a domain-driven design approach with a clean, modular architecture:
+LabGraph-API follows a modular architecture:
 
 ```
 ├── .github/workflows      # GitHub Actions workflow configurations
@@ -76,18 +76,28 @@ LabGraph-API follows a domain-driven design approach with a clean, modular archi
 
 ### Architectural Highlights
 
-- **Domain-Driven Design**: Organized around business domains for better maintainability
-- **Layered Architecture**: Clear separation between controllers, services, and repositories
-- **RESTful API**: Well-defined endpoints following REST principles
-- **Environment-Specific Configurations**: Separate configurations for development and production
-- **Database Migration**: Flyway integration for reliable schema evolution
-- **Containerization**: Docker-based deployment for consistency across environments
+- `configs/`: Configuration classes organized by purpose
+  - `constants/`: System-wide constants
+  - `database/`: Database configurations
+  - `security/`: Security settings and configurations
+- `domains/`: Domain modules
+  - `analytics/`: Analytics domain components
+  - `shared/`: Cross-cutting concerns and utilities
+  - `users/`: User management domain
+- Each domain contains:
+  - `controllers/`: REST endpoints
+  - `dtos/`: Data Transfer Objects
+  - `models/`: Domain entities and components
+  - `repositories/`: Data access layer
+  - `services/`: Business logic
+- `docker/`: Environment-specific Docker configurations
 
 ## Getting Started
 
 ### Prerequisites
 
 * [Java 21](https://www.oracle.com/br/java/technologies/javase/jdk21-archive-downloads.html)
+* [MariaDB 11.2](https://mariadb.org/download/?t=mariadb&p=mariadb&r=11.7.2)
 * [Maven](https://maven.apache.org/)
 * [Docker](https://www.docker.com/get-started/)
 * [Git](https://git-scm.com/)
@@ -105,12 +115,29 @@ This method provides a complete development environment with live reload capabil
    ```
 
 2. **Configure environment variables**
+
+   ```bash
+   DB_USER=root
+   DB_ROOT_PASSWORD=root
+   DB_DATABASE=lab_api_alpha
+   DB_DATABASE_TEST=lab_api_test
+   DB_LOCAL_PORT=3306
+   DB_DOCKER_PORT=3306
+   SPRING_DATASOURCE_URL=jdbc:mariadb://localhost:3306/lab_api_test
+   API_SECURITY_TOKEN_SECRET=your_secret_token_here_123456789
+   API_SECURITY_ISSUER=example-api-issuer
+   SERVER_LOCAL_PORT=8080
+   SERVER_DOCKER_PORT=8080
+   SPRING_MAIL_USERNAME=example.email@example.com
+   SPRING_MAIL_PASSWORD=examplePassword123!
+   EMAIL_TO_SEND_LIST=recipient@example.com
+   ```
    ```bash
    cp .env.example .env
    # Edit .env with your preferred settings
    ```
 
-3. **Start the development stack**
+4. **Start the development stack**
    ```bash
    docker compose --profile dev up --build
    ```
