@@ -261,11 +261,11 @@ Production deployments should include:
 ### Docker Deployment
 
 ```bash
-# Pull the latest image
-docker pull labgraphteam/labgraph-api:latest
+ # Pull the latest image
+docker pull leonardomeireles55/quality-lab-pro-back-end:latest
 
 # Run with your environment variables
-docker run -d -p 8080:8080 --env-file .env labgraphteam/labgraph-api:latest
+docker run -d -p 8080:8080 --env-file .env leonardomeireles55/quality-lab-pro-back-end:latest
 ```
 
 ### Cloud Hosting
@@ -278,7 +278,7 @@ LabGraph is optimized for deployment on DigitalOcean:
 
 For questions, issues, or support:
 - Open an issue on GitHub
-- Contact the development team at support@labgraph.com
+- Contact the development team at labgraph.suport2025@gmail.com
 
 ## License
 
