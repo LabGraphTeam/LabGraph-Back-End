@@ -14,14 +14,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.helpers.AnalyticsHelperUtility;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsStatisticsService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.IAnalyticHelperService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.IAnalyticsStatisticsService;
 
 public class AnalyticsHelperController {
 
 	protected final IAnalyticHelperService analyticHelperService;
+	protected final IAnalyticsStatisticsService analyticsStatisticsService;
 
-	protected AnalyticsHelperController(AnalyticHelperService analyticHelperService) {
+	protected AnalyticsHelperController(AnalyticHelperService analyticHelperService,
+			AnalyticsStatisticsService analyticsStatisticsService) {
 		this.analyticHelperService = analyticHelperService;
+		this.analyticsStatisticsService = analyticsStatisticsService;
 	}
 
 	@GetMapping("/{id}")

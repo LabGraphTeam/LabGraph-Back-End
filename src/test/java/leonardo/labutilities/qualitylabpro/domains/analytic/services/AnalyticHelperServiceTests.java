@@ -33,10 +33,13 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesPro
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.UpdateAnalyticsMeanDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedValuesByLevelDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsStatisticsService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsValidationService;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
@@ -53,6 +56,8 @@ class AnalyticHelperServiceTests {
 	private AnalyticFailedNotificationComponent analyticFailedNotificationComponent;
 	@Mock
 	private AnalyticsValidationService analyticsValidationService;
+	@Mock
+	private AnalyticsStatisticsService analyticsStatisticsService;
 	@Mock
 	private EmailService emailService;
 	@Mock
@@ -254,7 +259,6 @@ class AnalyticHelperServiceTests {
 				() -> this.analyticsValidationService.ensureAnalyticTestNameExists(name));
 	}
 
-
 	@Test
 	@DisplayName("Should return true when checking non-existent analytics record")
 	void isAnalyticsNonExistent_WithNonExistentRecord_ShouldReturnTrue() {
@@ -308,18 +312,11 @@ class AnalyticHelperServiceTests {
 		String level = "Normal";
 		LocalDateTime startDate = LocalDateTime.now().minusDays(7);
 		LocalDateTime endDate = LocalDateTime.now();
-		List<AnalyticsDTO> analyticsDTO = createSampleRecordList();
 
-
-		List<Analytic> analytics =
-				createSampleRecordList().stream().map(AnalyticMapper::toNewEntity).toList();
-
-		when(this.analyticsRepository.findByNameAndLevelAndDateBetween(eq(name), eq(level),
-				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(analytics);
-		when(this.analyticsValidationService.isNotThreeSigma(analyticsDTO.get(0))).thenReturn(true);
-
+		when(analyticsStatisticsService.calculateMeanAndStandardDeviation(name, level, startDate,
+				endDate, Pageable.unpaged())).thenReturn(new MeanAndStdDeviationDTO(10, 0.5));
 		// Act
-		var result = this.analyticHelperService.calculateMeanAndStandardDeviation(name, level,
+		var result = this.analyticsStatisticsService.calculateMeanAndStandardDeviation(name, level,
 				startDate, endDate, Pageable.unpaged());
 
 		// Assert
@@ -406,14 +403,13 @@ class AnalyticHelperServiceTests {
 		String name = "Glucose";
 		LocalDateTime startDate = LocalDateTime.now().minusDays(7);
 		LocalDateTime endDate = LocalDateTime.now();
-		List<Analytic> analytics =
-				createSampleRecordList().stream().map(AnalyticMapper::toNewEntity).toList();
 
-		when(this.analyticsRepository.findByNameAndDateBetweenGroupByLevel(eq(name), eq(startDate),
-				eq(endDate), any(Pageable.class))).thenReturn(analytics);
-
+		when(analyticsStatisticsService.calculateGroupedMeanAndStandardDeviation(name, startDate,
+				endDate, Pageable.unpaged()))
+						.thenReturn(List.of(new GroupedMeanAndStdByLevelDTO("Normal",
+								List.of(new MeanAndStdDeviationDTO(10, 0.5)))));
 		// Act
-		var result = this.analyticHelperService.calculateGroupedMeanAndStandardDeviation(name,
+		var result = this.analyticsStatisticsService.calculateGroupedMeanAndStandardDeviation(name,
 				startDate, endDate, Pageable.unpaged());
 
 		// Assert

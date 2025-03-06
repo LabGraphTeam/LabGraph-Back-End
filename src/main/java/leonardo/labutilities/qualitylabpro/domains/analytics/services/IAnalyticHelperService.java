@@ -6,29 +6,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedResultsByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedValuesByLevelDTO;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
 
 public interface IAnalyticHelperService {
 
+	String convertLevel(String level);
+
 	List<GroupedResultsByLevelDTO> findAnalyticsWithGroupedResults(String name,
 			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
-
-	List<GroupedMeanAndStdByLevelDTO> calculateGroupedMeanAndStandardDeviation(String name,
-			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
-
-	MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(String name, String level,
-			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable);
 
 	Page<AnalyticsDTO> findAnalyticsPagedByNameIn(List<String> names, Pageable pageable);
 
 	List<GroupedValuesByLevelDTO> findGroupedAnalyticsByLevel(String name, LocalDateTime startDate,
 			LocalDateTime endDate, Pageable pageable);
-
-	List<GroupedMeanAndStdByLevelDTO> returnMeanAndStandardDeviationForGroups(
-			List<GroupedValuesByLevelDTO> records);
 
 	Page<AnalyticsDTO> findAnalyticsByNameInAndDateBetweenWithLinks(List<String> names,
 			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable);

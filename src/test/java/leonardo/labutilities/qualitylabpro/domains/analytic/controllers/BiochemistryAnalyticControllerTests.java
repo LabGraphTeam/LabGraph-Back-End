@@ -39,8 +39,11 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.Grou
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedResultsByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedValuesByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsStatisticsService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.BiochemistryAnalyticService;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenService;
+import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 import leonardo.labutilities.qualitylabpro.domains.users.repositories.UserRepository;
 
 @WebMvcTest(BiochemistryAnalyticsController.class)
@@ -49,6 +52,7 @@ import leonardo.labutilities.qualitylabpro.domains.users.repositories.UserReposi
 @AutoConfigureJsonTesters
 @ActiveProfiles("test")
 class BiochemistryAnalyticControllerTests {
+
 	@Autowired
 	private MockMvc mockMvc;
 
@@ -59,7 +63,13 @@ class BiochemistryAnalyticControllerTests {
 	private UserRepository userRepository;
 
 	@MockitoBean
+	private AnalyticsRepository analyticsRepository;
+
+	@MockitoBean
 	private BiochemistryAnalyticService biochemistryAnalyticsService;
+
+	@MockitoBean
+	private AnalyticsStatisticsService analyticsStatisticsService;
 
 	@Autowired
 	private JacksonTester<List<AnalyticsDTO>> jacksonGenericValuesRecord;
@@ -114,10 +124,13 @@ class BiochemistryAnalyticControllerTests {
 	@DisplayName("Should return no content when updating analytics records")
 	void shouldReturnNoContentWhenUpdatingAnalyticsRecords() throws Exception {
 		var mockDto = new UpdateAnalyticsMeanDTO("Glucose", "PCCC1", "1234", 10.5);
+
+		when(biochemistryAnalyticsService.convertLevel("PCCC1")).thenReturn("PCCC1");
 		this.mockMvc
 				.perform(patch("/biochemistry-analytics").contentType(MediaType.APPLICATION_JSON)
 						.content(this.jacksonUpdateAnalyticsMeanRecord.write(mockDto).getJson()))
 				.andExpect(status().isNoContent());
+
 		verify(this.biochemistryAnalyticsService, times(1))
 				.updateAnalyticsMeanByNameAndLevelAndLevelLot("Glucose", "PCCC1", "1234", 10.5);
 	}
@@ -140,7 +153,7 @@ class BiochemistryAnalyticControllerTests {
 
 	@Test
 	@DisplayName("Should return analytics records when searching within date range")
-	@WithMockUser(username = "admin", roles = {"ADMIN"})
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
 	void shouldReturnAnalyticsRecordsWhenSearchingWithinDateRange() throws Exception {
 		Page<AnalyticsDTO> records = new PageImpl<>(createSampleRecordList());
 
@@ -162,16 +175,23 @@ class BiochemistryAnalyticControllerTests {
 		LocalDateTime startDate = this.parse("2025-01-01 00:00:00");
 		LocalDateTime endDate = this.parse("2025-01-05 00:00:00");
 
-		when(this.biochemistryAnalyticsService.calculateMeanAndStandardDeviation(eq("Hemoglobin"),
-				eq("High"), eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(result);
+		var mockList = createSampleRecordList().stream().map(AnalyticMapper::toEntity).toList();
+
+		when(analyticsRepository.findByNameAndLevelAndDateBetween(eq("ALB2"), eq("PCCC1"),
+				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockList);
+
+		when(this.analyticsStatisticsService.calculateMeanAndStandardDeviation(eq("ALB2"),
+				eq("PCCC1"), eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(result);
+
+		when(biochemistryAnalyticsService.convertLevel("1")).thenReturn("PCCC1");
 
 		this.mockMvc.perform(get("/biochemistry-analytics/mean-standard-deviation")
-				.param("name", "Hemoglobin").param("level", "High")
-				.param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00")
-				.param("page", "0").param("size", "10")).andExpect(status().isOk());
+				.param("name", "ALB2").param("level", "1").param("startDate", "2025-01-01 00:00:00")
+				.param("endDate", "2025-01-05 00:00:00").param("page", "0").param("size", "10"))
+				.andExpect(status().isOk());
 
-		verify(this.biochemistryAnalyticsService).calculateMeanAndStandardDeviation(
-				eq("Hemoglobin"), eq("High"), eq(startDate), eq(endDate), any(Pageable.class));
+		verify(this.analyticsStatisticsService).calculateMeanAndStandardDeviation(eq("ALB2"),
+				eq("PCCC1"), eq(startDate), eq(endDate), any(Pageable.class));
 	}
 
 	@Test
@@ -201,7 +221,7 @@ class BiochemistryAnalyticControllerTests {
 		List<MeanAndStdDeviationDTO> values = List.of(meanAndStdDeviationDTO);
 		var groupedValuesByLevelDTOList = List.of(new GroupedMeanAndStdByLevelDTO(level, values));
 
-		when(this.biochemistryAnalyticsService.calculateGroupedMeanAndStandardDeviation(eq(name),
+		when(this.analyticsStatisticsService.calculateGroupedMeanAndStandardDeviation(eq(name),
 				eq(startDate), eq(endDate), any(Pageable.class)))
 						.thenReturn(groupedValuesByLevelDTOList);
 
@@ -211,29 +231,30 @@ class BiochemistryAnalyticControllerTests {
 				.andExpect(status().isOk());
 	}
 
-	// V2
 	@Test
-	@DisplayName("Should return analytics with calculations when searching by name, level and date range (V2)")
-	void shouldReturnAnalyticsWithCalculationsWhenSearchingByNameLevelAndDateRangeV2()
+	@DisplayName("Should return analytics with calculations when searching by name, level and date range")
+	void shouldReturnAnalyticsWithCalculationsWhenSearchingByNameLevelAndDateRange()
 			throws Exception {
-		String name = "Hemoglobin";
-		String level = "High";
-		LocalDateTime startDate = this.parse("2025-01-01 00:00:00");
-		LocalDateTime endDate = this.parse("2025-01-05 00:00:00");
-		List<AnalyticsDTO> records = createSampleRecordList();
-		MeanAndStdDeviationDTO result = new MeanAndStdDeviationDTO(10.5, 2.3);
+		String name = "ALB2";
+		String level = "PCCC1";
+		String startDateStr = "2025-01-01 00:00:00";
+		String endDateStr = "2025-01-05 00:00:00";
+		LocalDateTime startDate = this.parse(startDateStr);
+		LocalDateTime endDate = this.parse(endDateStr);
 
-		AnalyticsWithCalcDTO dummyResult = new AnalyticsWithCalcDTO(records, result);
+		AnalyticsWithCalcDTO dummyResult = new AnalyticsWithCalcDTO(createSampleRecordList(),
+				new MeanAndStdDeviationDTO(10.5, 2.3));
 
-		when(this.biochemistryAnalyticsService.findAnalyticsByNameLevelDate(eq(name), eq(level),
+		when(biochemistryAnalyticsService.convertLevel(level)).thenReturn(level);
+
+		when(biochemistryAnalyticsService.findAnalyticsByNameLevelDate(eq(name), eq(level),
 				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(dummyResult);
 
-		this.mockMvc.perform(get("/biochemistry-analytics/name-and-level-date-range")
-				.param("name", name).param("level", level).param("startDate", "2025-01-01 00:00:00")
-				.param("endDate", "2025-01-05 00:00:00").param("page", "0").param("size", "10"))
-				.andExpect(status().isOk());
+		mockMvc.perform(get("/biochemistry-analytics/name-and-level-date-range").param("name", name)
+				.param("level", level).param("startDate", startDateStr).param("endDate", endDateStr)
+				.param("page", "0").param("size", "10")).andExpect(status().isOk());
 
-		verify(this.biochemistryAnalyticsService).findAnalyticsByNameLevelDate(eq(name), eq(level),
+		verify(biochemistryAnalyticsService).findAnalyticsByNameLevelDate(eq(name), eq(level),
 				eq(startDate), eq(endDate), any(Pageable.class));
 	}
 
