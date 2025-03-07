@@ -1,18 +1,22 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.services;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.StatisticsCalcComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.ErrorStatisticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedValuesByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
+import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling.ResourceNotFoundException;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 
 @Service
@@ -70,4 +74,28 @@ public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
                 return returnMeanAndStandardDeviationForGroups(values);
         }
 
+        @Override
+        public List<ErrorStatisticsDTO> calculateErrorStatistics(List<String> names, String level,
+                        LocalDateTime startDate, LocalDateTime endDate) {
+                var analytics = analyticsRepository.findByNameInAndLevelAndDateBetween(names, level,
+                                startDate, endDate, Pageable.unpaged()).stream().toList();
+
+                if (analytics.isEmpty()) {
+                        throw new ResourceNotFoundException(
+                                        "No data found for the given parameters");
+                }
+
+                Map<String, List<AnalyticsDTO>> analyticsByName = analytics.stream()
+                                .collect(Collectors.groupingBy(AnalyticsDTO::name));
+
+                List<ErrorStatisticsDTO> result = new ArrayList<>();
+                for (Map.Entry<String, List<AnalyticsDTO>> entry : analyticsByName.entrySet()) {
+                        List<AnalyticsDTO> analyticsForName = entry.getValue();
+                        ErrorStatisticsDTO stat = StatisticsCalcComponent
+                                        .calculateErrorStatistics(analyticsForName);
+                        result.add(stat);
+                }
+
+                return result;
+        }
 }

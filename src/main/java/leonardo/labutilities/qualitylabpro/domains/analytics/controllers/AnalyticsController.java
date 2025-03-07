@@ -26,6 +26,7 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.Analy
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsNameAndLevelDateRangeParamsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.UpdateAnalyticsMeanDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.ErrorStatisticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedResultsByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
@@ -176,6 +177,18 @@ public class AnalyticsController extends AnalyticsHelperController {
 				.calculateGroupedMeanAndStandardDeviation(name, startDate, endDate, pageable);
 
 		return ResponseEntity.ok(groupedData);
+	}
+
+	@GetMapping("/error-statistics")
+	public ResponseEntity<List<ErrorStatisticsDTO>> getErrorStatistics(
+			@RequestParam List<String> testName, @RequestParam String level,
+			@RequestParam("startDate") LocalDateTime startDate,
+			@RequestParam("endDate") LocalDateTime endDate) {
+
+		List<ErrorStatisticsDTO> errorStatistics = analyticsStatisticsService
+				.calculateErrorStatistics(names, level, startDate, endDate);
+
+		return ResponseEntity.ok(errorStatistics);
 	}
 
 	@PatchMapping()
