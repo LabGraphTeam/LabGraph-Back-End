@@ -32,17 +32,12 @@ public class SecurityFilter extends OncePerRequestFilter {
             if (tokenJWT != null) {
                 log.debug("JWT token found in request");
                 var subject = this.tokenService.getSubject(tokenJWT);
-                log.debug("Token subject extracted: {}", subject);
                 var users = this.userRepository.getReferenceOneByUsername(subject);
                 var authentication = new UsernamePasswordAuthenticationToken(users, null,
                         users.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.info("User successfully authenticated: {}", subject);
-            } else {
-                log.debug("No JWT token found in request");
             }
             filterChain.doFilter(request, response);
-            log.debug("Security filter completed for request to: {}", request.getRequestURI());
         } catch (Exception exception) {
             log.error("Authentication error: {}", exception.getMessage());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -55,7 +50,6 @@ public class SecurityFilter extends OncePerRequestFilter {
         var authHeader = request.getHeader("Authorization");
 
         if (authHeader != null) {
-            log.debug("Authorization header found");
             return authHeader.replace("Bearer ", "");
         }
         return null;

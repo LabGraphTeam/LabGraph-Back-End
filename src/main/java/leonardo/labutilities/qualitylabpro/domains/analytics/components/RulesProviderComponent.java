@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Component;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.domains.shared.blacklist.AnalyticsBlackList;
 
@@ -22,7 +22,7 @@ public class RulesProviderComponent {
 		this.analyticsRepository = analyticsRepository;
 	}
 
-	public String validateRules(List<AnalyticsDTO> analytics) {
+	public final String validateRules(List<AnalyticsDTO> analytics) {
 		if (analytics == null || analytics.isEmpty()) {
 			return "<div style='font-family: Arial, sans-serif;'>No analytics data provided for validation.</div>";
 		}

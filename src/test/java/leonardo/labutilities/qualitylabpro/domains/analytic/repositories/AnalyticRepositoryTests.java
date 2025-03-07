@@ -22,7 +22,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Transient;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.SpecsValidatorComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.AvailableAnalyticsNames;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;

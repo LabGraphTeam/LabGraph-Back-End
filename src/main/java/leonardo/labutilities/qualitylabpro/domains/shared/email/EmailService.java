@@ -25,7 +25,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.requests.EmailDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling.EmailSendingException;
 import lombok.RequiredArgsConstructor;

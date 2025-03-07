@@ -2,6 +2,7 @@ package leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses;
 
 import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 
 @Schema(description = "Data Transfer Object for analytics measurements grouped by control level")
 public record GroupedValuesByLevelDTO(

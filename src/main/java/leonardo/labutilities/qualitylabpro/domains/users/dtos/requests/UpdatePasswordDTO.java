@@ -2,22 +2,23 @@ package leonardo.labutilities.qualitylabpro.domains.users.dtos.requests;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 @Schema(description = "Data Transfer Object for password update request")
 public record UpdatePasswordDTO(
-		@Schema(description = "Username of the account", example = "johndoe",
-				requiredMode = Schema.RequiredMode.REQUIRED) @NotNull String username,
+		@Schema(description = "Username of the account", example = "Leonardo Meireles",
+				requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank String username,
 
 		@Schema(description = "User's email address for verification",
-				example = "john.doe@example.com",
+				example = "leomeireles55@outlook.com",
 				requiredMode = Schema.RequiredMode.REQUIRED) @Email String email,
 
 		@Schema(description = "Current password", example = "currentPass123!",
-				requiredMode = Schema.RequiredMode.REQUIRED) @NotNull String oldPassword,
+				requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank String oldPassword,
 
 		@Schema(description = "New password (must contain at least 6 characters and one special character)",
 				example = "newPass456@", requiredMode = Schema.RequiredMode.REQUIRED) @Pattern(
 						regexp = "^(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\|,.<>\\/?])(?=.*\\d{6,}).+$",
-						message = "Password must contain at least 6 characters and one special character.") String newPassword) {}
+						message = "Password must contain at least 6 characters and one special character.") String newPassword) {
+}

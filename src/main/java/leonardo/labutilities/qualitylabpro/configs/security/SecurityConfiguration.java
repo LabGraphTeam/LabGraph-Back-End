@@ -16,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import leonardo.labutilities.qualitylabpro.configs.constants.ApiEndpoints;
 import leonardo.labutilities.qualitylabpro.domains.users.enums.UserRoles;
+import static leonardo.labutilities.qualitylabpro.configs.constants.ApiEndpoints.PUBLIC_PATHS;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -24,9 +25,6 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfiguration {
 
       private final SecurityFilter securityFilter;
-      private static final String[] PUBLIC_PATHS =
-                  {"/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/actuator/**"};
-
 
       @Bean
       protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -48,6 +46,8 @@ public class SecurityConfiguration {
                               req.requestMatchers(HttpMethod.PUT, ApiEndpoints.ADMIN_MODIFY_PATHS)
                                           .hasRole(UserRoles.ADMIN.name());
                               req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.ADMIN_MODIFY_PATHS)
+                                          .hasRole(UserRoles.ADMIN.name());
+                              req.requestMatchers(HttpMethod.POST, ApiEndpoints.ADMIN_MODIFY_PATHS)
                                           .hasRole(UserRoles.ADMIN.name());
 
                               // User management (admin only)

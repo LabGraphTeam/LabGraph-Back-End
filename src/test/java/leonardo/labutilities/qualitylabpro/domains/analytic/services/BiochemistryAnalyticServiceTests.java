@@ -6,8 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticFailedNotificationComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesProviderComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsValidationService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.BiochemistryAnalyticService;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
@@ -22,13 +24,19 @@ class BiochemistryAnalyticServiceTests extends AnalyticServiceTests {
 	private EmailService emailService;
 
 	@Mock
+	private AnalyticsValidationService analyticsValidationService;
+
+	@Mock
+	private AnalyticFailedNotificationComponent analyticFailedNotificationComponent;
+
+	@Mock
 	private RulesProviderComponent controlRulesValidators;
 
 	private BiochemistryAnalyticService biochemistryAnalyticService;
 
 	BiochemistryAnalyticServiceTests() {
 		this.biochemistryAnalyticService = new BiochemistryAnalyticService(this.analyticsRepository,
-				this.emailService, this.controlRulesValidators);
+				this.analyticFailedNotificationComponent, this.analyticsValidationService);
 	}
 
 	@Override

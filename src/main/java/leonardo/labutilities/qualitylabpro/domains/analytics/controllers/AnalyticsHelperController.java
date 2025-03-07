@@ -9,76 +9,29 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import jakarta.validation.Valid;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.UpdateAnalyticsMeanDTO;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedResultsByLevelDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.helpers.AnalyticsHelperUtility;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsStatisticsService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.IAnalyticHelperService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.IAnalyticsStatisticsService;
 
 public class AnalyticsHelperController {
-	protected final AnalyticHelperService analyticHelperService;
 
-	protected AnalyticsHelperController(AnalyticHelperService analyticHelperService) {
+	protected final IAnalyticHelperService analyticHelperService;
+	protected final IAnalyticsStatisticsService analyticsStatisticsService;
+
+	protected AnalyticsHelperController(AnalyticHelperService analyticHelperService,
+			AnalyticsStatisticsService analyticsStatisticsService) {
 		this.analyticHelperService = analyticHelperService;
+		this.analyticsStatisticsService = analyticsStatisticsService;
 	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<AnalyticsDTO> getAnalyticsById(@PathVariable Long id) {
 		return ResponseEntity.ok(this.analyticHelperService.findOneById(id));
-	}
-
-	@DeleteMapping("/{id}")
-	@Transactional
-	public ResponseEntity<Void> deleteAnalyticsResultById(@PathVariable Long id) {
-		this.analyticHelperService.deleteAnalyticsById(id);
-		return ResponseEntity.noContent().build();
-	}
-
-	@GetMapping("/grouped-by-level")
-	public ResponseEntity<List<GroupedResultsByLevelDTO>> getGroupedByLevel(
-			@RequestParam String name, @RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate,
-			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
-		List<GroupedResultsByLevelDTO> groupedData = this.analyticHelperService
-				.findAnalyticsWithGroupedResults(name, startDate, endDate, pageable);
-		return ResponseEntity.ok(groupedData);
-	}
-
-	@GetMapping("/grouped-by-level/mean-deviation")
-	public ResponseEntity<List<GroupedMeanAndStdByLevelDTO>> getMeanAndDeviationGrouped(
-			@RequestParam String name, @RequestParam("startDate") LocalDateTime startDate,
-			@RequestParam("endDate") LocalDateTime endDate,
-			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
-		List<GroupedMeanAndStdByLevelDTO> groupedData = this.analyticHelperService
-				.calculateGroupedMeanAndStandardDeviation(name, startDate, endDate, pageable);
-		return ResponseEntity.ok(groupedData);
-	}
-
-	@PostMapping
-	@Transactional
-	public ResponseEntity<List<AnalyticsDTO>> postAnalytics(
-			@Valid @RequestBody List<AnalyticsDTO> values) {
-		this.analyticHelperService.saveNewAnalyticsRecords(values);
-		return ResponseEntity.status(201).build();
-	}
-
-	@PatchMapping()
-	public ResponseEntity<Void> updateAnalyticsMean(
-			@Valid @RequestBody UpdateAnalyticsMeanDTO updateAnalyticsMeanDTO) {
-		this.analyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(
-				updateAnalyticsMeanDTO.name(), updateAnalyticsMeanDTO.level(),
-				updateAnalyticsMeanDTO.levelLot(), updateAnalyticsMeanDTO.mean());
-		return ResponseEntity.noContent().build();
 	}
 
 	public ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAllAnalyticsWithLinks(
