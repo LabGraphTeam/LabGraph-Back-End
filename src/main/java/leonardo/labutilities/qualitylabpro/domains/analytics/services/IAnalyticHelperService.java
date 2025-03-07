@@ -44,9 +44,6 @@ public interface IAnalyticHelperService {
 
 	List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable, String name, String level);
 
-	List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name, String level,
-			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable);
-
 	AnalyticsWithCalcDTO findAnalyticsByNameLevelDate(String name, String level,
 			LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable);
 

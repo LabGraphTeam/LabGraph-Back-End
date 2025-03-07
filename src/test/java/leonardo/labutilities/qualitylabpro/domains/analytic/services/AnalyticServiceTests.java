@@ -97,44 +97,20 @@ class AnalyticServiceTests {
         }
 
         @Test
-        void findAnalyticsByNameAndLevelAndDate_ShouldReturnAnalyticsList() {
-                String name = "test";
-                List<Analytic> analytics = createSampleRecordList().stream()
-                                .map(AnalyticMapper::toEntity).toList();
-
-                when(this.analyticsRepository.findByNameAndLevelAndDateBetween(any(), any(), any(),
-                                any(), any())).thenReturn(analytics);
-
-                List<AnalyticsDTO> result =
-                                this.analyticHelperService.findAnalyticsByNameAndLevelAndDate(name,
-                                                "1", this.startDate, this.endDate, this.pageable);
-
-                var expectedAnalytics = createSampleRecordList();
-
-                System.out.println(result);
-                System.out.println(expectedAnalytics);
-                assertNotNull(result);
-                assertEquals(expectedAnalytics, result);
-        }
-
-        @Test
         void findAnalyticsByNameLevelDate_ShouldReturnAnalyticsWithCalcDTO() {
-                // Arrange
+
                 String name = "ALB2";
                 List<Analytic> mockAnalytics = createSampleRecordList().stream()
                                 .map(AnalyticMapper::toEntity).toList();
 
-                // Mock repository behavior
                 when(this.analyticsRepository.findByNameAndLevelAndDateBetween(name, "PCCC1",
                                 this.startDate, this.endDate, this.pageable))
                                                 .thenReturn(mockAnalytics);
 
-                // Act
                 AnalyticsWithCalcDTO result = this.analyticHelperService
                                 .findAnalyticsByNameLevelDate(name, "PCCC1", this.startDate,
                                                 this.endDate, this.pageable);
 
-                // Assert
                 assertNotNull(result);
                 assertNotNull(result.analyticsDTO());
                 assertNotNull(result.calcMeanAndStdDTO());

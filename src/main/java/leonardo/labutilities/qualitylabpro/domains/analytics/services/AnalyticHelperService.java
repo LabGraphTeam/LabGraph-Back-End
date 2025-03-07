@@ -35,19 +35,6 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         private final IAnalyticsValidationService analyticsValidationService;
         private final AnalyticFailedNotificationComponent analyticFailedNotificationComponent;
 
-        @Override
-        public AnalyticsDTO validateAnalyticByUser(Long id) {
-                Analytic analytic = analyticsRepository.getReferenceById(id);
-
-                var authentication = SecurityContextHolder.getContext().getAuthentication();
-                if (authentication != null && authentication.isAuthenticated()
-                                && authentication.getPrincipal() instanceof User user) {
-                        analytic.setValidatorUserId(user);
-
-                }
-                return AnalyticMapper.toRecord(analytic);
-        }
-
         public AnalyticHelperService(AnalyticsRepository analyticsRepository,
                         AnalyticFailedNotificationComponent analyticFailedNotificationComponent,
                         AnalyticsValidationService analyticsValidationService) {
@@ -55,6 +42,8 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 this.analyticFailedNotificationComponent = analyticFailedNotificationComponent;
                 this.analyticsValidationService = analyticsValidationService;
         }
+
+        // ==================== CORE CRUD OPERATIONS ====================
 
         @Override
         public AnalyticsDTO findOneById(Long id) {
@@ -73,6 +62,45 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         }
 
         @Override
+        @CacheEvict(value = {"analyticsByNameAndDateRange", "meanAndStdDeviation",
+                        "calculateGroupedMeanAndStandardDeviation",
+                        "AnalyticsByNameWithPagination"}, allEntries = true)
+        public void saveNewAnalyticsRecords(List<AnalyticsDTO> valuesOfLevelsList) {
+
+                var newRecords = valuesOfLevelsList.stream()
+                                .filter(analyticsValidationService::isNewAnalyticRecord)
+                                .map(AnalyticMapper::toNewEntity).toList();
+
+                if (newRecords.isEmpty()) {
+                        log.warn("No new analytics records to save.");
+                        throw new CustomGlobalErrorHandling.DataIntegrityViolationException();
+                }
+
+                List<Analytic> persistedRecords = analyticsRepository.saveAll(newRecords);
+
+                List<AnalyticsDTO> failedRecords = AnalyticObjectValidationComponent
+                                .filterFailedRecords(persistedRecords).stream()
+                                .map(AnalyticMapper::toRecord).toList();
+
+                analyticFailedNotificationComponent.processFailedRecordsNotification(failedRecords);
+        }
+
+        // ==================== USER OPERATIONS ====================
+
+        @Override
+        public AnalyticsDTO validateAnalyticByUser(Long id) {
+                Analytic analytic = analyticsRepository.getReferenceById(id);
+
+                var authentication = SecurityContextHolder.getContext().getAuthentication();
+                if (authentication != null && authentication.isAuthenticated()
+                                && authentication.getPrincipal() instanceof User user) {
+                        analytic.setValidatorUserId(user);
+
+                }
+                return AnalyticMapper.toRecord(analytic);
+        }
+
+        @Override
         public String convertLevel(String level) {
                 if (level == null) {
                         throw new IllegalArgumentException("Level cannot be null");
@@ -80,25 +108,99 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 return level.toUpperCase();
         }
 
-        // BUSINESS LOGIC METHODS
+        // ==================== BASIC QUERY OPERATIONS ====================
+
         @Override
-        public List<GroupedResultsByLevelDTO> findAnalyticsWithGroupedResults(String name,
+        public List<AnalyticsDTO> findAnalyticsByDate(LocalDateTime dateStart,
+                        LocalDateTime dateEnd) {
+                List<AnalyticsDTO> results =
+                                analyticsRepository.findByDateBetween(dateStart, dateEnd).stream()
+                                                .map(AnalyticMapper::toRecord).toList();
+                AnalyticObjectValidationComponent.validateResultsNotEmpty(results,
+                                "No analytics found for the given date range");
+                return results;
+        }
+
+        @Override
+        public Page<AnalyticsDTO> findAnalyticsPagedByNameIn(List<String> names,
+                        Pageable pageable) {
+                return analyticsRepository.findByNameInPaged(names, pageable);
+        }
+
+        @Override
+        @Cacheable("AnalyticsByNameWithPagination")
+        public List<AnalyticsDTO> findAnalyticsByNameWithPagination(List<String> names, String name,
+                        Pageable pageable) {
+
+                if (names.contains(name)) {
+                        List<AnalyticsDTO> analyticsList = analyticsRepository
+                                        .findByTestName(name.toUpperCase(), pageable).stream()
+                                        .map(AnalyticMapper::toRecord).toList();
+                        AnalyticObjectValidationComponent.validateResultsNotEmpty(analyticsList,
+                                        "No analytics found with the given name");
+                        return analyticsList;
+                }
+                throw new CustomGlobalErrorHandling.ResourceNotFoundException(
+                                "AnalyticsDTO by name not found");
+        }
+
+        @Override
+        @Cacheable(value = "analyticsByNameAndDateRange",
+                        key = "{#names.hashCode(), #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
+        public Page<AnalyticsDTO> findAnalyticsByNameInAndDateBetween(List<String> names,
+                        LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
+                return analyticsRepository.findByNameInAndDateBetweenPaged(names, dateStart,
+                                dateEnd, pageable);
+        }
+
+        @Override
+        public Page<AnalyticsDTO> findAnalyticsByNameInAndDateBetweenWithLinks(List<String> names,
+                        LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
+                return analyticsRepository.findByNameInAndDateBetweenPaged(names, dateStart,
+                                dateEnd, pageable);
+        }
+
+        // ==================== LEVEL-SPECIFIC QUERY OPERATIONS ====================
+
+        @Override
+        public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable, String name,
+                        String level) {
+                List<AnalyticsDTO> analyticsList = analyticsRepository
+                                .findByNameAndLevel(pageable, name.toUpperCase(), level).stream()
+                                .map(AnalyticMapper::toRecord).toList();
+                AnalyticObjectValidationComponent.validateResultsNotEmpty(analyticsList,
+                                "No analytics found for the given name and level");
+                return analyticsList;
+        }
+
+        @Override
+        public Page<AnalyticsDTO> findAnalyticsByNameInByLevel(List<String> names, String level,
                         LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+                Page<AnalyticsDTO> results = analyticsRepository.findByNameInAndLevelAndDateBetween(
+                                names, level, startDate, endDate, pageable);
+                AnalyticObjectValidationComponent.validateResultsNotEmpty(results.getContent(),
+                                "No analytics found for the given parameters with pagination");
+                return results;
+        }
 
-                List<GroupedValuesByLevelDTO> analytics =
-                                findGroupedAnalyticsByLevel(name, startDate, endDate, pageable);
+        // ==================== ANALYTICS CALCULATION OPERATIONS ====================
 
-                Map<String, MeanAndStdDeviationDTO> statsByLevel = analytics.stream()
-                                .collect(Collectors.toMap(GroupedValuesByLevelDTO::level,
-                                                group -> StatisticsCalcComponent
-                                                                .calcMeanAndStandardDeviationOptimized(
-                                                                                group.values())));
+        @Override
+        public AnalyticsWithCalcDTO findAnalyticsByNameLevelDate(String name, String level,
+                        LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
+                List<AnalyticsDTO> results = analyticsRepository
+                                .findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd,
+                                                pageable)
+                                .stream().map(AnalyticMapper::toRecord).toList();
+                MeanAndStdDeviationDTO calcSdAndMean = StatisticsCalcComponent
+                                .calcMeanAndStandardDeviationOptimized(results);
 
-                return analytics.stream().map(analytic -> new GroupedResultsByLevelDTO(analytic,
-                                new GroupedMeanAndStdByLevelDTO(analytic.level(),
-                                                Collections.singletonList(statsByLevel
-                                                                .get(analytic.level())))))
-                                .toList();
+                AnalyticsWithCalcDTO analyticsWithCalcDTO =
+                                new AnalyticsWithCalcDTO(results, calcSdAndMean);
+
+                AnalyticObjectValidationComponent.validateResultsNotEmpty(results,
+                                "No analytics found for the given name, level, dateStart, dateEnd -> parameters");
+                return analyticsWithCalcDTO;
         }
 
         @Override
@@ -121,11 +223,26 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         }
 
         @Override
-        public Page<AnalyticsDTO> findAnalyticsByNameInAndDateBetweenWithLinks(List<String> names,
-                        LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
-                return analyticsRepository.findByNameInAndDateBetweenPaged(names, dateStart,
-                                dateEnd, pageable);
+        public List<GroupedResultsByLevelDTO> findAnalyticsWithGroupedResults(String name,
+                        LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+
+                List<GroupedValuesByLevelDTO> analytics =
+                                findGroupedAnalyticsByLevel(name, startDate, endDate, pageable);
+
+                Map<String, MeanAndStdDeviationDTO> statsByLevel = analytics.stream()
+                                .collect(Collectors.toMap(GroupedValuesByLevelDTO::level,
+                                                group -> StatisticsCalcComponent
+                                                                .calcMeanAndStandardDeviationOptimized(
+                                                                                group.values())));
+
+                return analytics.stream().map(analytic -> new GroupedResultsByLevelDTO(analytic,
+                                new GroupedMeanAndStdByLevelDTO(analytic.level(),
+                                                Collections.singletonList(statsByLevel
+                                                                .get(analytic.level())))))
+                                .toList();
         }
+
+        // ==================== DATA UPDATE OPERATIONS ====================
 
         @Override
         public void updateAnalyticsMeanByNameAndLevelAndLevelLot(String name, String level,
@@ -133,123 +250,4 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 analyticsRepository.updateMeanByNameAndLevelAndLevelLot(name, level, levelLot,
                                 mean);
         }
-
-        @Override
-        @CacheEvict(value = { "analyticsByNameAndDateRange", "meanAndStdDeviation",
-                        "calculateGroupedMeanAndStandardDeviation",
-                        "AnalyticsByNameWithPagination" }, allEntries = true)
-        public void saveNewAnalyticsRecords(List<AnalyticsDTO> valuesOfLevelsList) {
-
-                var newRecords = valuesOfLevelsList.stream()
-                                .filter(analyticsValidationService::isNewAnalyticRecord)
-                                .map(AnalyticMapper::toNewEntity).toList();
-
-                if (newRecords.isEmpty()) {
-                        log.warn("No new analytics records to save.");
-                        throw new CustomGlobalErrorHandling.DataIntegrityViolationException();
-                }
-
-                List<Analytic> persistedRecords = analyticsRepository.saveAll(newRecords);
-
-                List<AnalyticsDTO> failedRecords = AnalyticObjectValidationComponent
-                                .filterFailedRecords(persistedRecords).stream()
-                                .map(AnalyticMapper::toRecord).toList();
-
-                analyticFailedNotificationComponent.processFailedRecordsNotification(failedRecords);
-        }
-
-        @Cacheable("AnalyticsByNameWithPagination")
-        @Override
-        public List<AnalyticsDTO> findAnalyticsByNameWithPagination(List<String> names, String name,
-                        Pageable pageable) {
-
-                if (names.contains(name)) {
-                        List<AnalyticsDTO> analyticsList = analyticsRepository
-                                        .findByTestName(name.toUpperCase(), pageable).stream()
-                                        .map(AnalyticMapper::toRecord).toList();
-                        AnalyticObjectValidationComponent.validateResultsNotEmpty(analyticsList,
-                                        "No analytics found with the given name");
-                        return analyticsList;
-                }
-                throw new CustomGlobalErrorHandling.ResourceNotFoundException(
-                                "AnalyticsDTO by name not found");
-        }
-
-        @Override
-        public Page<AnalyticsDTO> findAnalyticsByNameInByLevel(List<String> names, String level,
-                        LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-                Page<AnalyticsDTO> results = analyticsRepository.findByNameInAndLevelAndDateBetween(
-                                names, level, startDate, endDate, pageable);
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(results.getContent(),
-                                "No analytics found for the given parameters with pagination");
-                return results;
-        }
-
-        @Override
-        public List<AnalyticsDTO> findAnalyticsByDate(LocalDateTime dateStart,
-                        LocalDateTime dateEnd) {
-                List<AnalyticsDTO> results =
-                                analyticsRepository.findByDateBetween(dateStart, dateEnd).stream()
-                                                .map(AnalyticMapper::toRecord).toList();
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(results,
-                                "No analytics found for the given date range");
-                return results;
-        }
-
-        @Override
-        @Cacheable(value = "analyticsByNameAndDateRange",
-                        key = "{#names.hashCode(), #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
-        public Page<AnalyticsDTO> findAnalyticsByNameInAndDateBetween(List<String> names,
-                        LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
-                return analyticsRepository.findByNameInAndDateBetweenPaged(names, dateStart,
-                                dateEnd, pageable);
-        }
-
-        @Override
-        public Page<AnalyticsDTO> findAnalyticsPagedByNameIn(List<String> names,
-                        Pageable pageable) {
-                return analyticsRepository.findByNameInPaged(names, pageable);
-        }
-
-        @Override
-        public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable, String name,
-                        String level) {
-                List<AnalyticsDTO> analyticsList = analyticsRepository
-                                .findByNameAndLevel(pageable, name.toUpperCase(), level).stream()
-                                .map(AnalyticMapper::toRecord).toList();
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(analyticsList,
-                                "No analytics found for the given name and level");
-                return analyticsList;
-        }
-
-        @Override
-        public List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name, String level,
-                        LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
-                List<AnalyticsDTO> results = analyticsRepository
-                                .findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd,
-                                                pageable)
-                                .stream().map(AnalyticMapper::toRecord).toList();
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(results,
-                                "No analytics found for the given name, level, dateStart, dateEnd -> parameters");
-                return results;
-        }
-
-        @Override
-        public AnalyticsWithCalcDTO findAnalyticsByNameLevelDate(String name, String level,
-                        LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
-                List<AnalyticsDTO> results = analyticsRepository
-                                .findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd,
-                                                pageable)
-                                .stream().map(AnalyticMapper::toRecord).toList();
-                MeanAndStdDeviationDTO calcSdAndMean = StatisticsCalcComponent
-                                .calcMeanAndStandardDeviationOptimized(results);
-
-                AnalyticsWithCalcDTO analyticsWithCalcDTO =
-                                new AnalyticsWithCalcDTO(results, calcSdAndMean);
-
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(results,
-                                "No analytics found for the given name, level, dateStart, dateEnd -> parameters");
-                return analyticsWithCalcDTO;
-        }
-
 }

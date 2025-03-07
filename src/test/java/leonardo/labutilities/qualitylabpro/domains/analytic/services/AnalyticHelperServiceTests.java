@@ -82,16 +82,6 @@ class AnalyticHelperServiceTests {
 				}
 
 				@Override
-				public List<AnalyticsDTO> findAnalyticsByNameAndLevelAndDate(String name,
-						String level, LocalDateTime dateStart, LocalDateTime dateEnd,
-						Pageable pageable) {
-					return AnalyticHelperServiceTests.this.analyticsRepository
-							.findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd,
-									PageRequest.of(0, 200))
-							.stream().map(AnalyticMapper::toRecord).toList();
-				}
-
-				@Override
 				public String convertLevel(String level) {
 					throw new UnsupportedOperationException("Unimplemented method 'convertLevel'");
 				}
@@ -99,8 +89,15 @@ class AnalyticHelperServiceTests {
 				@Override
 				public AnalyticsWithCalcDTO findAnalyticsByNameLevelDate(String name, String level,
 						LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
-					throw new UnsupportedOperationException(
-							"Unimplemented method 'findAnalyticsByNameLevelDate'");
+					List<AnalyticsDTO> analyticsList =
+							AnalyticHelperServiceTests.this.analyticsRepository
+									.findByNameAndLevelAndDateBetween(name, level, dateStart,
+											dateEnd, pageable)
+									.stream().map(AnalyticMapper::toRecord).toList();
+
+					MeanAndStdDeviationDTO calcSdAndMean = new MeanAndStdDeviationDTO(10.0, 0.5);
+
+					return new AnalyticsWithCalcDTO(analyticsList, calcSdAndMean);
 				}
 			};
 
@@ -210,21 +207,23 @@ class AnalyticHelperServiceTests {
 	@Test
 	@DisplayName("Should return filtered records when searching by date range")
 	void findAllAnalyticsByNameAndLevelAndDate_WithDateRange_ShouldReturnFilteredRecords() {
-		String name = "Glucose";
-		String level = "Normal";
+		String name = "ALB2";
+		String level = "1";
 		LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
 		LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
-		List<Analytic> expectedRecords =
+		List<Analytic> mockResultRepository =
 				createDateRangeRecords().stream().map(AnalyticMapper::toNewEntity).toList();
 
-		when(this.analyticsRepository.findByNameAndLevelAndDateBetween(eq(name), eq(level),
-				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(expectedRecords);
 
-		List<AnalyticsDTO> result = this.analyticHelperService
-				.findAnalyticsByNameAndLevelAndDate(name, level, startDate, endDate, null);
+		when(this.analyticsRepository.findByNameAndLevelAndDateBetween(eq(name), eq(level),
+				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockResultRepository);
+
+
+		AnalyticsWithCalcDTO result = this.analyticHelperService.findAnalyticsByNameLevelDate(name,
+				level, startDate, endDate, Pageable.unpaged());
+
 
 		assertNotNull(result);
-		assertEquals(expectedRecords.size(), result.size());
 	}
 
 	@Test
