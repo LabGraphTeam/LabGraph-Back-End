@@ -1,6 +1,7 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.components;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.ErrorStatisticsDTO;
@@ -11,47 +12,34 @@ public class StatisticsCalcComponent {
 
     private StatisticsCalcComponent() {}
 
-    // Systematic error percentage (bias) = ((calculated mean - mean) * 100) / mean
-    // Random error percentage (inaccuracy) = 1.65 * coefficient of variation
-    // Total error percentage = Random error percentage + Systematic error percentage (bias)
-
     public static ErrorStatisticsDTO calculateErrorStatistics(List<AnalyticsDTO> analyticsList) {
 
-        var level = analyticsList.get(0).level();
+        return Optional.ofNullable(analyticsList).filter(list -> !list.isEmpty()).map(list -> {
+            var first = list.get(0);
+            var stats = calcMeanAndStandardDeviationOptimized(list);
 
-        var name = analyticsList.get(0).name();
-
-        var mean = analyticsList.get(0).mean();
-
-        var calculatedMean =
-                analyticsList.stream().mapToDouble(AnalyticsDTO::value).average().orElse(0.0);
-
-        var calculatedStandardDeviation = Math.sqrt(analyticsList.stream()
-                .mapToDouble(analytic -> Math.pow(analytic.value() - calculatedMean, 2)).average()
-                .orElse(0.0));
-
-        var coefficientOfVariation = calculatedStandardDeviation / calculatedMean;
-
-        var totalMeasurements = analyticsList.size();
-
-        var sistematicErrorPercentage = (((calculatedMean - mean) * 100) / mean);
-
-        var randomErrorPercentage = 1.65 * coefficientOfVariation;
-
-        var totalErrorPercentage = sistematicErrorPercentage + randomErrorPercentage;
-
-        return new ErrorStatisticsDTO(name, level, calculatedMean, calculatedStandardDeviation,
-                (sistematicErrorPercentage), (randomErrorPercentage), (totalErrorPercentage),
-                totalMeasurements);
+            return new ErrorStatisticsDTO(first.name(), first.level(), stats.mean(),
+                    stats.standardDeviation(), ((stats.mean() - first.mean()) * 100) / first.mean(),
+                    1.65 * (stats.standardDeviation() / stats.mean()),
+                    ((stats.mean() - first.mean()) * 100) / first.mean()
+                            + 1.65 * (stats.standardDeviation() / stats.mean()),
+                    list.size());
+        }).orElseThrow(() -> new IllegalArgumentException("Analytics list cannot be empty"));
     }
 
     public static final MeanAndStdDeviationDTO computeStatistics(List<Double> values) {
-        double sum = values.stream().mapToDouble(Double::doubleValue).sum();
-        int size = values.size();
-        double mean = sum / size;
-        double variance = values.stream().mapToDouble(value -> Math.pow(value - mean, 2)).average()
-                .orElse(0.0);
-        return new MeanAndStdDeviationDTO(mean, Math.sqrt(variance));
+
+        return Optional.ofNullable(values).filter(list -> !list.isEmpty()).map(list -> {
+
+            var stats = list.stream().mapToDouble(Double::doubleValue).summaryStatistics();
+
+            double mean = stats.getAverage();
+
+            double stdDev = Math.sqrt(list.stream().mapToDouble(value -> Math.pow(value - mean, 2))
+                    .average().orElse(0.0));
+
+            return new MeanAndStdDeviationDTO(mean, stdDev);
+        }).orElse(new MeanAndStdDeviationDTO(0.0, 0.0));
     }
 
     public static final MeanAndStdDeviationDTO calcMeanAndStandardDeviationOptimized(
