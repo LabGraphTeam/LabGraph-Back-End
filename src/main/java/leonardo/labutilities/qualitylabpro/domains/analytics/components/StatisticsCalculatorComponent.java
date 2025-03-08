@@ -71,11 +71,12 @@ public class StatisticsCalculatorComponent {
     }
 
     public static final MeanAndStdDeviationDTO computeStatistics(List<Double> values) {
-        return new MeanAndStdDeviationDTO(values.stream()
-                .mapToDouble(Double::doubleValue)
-                .average().orElse(0),
-                Math.sqrt(values.stream()
-                        .mapToDouble(Double::doubleValue).map(value -> Math.pow(value, 2))
-                        .sum() / values.size()));
+
+        var calculetedMean = values.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+
+        var calculetedStdDeviation = Math.sqrt(values.stream().mapToDouble(Double::doubleValue)
+                .map(value -> Math.pow(value - calculetedMean, 2)).sum() / values.size());
+
+        return new MeanAndStdDeviationDTO(calculetedMean, calculetedStdDeviation);
     }
 }

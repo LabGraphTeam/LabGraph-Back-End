@@ -2,6 +2,7 @@ package leonardo.labutilities.qualitylabpro.domains.analytics.controllers;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import jakarta.validation.Valid;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDateRangeParamsDTO;
@@ -181,7 +183,7 @@ public class AnalyticsController extends AnalyticsHelperController {
 
 	@GetMapping("/error-statistics")
 	public ResponseEntity<List<ErrorStatisticsDTO>> getErrorStatistics(
-			@RequestParam List<String> testName, @RequestParam String level,
+			@RequestParam String level,
 			@RequestParam("startDate") LocalDateTime startDate,
 			@RequestParam("endDate") LocalDateTime endDate) {
 
