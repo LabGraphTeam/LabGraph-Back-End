@@ -6,10 +6,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import leonardo.labutilities.qualitylabpro.domains.analytics.components.StatisticsCalcComponent;
+
+import leonardo.labutilities.qualitylabpro.domains.analytics.components.StatisticsCalculatorComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.ErrorStatisticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
@@ -36,9 +38,9 @@ public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
         public List<GroupedMeanAndStdByLevelDTO> returnMeanAndStandardDeviationForGroups(
                         List<GroupedValuesByLevelDTO> records) {
                 return records.stream().map(group -> new GroupedMeanAndStdByLevelDTO(group.level(),
-                                Collections.singletonList(StatisticsCalcComponent.computeStatistics(
-                                                StatisticsCalcComponent.extractRecordValues(
-                                                                group.values())))))
+                                Collections.singletonList(StatisticsCalculatorComponent
+                                                .computeStatistics(StatisticsCalculatorComponent
+                                                                .extractRecordValues(group.values())))))
                                 .toList();
         }
 
@@ -48,24 +50,26 @@ public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
         public MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(String name, String level,
                         LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
                 List<AnalyticsDTO> values = analyticsRepository
-                                .findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd,
-                                                pageable)
-                                .stream().map(AnalyticMapper::toRecord)
-                                .filter(analyticsValidationService::isNotThreeSigma).toList();
-                return StatisticsCalcComponent.calcMeanAndStandardDeviationOptimized(values);
+                                .findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd, pageable)
+                                .stream()
+                                .map(AnalyticMapper::toRecord)
+                                .filter(analyticsValidationService::isNotThreeSigma)
+                                .toList();
+                return StatisticsCalculatorComponent.calculateMeanAndStandardDeviation(values);
         }
 
         @Override
         @Cacheable(value = "calculateGroupedMeanAndStandardDeviation",
                         key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
         public List<GroupedMeanAndStdByLevelDTO> calculateGroupedMeanAndStandardDeviation(
-                        String name, LocalDateTime startDate, LocalDateTime endDate,
-                        Pageable pageable) {
+                        String name,
+                        LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
                 List<AnalyticsDTO> records = analyticsRepository
-                                .findByNameAndDateBetweenGroupByLevel(name, startDate, endDate,
-                                                pageable)
+                                .findByNameAndDateBetweenGroupByLevel(name, startDate, endDate, pageable)
                                 .stream().map(AnalyticMapper::toRecord).toList();
-                var values = records.stream().collect(Collectors.groupingBy(AnalyticsDTO::level))
+
+                var values = records.stream()
+                                .collect(Collectors.groupingBy(AnalyticsDTO::level))
                                 .entrySet().stream()
                                 .map(entry -> new GroupedValuesByLevelDTO(entry.getKey(),
                                                 entry.getValue()))
@@ -77,22 +81,33 @@ public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
         @Override
         public List<ErrorStatisticsDTO> calculateErrorStatistics(List<String> names, String level,
                         LocalDateTime startDate, LocalDateTime endDate) {
-                var analytics = analyticsRepository.findByNameInAndLevelAndDateBetween(names, level,
-                                startDate, endDate, Pageable.unpaged()).stream().toList();
+                var analytics = analyticsRepository
+                                .findByNameInAndLevelAndDateBetween(names, level, startDate, endDate,
+                                                Pageable.unpaged())
+                                .stream().toList();
 
                 if (analytics.isEmpty()) {
                         throw new ResourceNotFoundException(
                                         "No data found for the given parameters");
                 }
 
-                Map<String, List<AnalyticsDTO>> analyticsByName = analytics.stream()
-                                .collect(Collectors.groupingBy(AnalyticsDTO::name));
+                Map<String, List<AnalyticsDTO>> analyticsByName =
+                                analytics.stream()
+                                                .collect(Collectors.groupingBy(AnalyticsDTO::name));
 
                 List<ErrorStatisticsDTO> result = new ArrayList<>();
                 for (Map.Entry<String, List<AnalyticsDTO>> entry : analyticsByName.entrySet()) {
                         List<AnalyticsDTO> analyticsForName = entry.getValue();
-                        ErrorStatisticsDTO stat = StatisticsCalcComponent
-                                        .calculateErrorStatistics(analyticsForName);
+
+                        String defalutName = analyticsForName.get(0).name();
+
+                        String defaultLevel = analyticsForName.get(0).level();
+
+                        double defaultMean = analyticsForName.get(0).mean();
+
+                        ErrorStatisticsDTO stat = StatisticsCalculatorComponent
+                                        .calculateErrorStatistics(analyticsForName, defalutName, defaultLevel,
+                                                        defaultMean);
                         result.add(stat);
                 }
 

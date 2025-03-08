@@ -13,7 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticFailedNotificationComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticObjectValidationComponent;
-import leonardo.labutilities.qualitylabpro.domains.analytics.components.StatisticsCalcComponent;
+import leonardo.labutilities.qualitylabpro.domains.analytics.components.StatisticsCalculatorComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
@@ -47,8 +47,8 @@ public class AnalyticHelperService implements IAnalyticHelperService {
 
         @Override
         public AnalyticsDTO findOneById(Long id) {
-                return AnalyticMapper.toRecord(analyticsRepository.findById(id).orElseThrow(
-                                () -> new CustomGlobalErrorHandling.ResourceNotFoundException(
+                return AnalyticMapper.toRecord(analyticsRepository.findById(id)
+                                .orElseThrow(() -> new CustomGlobalErrorHandling.ResourceNotFoundException(
                                                 "AnalyticsDTO by id not found")));
         }
 
@@ -64,7 +64,8 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         @Override
         @CacheEvict(value = {"analyticsByNameAndDateRange", "meanAndStdDeviation",
                         "calculateGroupedMeanAndStandardDeviation",
-                        "AnalyticsByNameWithPagination"}, allEntries = true)
+                        "AnalyticsByNameWithPagination"},
+                        allEntries = true)
         public void saveNewAnalyticsRecords(List<AnalyticsDTO> valuesOfLevelsList) {
 
                 var newRecords = valuesOfLevelsList.stream()
@@ -133,9 +134,12 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                         Pageable pageable) {
 
                 if (names.contains(name)) {
-                        List<AnalyticsDTO> analyticsList = analyticsRepository
-                                        .findByTestName(name.toUpperCase(), pageable).stream()
-                                        .map(AnalyticMapper::toRecord).toList();
+                        List<AnalyticsDTO> analyticsList =
+                                        analyticsRepository
+                                                        .findByTestName(name.toUpperCase(),
+                                                                        pageable)
+                                                        .stream()
+                                                        .map(AnalyticMapper::toRecord).toList();
                         AnalyticObjectValidationComponent.validateResultsNotEmpty(analyticsList,
                                         "No analytics found with the given name");
                         return analyticsList;
@@ -148,7 +152,8 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         @Cacheable(value = "analyticsByNameAndDateRange",
                         key = "{#names.hashCode(), #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
         public Page<AnalyticsDTO> findAnalyticsByNameInAndDateBetween(List<String> names,
-                        LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
+                        LocalDateTime dateStart,
+                        LocalDateTime dateEnd, Pageable pageable) {
                 return analyticsRepository.findByNameInAndDateBetweenPaged(names, dateStart,
                                 dateEnd, pageable);
         }
@@ -165,9 +170,12 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         @Override
         public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable, String name,
                         String level) {
-                List<AnalyticsDTO> analyticsList = analyticsRepository
-                                .findByNameAndLevel(pageable, name.toUpperCase(), level).stream()
-                                .map(AnalyticMapper::toRecord).toList();
+                List<AnalyticsDTO> analyticsList =
+                                analyticsRepository
+                                                .findByNameAndLevel(pageable, name.toUpperCase(),
+                                                                level)
+                                                .stream()
+                                                .map(AnalyticMapper::toRecord).toList();
                 AnalyticObjectValidationComponent.validateResultsNotEmpty(analyticsList,
                                 "No analytics found for the given name and level");
                 return analyticsList;
@@ -176,8 +184,9 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         @Override
         public Page<AnalyticsDTO> findAnalyticsByNameInByLevel(List<String> names, String level,
                         LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-                Page<AnalyticsDTO> results = analyticsRepository.findByNameInAndLevelAndDateBetween(
-                                names, level, startDate, endDate, pageable);
+                Page<AnalyticsDTO> results =
+                                analyticsRepository.findByNameInAndLevelAndDateBetween(names, level,
+                                                startDate, endDate, pageable);
                 AnalyticObjectValidationComponent.validateResultsNotEmpty(results.getContent(),
                                 "No analytics found for the given parameters with pagination");
                 return results;
@@ -187,13 +196,16 @@ public class AnalyticHelperService implements IAnalyticHelperService {
 
         @Override
         public AnalyticsWithCalcDTO findAnalyticsByNameLevelDate(String name, String level,
-                        LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
+                        LocalDateTime dateStart,
+                        LocalDateTime dateEnd, Pageable pageable) {
                 List<AnalyticsDTO> results = analyticsRepository
                                 .findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd,
                                                 pageable)
-                                .stream().map(AnalyticMapper::toRecord).toList();
-                MeanAndStdDeviationDTO calcSdAndMean = StatisticsCalcComponent
-                                .calcMeanAndStandardDeviationOptimized(results);
+                                .stream()
+                                .map(AnalyticMapper::toRecord).toList();
+                MeanAndStdDeviationDTO calcSdAndMean =
+                                StatisticsCalculatorComponent
+                                                .calculateMeanAndStandardDeviation(results);
 
                 AnalyticsWithCalcDTO analyticsWithCalcDTO =
                                 new AnalyticsWithCalcDTO(results, calcSdAndMean);
@@ -205,12 +217,14 @@ public class AnalyticHelperService implements IAnalyticHelperService {
 
         @Override
         public List<GroupedValuesByLevelDTO> findGroupedAnalyticsByLevel(String name,
-                        LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+                        LocalDateTime startDate,
+                        LocalDateTime endDate, Pageable pageable) {
 
                 List<AnalyticsDTO> records = analyticsRepository
                                 .findByNameAndDateBetweenGroupByLevel(name, startDate, endDate,
                                                 pageable)
-                                .stream().map(AnalyticMapper::toRecord).toList();
+                                .stream()
+                                .map(AnalyticMapper::toRecord).toList();
 
                 AnalyticObjectValidationComponent.validateResultsNotEmpty(records,
                                 "No analytics found for the given name and date between parameters");
@@ -224,15 +238,17 @@ public class AnalyticHelperService implements IAnalyticHelperService {
 
         @Override
         public List<GroupedResultsByLevelDTO> findAnalyticsWithGroupedResults(String name,
-                        LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+                        LocalDateTime startDate,
+                        LocalDateTime endDate, Pageable pageable) {
 
                 List<GroupedValuesByLevelDTO> analytics =
                                 findGroupedAnalyticsByLevel(name, startDate, endDate, pageable);
 
                 Map<String, MeanAndStdDeviationDTO> statsByLevel = analytics.stream()
-                                .collect(Collectors.toMap(GroupedValuesByLevelDTO::level,
-                                                group -> StatisticsCalcComponent
-                                                                .calcMeanAndStandardDeviationOptimized(
+                                .collect(Collectors.toMap(
+                                                GroupedValuesByLevelDTO::level,
+                                                group -> StatisticsCalculatorComponent
+                                                                .calculateMeanAndStandardDeviation(
                                                                                 group.values())));
 
                 return analytics.stream().map(analytic -> new GroupedResultsByLevelDTO(analytic,
@@ -246,7 +262,8 @@ public class AnalyticHelperService implements IAnalyticHelperService {
 
         @Override
         public void updateAnalyticsMeanByNameAndLevelAndLevelLot(String name, String level,
-                        String levelLot, double mean) {
+                        String levelLot,
+                        double mean) {
                 analyticsRepository.updateMeanByNameAndLevelAndLevelLot(name, level, levelLot,
                                 mean);
         }
