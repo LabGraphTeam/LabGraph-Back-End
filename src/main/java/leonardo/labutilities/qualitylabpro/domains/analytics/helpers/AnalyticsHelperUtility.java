@@ -11,9 +11,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import leonardo.labutilities.qualitylabpro.domains.analytics.controllers.AnalyticsHelperController;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AnalyticsHelperUtility {
 
@@ -31,21 +28,6 @@ public class AnalyticsHelperUtility {
 	public static CollectionModel<EntityModel<AnalyticsDTO>> addPaginationLinks(
 			CollectionModel<EntityModel<AnalyticsDTO>> collectionModel, Page<AnalyticsDTO> page,
 			Pageable pageable) {
-
-		Map<String, Object> metadata = new HashMap<>();
-		metadata.put("totalPages", page.getTotalPages());
-		metadata.put("totalElements", page.getTotalElements());
-		metadata.put("currentPage", page.getNumber());
-		metadata.put("pageSize", page.getSize());
-		metadata.put("hasNext", page.hasNext());
-		metadata.put("hasPrevious", page.hasPrevious());
-
-		try {
-			collectionModel
-					.add(Link.of(new ObjectMapper().writeValueAsString(metadata), "metadata"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 
 		UriComponentsBuilder uriBuilder =
 				ServletUriComponentsBuilder.fromCurrentRequest().replacePath("/backend-api"

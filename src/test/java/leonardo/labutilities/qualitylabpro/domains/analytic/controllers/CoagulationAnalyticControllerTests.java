@@ -10,9 +10,11 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
 import leonardo.labutilities.qualitylabpro.configs.TestSecurityConfig;
 import leonardo.labutilities.qualitylabpro.domains.analytics.controllers.CoagulationAnalyticsController;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
@@ -71,8 +74,7 @@ class CoagulationAnalyticControllerTests {
 	@Autowired
 	private JacksonTester<List<AnalyticsDTO>> jacksonGenericValuesRecord;
 
-	private static final DateTimeFormatter FORMATTER =
-			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	private LocalDateTime parse(String dateStr) {
 		return LocalDateTime.parse(dateStr, FORMATTER);
@@ -92,15 +94,16 @@ class CoagulationAnalyticControllerTests {
 		List<AnalyticsDTO> records = createSampleRecordList();
 		Page<AnalyticsDTO> page = new PageImpl<>(records);
 
-		when(this.coagulationAnalyticsService.findAnalyticsByNameInByLevel(anyList(), any(), any(),
-				any(), any(Pageable.class))).thenReturn(page);
+		when(this.coagulationAnalyticsService.findAnalyticsByNameInByLevel(anyList(), any(), any(), any(),
+				any(Pageable.class))).thenReturn(page);
 
-		this.mockMvc.perform(get("/coagulation-analytics/level-date-range").param("level", "PCCC1")
-				.param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00"))
+		this.mockMvc
+				.perform(get("/coagulation-analytics/level-date-range").param("level", "PCCC1")
+						.param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00"))
 				.andExpect(status().isOk());
 
-		verify(this.coagulationAnalyticsService, times(1)).findAnalyticsByNameInByLevel(anyList(),
-				any(), any(), any(), any(Pageable.class));
+		verify(this.coagulationAnalyticsService, times(1)).findAnalyticsByNameInByLevel(anyList(), any(), any(), any(),
+				any(Pageable.class));
 	}
 
 	@Test
@@ -120,14 +123,13 @@ class CoagulationAnalyticControllerTests {
 		List<AnalyticsDTO> records = createSampleRecordList();
 		Page<AnalyticsDTO> page = new PageImpl<>(records);
 
-		when(this.coagulationAnalyticsService.findAnalyticsPagedByNameIn(anyList(),
-				any(Pageable.class))).thenReturn(page);
+		when(this.coagulationAnalyticsService.findAnalyticsPagedByNameIn(anyList(), any(Pageable.class)))
+				.thenReturn(page);
 
 		this.mockMvc.perform(get("/coagulation-analytics").param("page", "0").param("size", "10"))
 				.andExpect(status().isOk());
 
-		verify(this.coagulationAnalyticsService, times(1)).findAnalyticsPagedByNameIn(anyList(),
-				any(Pageable.class));
+		verify(this.coagulationAnalyticsService, times(1)).findAnalyticsPagedByNameIn(anyList(), any(Pageable.class));
 	}
 
 	@Test
@@ -136,15 +138,14 @@ class CoagulationAnalyticControllerTests {
 		List<AnalyticsDTO> records = createSampleRecordList();
 		Page<AnalyticsDTO> page = new PageImpl<>(records);
 
-		when(this.coagulationAnalyticsService.findAnalyticsByNameInAndDateBetween(anyList(), any(),
-				any(), any())).thenReturn(page);
+		when(this.coagulationAnalyticsService.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any()))
+				.thenReturn(page);
 
-		this.mockMvc.perform(get("/coagulation-analytics/date-range")
-				.param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00"))
-				.andExpect(status().isOk());
+		this.mockMvc.perform(get("/coagulation-analytics/date-range").param("startDate", "2025-01-01 00:00:00")
+				.param("endDate", "2025-01-05 00:00:00")).andExpect(status().isOk());
 
-		verify(this.coagulationAnalyticsService, times(1))
-				.findAnalyticsByNameInAndDateBetween(anyList(), any(), any(), any());
+		verify(this.coagulationAnalyticsService, times(1)).findAnalyticsByNameInAndDateBetween(anyList(), any(), any(),
+				any());
 	}
 
 	@Test
@@ -156,21 +157,20 @@ class CoagulationAnalyticControllerTests {
 
 		var mockList = createSampleRecordList().stream().map(AnalyticMapper::toEntity).toList();
 
-		when(analyticsRepository.findByNameAndLevelAndDateBetween(eq("ALB2"), eq("PCCC1"),
-				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockList);
+		when(analyticsRepository.findByNameAndLevelAndDateBetween(eq("ALB2"), eq("PCCC1"), eq(startDate), eq(endDate),
+				any(Pageable.class))).thenReturn(mockList);
 
-		when(this.analyticsStatisticsService.calculateMeanAndStandardDeviation(eq("ALB2"),
-				eq("PCCC1"), eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(result);
+		when(this.analyticsStatisticsService.calculateMeanAndStandardDeviation(eq("ALB2"), eq("PCCC1"), eq(startDate),
+				eq(endDate), any(Pageable.class))).thenReturn(result);
 
 		when(coagulationAnalyticsService.convertLevel("1")).thenReturn("PCCC1");
 
-		this.mockMvc.perform(get("/coagulation-analytics/mean-standard-deviation")
-				.param("name", "ALB2").param("level", "1").param("startDate", "2025-01-01 00:00:00")
-				.param("endDate", "2025-01-05 00:00:00").param("page", "0").param("size", "10"))
-				.andExpect(status().isOk());
+		this.mockMvc.perform(get("/coagulation-analytics/mean-standard-deviation").param("name", "ALB2")
+				.param("level", "1").param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00")
+				.param("page", "0").param("size", "10")).andExpect(status().isOk());
 
-		verify(this.analyticsStatisticsService).calculateMeanAndStandardDeviation(eq("ALB2"),
-				eq("PCCC1"), eq(startDate), eq(endDate), any(Pageable.class));
+		verify(this.analyticsStatisticsService).calculateMeanAndStandardDeviation(eq("ALB2"), eq("PCCC1"),
+				eq(startDate), eq(endDate), any(Pageable.class));
 	}
 
 	@Test
@@ -181,12 +181,12 @@ class CoagulationAnalyticControllerTests {
 		LocalDateTime endDate = this.parse("2025-01-05 00:00:00");
 		List<GroupedResultsByLevelDTO> mockedResult = List.of(this.buildGroupedResults(level));
 
-		when(this.coagulationAnalyticsService.findAnalyticsWithGroupedResults(eq(name),
-				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockedResult);
+		when(this.coagulationAnalyticsService.findAnalyticsWithGroupedResults(eq(name), eq(startDate), eq(endDate),
+				any(Pageable.class))).thenReturn(mockedResult);
 
 		this.mockMvc.perform(get("/coagulation-analytics/grouped-by-level").param("name", name)
-				.param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00")
-				.param("page", "0").param("size", "10")).andExpect(status().isOk());
+				.param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00").param("page", "0")
+				.param("size", "10")).andExpect(status().isOk());
 	}
 
 	@Test
@@ -200,20 +200,17 @@ class CoagulationAnalyticControllerTests {
 		List<MeanAndStdDeviationDTO> values = List.of(meanAndStdDeviationDTO);
 		var groupedValuesByLevelDTOList = List.of(new GroupedMeanAndStdByLevelDTO(level, values));
 
-		when(this.analyticsStatisticsService.calculateGroupedMeanAndStandardDeviation(eq(name),
-				eq(startDate), eq(endDate), any(Pageable.class)))
-						.thenReturn(groupedValuesByLevelDTOList);
+		when(this.analyticsStatisticsService.calculateGroupedMeanAndStandardDeviation(eq(name), eq(startDate),
+				eq(endDate), any(Pageable.class))).thenReturn(groupedValuesByLevelDTOList);
 
-		this.mockMvc.perform(get("/coagulation-analytics/grouped-by-level/mean-deviation")
-				.param("name", name).param("startDate", "2025-01-01 00:00:00")
-				.param("endDate", "2025-01-05 00:00:00").param("page", "0").param("size", "10"))
-				.andExpect(status().isOk());
+		this.mockMvc.perform(get("/coagulation-analytics/grouped-by-level/mean-deviation").param("name", name)
+				.param("startDate", "2025-01-01 00:00:00").param("endDate", "2025-01-05 00:00:00").param("page", "0")
+				.param("size", "10")).andExpect(status().isOk());
 	}
 
 	@Test
 	@DisplayName("Should return analytics with calculations when searching by name, level and date range")
-	void shouldReturnAnalyticsWithCalculationsWhenSearchingByNameLevelAndDateRange()
-			throws Exception {
+	void shouldReturnAnalyticsWithCalculationsWhenSearchingByNameLevelAndDateRange() throws Exception {
 		String name = "ALB2";
 		String level = "PCCC1";
 		String startDateStr = "2025-01-01 00:00:00";
@@ -221,20 +218,20 @@ class CoagulationAnalyticControllerTests {
 		LocalDateTime startDate = this.parse(startDateStr);
 		LocalDateTime endDate = this.parse(endDateStr);
 
-		AnalyticsWithCalcDTO dummyResult = new AnalyticsWithCalcDTO(createSampleRecordList(),
-				new MeanAndStdDeviationDTO(10.5, 2.3));
+		AnalyticsWithCalcDTO dummyResult =
+				new AnalyticsWithCalcDTO(createSampleRecordList(), new MeanAndStdDeviationDTO(10.5, 2.3));
 
 		when(coagulationAnalyticsService.convertLevel(level)).thenReturn(level);
 
-		when(coagulationAnalyticsService.findAnalyticsByNameLevelDate(eq(name), eq(level),
-				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(dummyResult);
+		when(coagulationAnalyticsService.findAnalyticsByNameLevelDate(eq(name), eq(level), eq(startDate), eq(endDate),
+				any(Pageable.class))).thenReturn(dummyResult);
 
 		mockMvc.perform(get("/coagulation-analytics/name-and-level-date-range").param("name", name)
-				.param("level", level).param("startDate", startDateStr).param("endDate", endDateStr)
-				.param("page", "0").param("size", "10")).andExpect(status().isOk());
+				.param("level", level).param("startDate", startDateStr).param("endDate", endDateStr).param("page", "0")
+				.param("size", "10")).andExpect(status().isOk());
 
-		verify(coagulationAnalyticsService).findAnalyticsByNameLevelDate(eq(name), eq(level),
-				eq(startDate), eq(endDate), any(Pageable.class));
+		verify(coagulationAnalyticsService).findAnalyticsByNameLevelDate(eq(name), eq(level), eq(startDate),
+				eq(endDate), any(Pageable.class));
 	}
 
 }
