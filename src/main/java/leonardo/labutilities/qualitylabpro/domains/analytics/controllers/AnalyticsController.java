@@ -26,8 +26,10 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.Analy
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDateRangeParamsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsLevelDateRangeParamsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsNameAndLevelDateRangeParamsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.ComparativeErrorStatisticsParamsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.UpdateAnalyticsMeanDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.ComparativeErrorStatisticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.ErrorStatisticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedResultsByLevelDTO;
@@ -191,6 +193,21 @@ public class AnalyticsController extends AnalyticsHelperController {
 				.calculateErrorStatistics(names, analyticHelperService.convertLevel(level), startDate, endDate);
 
 		return ResponseEntity.ok(errorStatistics);
+	}
+
+	@GetMapping("/error-statistics/comparative")
+	public ResponseEntity<ComparativeErrorStatisticsDTO> getErrorStatisticsComparative(
+			@ParameterObject ComparativeErrorStatisticsParamsDTO params) {
+
+		ComparativeErrorStatisticsDTO comparativeErrorStatisticsDTO = analyticsStatisticsService
+				.calculateComparativeErrorStatistics(params.analyticName(),
+						analyticHelperService.convertLevel(params.analyticLevel()),
+						params.firstStartDate(),
+						params.firstEndDate(),
+						params.secondStartDate(),
+						params.secondEndDate());
+
+		return ResponseEntity.ok(comparativeErrorStatisticsDTO);
 	}
 
 	@PatchMapping()

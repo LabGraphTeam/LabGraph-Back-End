@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.StatisticsCalculatorComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.ComparativeErrorStatisticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.ErrorStatisticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedValuesByLevelDTO;
@@ -110,6 +111,42 @@ public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
                                                         defaultMean);
                         result.add(stat);
                 }
+
+                return result;
+        }
+
+        @Override
+        public ComparativeErrorStatisticsDTO calculateComparativeErrorStatistics(String analyticName,
+                        String level, LocalDateTime firstStartDate,
+                        LocalDateTime firstEndDate,
+                        LocalDateTime secondStartDate,
+                        LocalDateTime secondEndDate) {
+
+                List<String> monthList = List.of(firstStartDate.getMonth().name(), secondStartDate.getMonth().name());
+
+                List<AnalyticsDTO> firstAnalytic = analyticsRepository
+                                .findByNameAndLevelAndDateBetween(
+                                                analyticName, level, firstStartDate,
+                                                firstEndDate, Pageable.unpaged())
+                                .stream().map(AnalyticMapper::toRecord).toList();
+
+                List<AnalyticsDTO> secondAnalytic = analyticsRepository
+                                .findByNameAndLevelAndDateBetween(
+                                                analyticName, level, secondStartDate,
+                                                secondEndDate, Pageable.unpaged())
+                                .stream().map(AnalyticMapper::toRecord).toList();
+
+                if (firstAnalytic.isEmpty() || secondAnalytic.isEmpty()) {
+                        throw new ResourceNotFoundException(
+                                        "No data found for the given parameters");
+                }
+
+                double defaultMean = firstAnalytic.get(0).mean();
+
+                ComparativeErrorStatisticsDTO result = StatisticsCalculatorComponent
+                                .calculateComparativeErrorStatistics(
+                                                analyticName, level, defaultMean, firstAnalytic, secondAnalytic,
+                                                monthList);
 
                 return result;
         }
