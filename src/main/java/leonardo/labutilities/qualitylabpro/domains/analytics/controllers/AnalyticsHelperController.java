@@ -2,6 +2,7 @@ package leonardo.labutilities.qualitylabpro.domains.analytics.controllers;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.helpers.AnalyticsHelperUtility;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
@@ -35,7 +37,7 @@ public class AnalyticsHelperController {
 	}
 
 	public ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAllAnalyticsWithLinks(
-			List<String> names, @PageableDefault(size = 100) @ParameterObject Pageable pageable) {
+			List<String> names, Pageable pageable) {
 		Page<AnalyticsDTO> resultsList =
 				this.analyticHelperService.findAnalyticsPagedByNameIn(names, pageable);
 

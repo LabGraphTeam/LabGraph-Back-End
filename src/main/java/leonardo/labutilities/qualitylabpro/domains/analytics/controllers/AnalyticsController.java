@@ -74,8 +74,7 @@ public class AnalyticsController extends AnalyticsHelperController {
 
 	@GetMapping
 	public ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAllAnalytics(
-			@PageableDefault(sort = "measurementDate",
-					direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
+			@ParameterObject Pageable pageable) {
 		log.info("Fetching all analytics with pagination: {}", pageable);
 		return getAllAnalyticsWithLinks(names, pageable);
 	}

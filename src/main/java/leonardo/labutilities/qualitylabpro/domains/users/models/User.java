@@ -1,17 +1,19 @@
 package leonardo.labutilities.qualitylabpro.domains.users.models;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +23,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.MapKey;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
@@ -49,10 +52,12 @@ public class User implements UserDetails {
     private String email;
 
     @OneToMany(mappedBy = "ownerUserId", fetch = FetchType.LAZY)
-    private List<Analytic> analytics = new ArrayList<>();
+    @MapKey(name = "id")
+    private SortedMap<Long, Analytic> analytics = new TreeMap<>();
 
     @OneToMany(mappedBy = "validatorUserId", fetch = FetchType.LAZY)
-    private List<Analytic> validatedAnalytics = new ArrayList<>();
+    @MapKey(name = "id")
+    private SortedMap<Long, Analytic> validatedAnalytics = new TreeMap<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,
             fetch = FetchType.LAZY)

@@ -5,12 +5,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticFailedNotificationComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticObjectValidationComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.StatisticsCalculatorComponent;
@@ -66,27 +68,35 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                         "calculateGroupedMeanAndStandardDeviation",
                         "AnalyticsByNameWithPagination"},
                         allEntries = true)
+
+        // ==================== USER OPERATIONS ====================
+
         public void saveNewAnalyticsRecords(List<AnalyticsDTO> valuesOfLevelsList) {
 
-                var newRecords = valuesOfLevelsList.stream()
+                var newAnalyticsRecords = valuesOfLevelsList.stream()
                                 .filter(analyticsValidationService::isNewAnalyticRecord)
                                 .map(AnalyticMapper::toNewEntity).toList();
 
-                if (newRecords.isEmpty()) {
+                if (newAnalyticsRecords.isEmpty()) {
                         log.warn("No new analytics records to save.");
                         throw new CustomGlobalErrorHandling.DataIntegrityViolationException();
                 }
 
-                List<Analytic> persistedRecords = analyticsRepository.saveAll(newRecords);
+                var authentication = SecurityContextHolder.getContext().getAuthentication();
+                if (authentication != null && authentication.isAuthenticated()
+                                && authentication.getPrincipal() instanceof User user) {
+                        newAnalyticsRecords.stream().forEach(analyticRecord -> analyticRecord.setOwnerUserId(user));
+                        List<Analytic> persistedRecords = analyticsRepository.saveAll(newAnalyticsRecords);
 
-                List<AnalyticsDTO> failedRecords = AnalyticObjectValidationComponent
-                                .filterFailedRecords(persistedRecords).stream()
-                                .map(AnalyticMapper::toRecord).toList();
+                        List<AnalyticsDTO> failedRecords = AnalyticObjectValidationComponent
+                                        .filterFailedRecords(persistedRecords).stream()
+                                        .map(AnalyticMapper::toRecord).toList();
 
-                analyticFailedNotificationComponent.processFailedRecordsNotification(failedRecords);
+                        analyticFailedNotificationComponent.processFailedRecordsNotification(failedRecords);
+
+                }
+
         }
-
-        // ==================== USER OPERATIONS ====================
 
         @Override
         public AnalyticsDTO validateAnalyticByUser(Long id) {

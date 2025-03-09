@@ -2,6 +2,7 @@ package leonardo.labutilities.qualitylabpro.domains.analytics.repositories;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import jakarta.persistence.QueryHint;
 import jakarta.transaction.Transactional;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
@@ -96,32 +98,31 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate,
 			Pageable pageable);
 
-
 	@Query(value = """
 			SELECT ga FROM analytics ga WHERE ga.testName IN (:names) ORDER BY ga.measurementDate ASC
 			""")
 	List<Analytic> findByNameIn(@Param("names") List<String> names, Pageable pageable);
 
 	@Query(value = """
-			SELECT ga FROM analytics ga WHERE ga.testName IN (:names) ORDER BY ga.measurementDate ASC
+			SELECT ga FROM analytics ga WHERE ga.testName IN (:names)
 			""")
 	Page<AnalyticsDTO> findByNameInPaged(@Param("names") List<String> names, Pageable pageable);
 
 	// General Paged Analytics
 	@Query(value = """
-			SELECT ga FROM analytics ga ORDER BY ga.measurementDate ASC
+			SELECT ga FROM analytics ga
 			""")
 	Page<AnalyticsDTO> findPaged(Pageable pageable);
 
 	// Analytics by Date Range
-	@Query("SELECT ga FROM analytics ga WHERE ga.measurementDate BETWEEN :startDate AND :endDate ORDER BY ga.measurementDate DESC")
+	@Query("SELECT ga FROM analytics ga WHERE ga.measurementDate BETWEEN :startDate AND :endDate")
 	List<Analytic> findByDateBetween(@Param("startDate") LocalDateTime startDate,
 			@Param("endDate") LocalDateTime endDate);
 
 	// Grouped Analytics
 	@Query("""
 			SELECT ga FROM analytics ga WHERE ga.testName = :name
-			AND ga.measurementDate BETWEEN :startDate AND :endDate GROUP BY ga.controlLevel, ga.id ORDER BY ga.measurementDate ASC
+			AND ga.measurementDate BETWEEN :startDate AND :endDate
 			""")
 	List<Analytic> findByNameAndDateBetweenGroupByLevel(@Param("name") String name,
 			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate,
