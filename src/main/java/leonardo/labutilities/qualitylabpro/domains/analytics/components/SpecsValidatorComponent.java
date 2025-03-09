@@ -1,7 +1,9 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.components;
 
 import java.util.List;
+
 import org.springframework.stereotype.Component;
+
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.ThresholdAnalyticsRules;
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.ValidationAnalyticsDescriptions;
 import lombok.Getter;

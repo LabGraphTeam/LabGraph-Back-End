@@ -1,5 +1,7 @@
 package leonardo.labutilities.qualitylabpro.configs.security;
 
+import static leonardo.labutilities.qualitylabpro.configs.constants.ApiEndpoints.PUBLIC_PATHS;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,9 +16,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import leonardo.labutilities.qualitylabpro.configs.constants.ApiEndpoints;
 import leonardo.labutilities.qualitylabpro.domains.users.enums.UserRoles;
-import static leonardo.labutilities.qualitylabpro.configs.constants.ApiEndpoints.PUBLIC_PATHS;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -42,19 +44,19 @@ public class SecurityConfiguration {
                               // Admin endpoints
                               req.requestMatchers(HttpMethod.DELETE,
                                           ApiEndpoints.ADMIN_MODIFY_PATHS)
-                                          .hasRole(UserRoles.ADMIN.name());
+                                          .hasRole(UserRoles.ADMIN.getRole());
                               req.requestMatchers(HttpMethod.PUT, ApiEndpoints.ADMIN_MODIFY_PATHS)
-                                          .hasRole(UserRoles.ADMIN.name());
+                                          .hasRole(UserRoles.ADMIN.getRole());
                               req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.ADMIN_MODIFY_PATHS)
-                                          .hasRole(UserRoles.ADMIN.name());
+                                          .hasRole(UserRoles.ADMIN.getRole());
                               req.requestMatchers(HttpMethod.POST, ApiEndpoints.ADMIN_MODIFY_PATHS)
-                                          .hasRole(UserRoles.ADMIN.name());
+                                          .hasRole(UserRoles.ADMIN.getRole());
 
                               // User management (admin only)
                               req.requestMatchers(HttpMethod.DELETE, ApiEndpoints.USERS_PATH)
-                                          .hasRole(UserRoles.ADMIN.name());
+                                          .hasRole(UserRoles.ADMIN.getRole());
                               req.requestMatchers(HttpMethod.PUT, ApiEndpoints.USERS_PATH)
-                                          .hasRole(UserRoles.ADMIN.name());
+                                          .hasRole(UserRoles.ADMIN.getRole());
 
                               // Require authentication for all other requests
                               req.anyRequest().authenticated();

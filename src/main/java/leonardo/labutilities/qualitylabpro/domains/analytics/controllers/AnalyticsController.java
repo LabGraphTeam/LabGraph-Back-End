@@ -188,7 +188,7 @@ public class AnalyticsController extends AnalyticsHelperController {
 			@RequestParam("endDate") LocalDateTime endDate) {
 
 		List<ErrorStatisticsDTO> errorStatistics = analyticsStatisticsService
-				.calculateErrorStatistics(names, level, startDate, endDate);
+				.calculateErrorStatistics(names, analyticHelperService.convertLevel(level), startDate, endDate);
 
 		return ResponseEntity.ok(errorStatistics);
 	}

@@ -1,6 +1,9 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests;
 
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +15,8 @@ public record AnalyticsDTO(
                                 example = "1") Long id,
 
                 @Schema(description = "Date and time when the analysis was performed",
-                                example = "2023-12-20 14:30:00") @NotNull LocalDateTime date,
+                                example = "2023-12-20 14:30:00") @JsonFormat(
+                                                pattern = "yyyy-MM-dd HH:mm:ss") @NotNull LocalDateTime date,
 
                 @Schema(description = "Control level lot number", example = "LOT123",
                                 requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank String level_lot,

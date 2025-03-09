@@ -46,6 +46,16 @@ public class StatisticsCalculatorComponent {
         return randomErrorPercentage + sistematicErrorPercentage;
     }
 
+    public static final MeanAndStdDeviationDTO computeStatistics(List<Double> values) {
+
+        var calculetedMean = values.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+
+        var calculetedStdDeviation = Math.sqrt(values.stream().mapToDouble(Double::doubleValue)
+                .map(value -> Math.pow(value - calculetedMean, 2)).sum() / values.size());
+
+        return new MeanAndStdDeviationDTO(calculetedMean, calculetedStdDeviation);
+    }
+
     public static final ErrorStatisticsDTO calculateErrorStatistics(
             List<AnalyticsDTO> analyticsList,
             String defaultName,
@@ -70,13 +80,6 @@ public class StatisticsCalculatorComponent {
                 analyticsList.size());
     }
 
-    public static final MeanAndStdDeviationDTO computeStatistics(List<Double> values) {
+    // public static final 
 
-        var calculetedMean = values.stream().mapToDouble(Double::doubleValue).average().orElse(0);
-
-        var calculetedStdDeviation = Math.sqrt(values.stream().mapToDouble(Double::doubleValue)
-                .map(value -> Math.pow(value - calculetedMean, 2)).sum() / values.size());
-
-        return new MeanAndStdDeviationDTO(calculetedMean, calculetedStdDeviation);
-    }
 }
