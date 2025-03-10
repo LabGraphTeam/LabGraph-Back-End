@@ -1,8 +1,0 @@
-            
-name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          trivy-config: trivy.yaml
-          cache-dir: '/tmp/trivy-cache'
