@@ -32,7 +32,7 @@ class HematologyAnalyticServiceTests extends AnalyticServiceTests {
 	@Mock
 	private RulesProviderComponent controlRulesValidators;
 
-	private HematologyAnalyticService hematologyAnalyticService;
+	private final HematologyAnalyticService hematologyAnalyticService;
 
 	HematologyAnalyticServiceTests() {
 		this.hematologyAnalyticService = new HematologyAnalyticService(this.analyticsRepository,

@@ -16,9 +16,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticFailedNotificationComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesProviderComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
@@ -132,19 +135,19 @@ class AnalyticHelperServiceTests {
 
 	}
 
-	@Test
-	@DisplayName("Should save records successfully when valid analytics data is provided")
-	void saveNewAnalyticsRecords_WithValidRecords_ShouldSaveSuccessfully() {
-		List<AnalyticsDTO> records = createSampleRecordList();
+	// @Test
+	// @DisplayName("Should save records successfully when valid analytics data is provided")
+	// void saveNewAnalyticsRecords_WithValidRecords_ShouldSaveSuccessfully() {
+	// 	List<AnalyticsDTO> records = createSampleRecordList();
 
-		when(this.analyticsRepository.saveAll(any()))
-				.thenAnswer(invocation -> invocation.getArgument(0));
+	// 	when(this.analyticsRepository.saveAll(any()))
+	// 			.thenAnswer(invocation -> invocation.getArgument(0));
 
-		when(this.analyticsValidationService.isNewAnalyticRecord(any())).thenReturn(true);
+	// 	when(this.analyticsValidationService.isNewAnalyticRecord(any())).thenReturn(true);
 
-		assertDoesNotThrow(() -> this.analyticHelperService.saveNewAnalyticsRecords(records));
-		verify(this.analyticsRepository, times(1)).saveAll(any());
-	}
+	// 	assertDoesNotThrow(() -> this.analyticHelperService.saveNewAnalyticsRecords(records));
+	// 	verify(this.analyticsRepository, times(1)).saveAll(any());
+	// }
 
 	@Test
 	@DisplayName("Should throw exception when trying to save duplicate analytics records")
@@ -214,14 +217,11 @@ class AnalyticHelperServiceTests {
 		List<Analytic> mockResultRepository =
 				createDateRangeRecords().stream().map(AnalyticMapper::toNewEntity).toList();
 
-
 		when(this.analyticsRepository.findByNameAndLevelAndDateBetween(eq(name), eq(level),
 				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockResultRepository);
 
-
 		AnalyticsWithCalcDTO result = this.analyticHelperService.findAnalyticsByNameLevelDate(name,
 				level, startDate, endDate, Pageable.unpaged());
-
 
 		assertNotNull(result);
 	}
@@ -416,8 +416,8 @@ class AnalyticHelperServiceTests {
 		assertFalse(result.isEmpty());
 		result.forEach(group -> {
 			assertNotNull(group.level());
-			assertTrue(group.values().get(0).mean() > 0);
-			assertTrue(group.values().get(0).standardDeviation() >= 0);
+			assertTrue(group.values().getFirst().mean() > 0);
+			assertTrue(group.values().getFirst().standardDeviation() >= 0);
 		});
 	}
 

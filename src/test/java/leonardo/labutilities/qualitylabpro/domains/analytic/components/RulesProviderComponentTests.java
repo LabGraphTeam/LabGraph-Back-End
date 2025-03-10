@@ -65,7 +65,7 @@ class RulesProviderComponentTests {
         List<AnalyticsDTO> inputAnalytics = List.of(inputAnalytic);
 
         // Create violation data - value exceeds mean + 3*SD (100 + 3*2 = 106)
-        List<AnalyticsDTO> repositoryLastData = createAnalyticsList(testName, level, 100.0, 2.0,
+        List<AnalyticsDTO> repositoryLastData = createAnalyticsList(testName, level,
                 new double[] { 107.0, 102.0, 103.0 });
 
         when(analyticsRepository.findLast10ByTestNameAndControlLevel(testName, level))
@@ -93,7 +93,7 @@ class RulesProviderComponentTests {
         List<AnalyticsDTO> inputAnalytics = List.of(inputAnalytic);
 
         // Create violation data - 4 consecutive values above mean + 1*SD (100 + 1*2 = 102)
-        List<AnalyticsDTO> repositoryData = createAnalyticsList(testName, level, 100.0, 2.0,
+        List<AnalyticsDTO> repositoryData = createAnalyticsList(testName, level,
                 new double[] { 103.0, 103.0, 103.0, 103.0, 99.0 });
 
         when(analyticsRepository.findLast10ByTestNameAndControlLevel(testName, level))
@@ -124,7 +124,7 @@ class RulesProviderComponentTests {
         double[] tenHighValues =
                 { 103.0, 103.0, 103.0, 103.0, 103.0, 103.0, 103.0, 103.0, 103.0, 103.0 };
         List<AnalyticsDTO> repositoryData =
-                createAnalyticsList(testName, level, 100.0, 2.0, tenHighValues);
+                createAnalyticsList(testName, level, tenHighValues);
 
         when(analyticsRepository.findLast10ByTestNameAndControlLevel(testName, level))
                 .thenReturn(repositoryData);
@@ -151,7 +151,7 @@ class RulesProviderComponentTests {
         List<AnalyticsDTO> inputAnalytics = List.of(inputAnalytic);
 
         // Create violation data with both 1-3s and 4-1s violations
-        List<AnalyticsDTO> repositoryData = createAnalyticsList(testName, level, 100.0, 2.0,
+        List<AnalyticsDTO> repositoryData = createAnalyticsList(testName, level,
                 new double[] { 107.0, 103.0, 103.0, 103.0, 103.0 });
 
         when(analyticsRepository.findLast10ByTestNameAndControlLevel(testName, level))
@@ -179,7 +179,7 @@ class RulesProviderComponentTests {
         List<AnalyticsDTO> inputAnalytics = List.of(inputAnalytic);
 
         // Create data with no violations
-        List<AnalyticsDTO> repositoryData = createAnalyticsList(testName, level, 100.0, 2.0,
+        List<AnalyticsDTO> repositoryData = createAnalyticsList(testName, level,
                 new double[] { 101.0, 99.0, 100.5, 101.5, 99.5 });
 
         when(analyticsRepository.findLast10ByTestNameAndControlLevel(testName, level))
@@ -206,7 +206,7 @@ class RulesProviderComponentTests {
         List<AnalyticsDTO> inputAnalytics = List.of(inputAnalytic1, inputAnalytic2);
 
         // Create violation data
-        List<AnalyticsDTO> repositoryData = createAnalyticsList(testName, level, 100.0, 2.0,
+        List<AnalyticsDTO> repositoryData = createAnalyticsList(testName, level,
                 new double[] { 107.0, 103.0, 103.0, 103.0, 103.0 });
 
         when(analyticsRepository.findLast10ByTestNameAndControlLevel(testName, level))
@@ -236,11 +236,11 @@ class RulesProviderComponentTests {
                 sample.description());
     }
 
-    private List<AnalyticsDTO> createAnalyticsList(String name, String level, double mean,
-            double sd, double[] values) {
+    private List<AnalyticsDTO> createAnalyticsList(String name, String level,
+                                                   double[] values) {
         List<AnalyticsDTO> analytics = new ArrayList<>();
         for (double value : values) {
-            analytics.add(createAnalyticsDTO(name, level, value, mean, sd));
+            analytics.add(createAnalyticsDTO(name, level, value, 100.0, 2.0));
         }
         return analytics;
     }

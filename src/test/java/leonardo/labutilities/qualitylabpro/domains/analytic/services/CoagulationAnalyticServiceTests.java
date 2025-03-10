@@ -32,7 +32,7 @@ class CoagulationAnalyticServiceTests extends AnalyticServiceTests {
 	@Mock
 	private RulesProviderComponent controlRulesValidators;
 
-	private CoagulationAnalyticService coagulationAnalyticService;
+	private final CoagulationAnalyticService coagulationAnalyticService;
 
 	CoagulationAnalyticServiceTests() {
 		this.coagulationAnalyticService = new CoagulationAnalyticService(this.analyticsRepository,

@@ -10,7 +10,7 @@ public class AnalyticMapper {
 
 	}
 
-	private static SpecsValidatorComponent rulesValidatorComponent = new SpecsValidatorComponent();
+	private static final SpecsValidatorComponent rulesValidatorComponent = new SpecsValidatorComponent();
 
 	private static Analytic toEntityRulesValidator(AnalyticsDTO analyticsDTO) {
 		Analytic analytic = new Analytic();

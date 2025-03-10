@@ -70,9 +70,7 @@ class EmailServiceTests {
 				.send(any(MimeMessage.class));
 
 		// Then
-		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-			this.emailService.sendHtmlEmailWithoutBcc(emailDTO);
-		});
+		RuntimeException exception = assertThrows(RuntimeException.class, () -> this.emailService.sendHtmlEmailWithoutBcc(emailDTO));
 		assertEquals("Email sending failed", exception.getMessage());
 	}
 

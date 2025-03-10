@@ -29,8 +29,8 @@ class AnalyticsValidationServiceTests {
 
     private AnalyticsValidationService analyticsValidationService;
 
-    private static AnalyticsDTO validRecord = mock(AnalyticsDTO.class);
-    private static AnalyticsDTO invalidRecord = mock(AnalyticsDTO.class);
+    private static final AnalyticsDTO validRecord = mock(AnalyticsDTO.class);
+    private static final AnalyticsDTO invalidRecord = mock(AnalyticsDTO.class);
 
 
 

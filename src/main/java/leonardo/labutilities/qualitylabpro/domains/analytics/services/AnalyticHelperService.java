@@ -85,7 +85,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 var authentication = SecurityContextHolder.getContext().getAuthentication();
                 if (authentication != null && authentication.isAuthenticated()
                                 && authentication.getPrincipal() instanceof User user) {
-                        newAnalyticsRecords.stream().forEach(analyticRecord -> analyticRecord.setOwnerUserId(user));
+                        newAnalyticsRecords.forEach(analyticRecord -> analyticRecord.setOwnerUserId(user));
                         List<Analytic> persistedRecords = analyticsRepository.saveAll(newAnalyticsRecords);
 
                         List<AnalyticsDTO> failedRecords = AnalyticObjectValidationComponent

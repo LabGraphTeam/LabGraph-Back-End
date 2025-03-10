@@ -1,5 +1,8 @@
 package leonardo.labutilities.qualitylabpro.domains.users.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ExportFormat {
 
     CSV("CSV"), EXCEL("EXCEL"), PDF("PDF"), JSON("JSON");
@@ -10,7 +13,4 @@ public enum ExportFormat {
         this.format = format;
     }
 
-    public String getFormat() {
-        return format;
-    }
 }

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -193,7 +194,7 @@ public class CustomGlobalErrorHandling {
 		ApiError apiError = ApiError.of(HttpStatus.METHOD_NOT_ALLOWED, "Method Not Allowed",
 				request.getRequestURI());
 		apiError.details().add("The HTTP method used is not supported for this endpoint.");
-		apiError.details().add("Allowed methods: " + String.join(", ", ex.getSupportedMethods()));
+		apiError.details().add("Allowed methods: " + String.join(", ", Objects.requireNonNull(ex.getSupportedMethods())));
 		apiError.details()
 				.add("Please check the API documentation for the correct HTTP method to use.");
 
