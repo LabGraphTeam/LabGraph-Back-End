@@ -100,11 +100,11 @@ public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
                 for (Map.Entry<String, List<AnalyticsDTO>> entry : analyticsByName.entrySet()) {
                         List<AnalyticsDTO> analyticsForName = entry.getValue();
 
-                        String defalutName = analyticsForName.get(0).name();
+                        String defalutName = analyticsForName.getFirst().name();
 
-                        String defaultLevel = analyticsForName.get(0).level();
+                        String defaultLevel = analyticsForName.getFirst().level();
 
-                        double defaultMean = analyticsForName.get(0).mean();
+                        double defaultMean = analyticsForName.getFirst().mean();
 
                         ErrorStatisticsDTO stat = StatisticsCalculatorComponent
                                         .calculateErrorStatistics(analyticsForName, defalutName, defaultLevel,
@@ -141,13 +141,11 @@ public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
                                         "No data found for the given parameters");
                 }
 
-                double defaultMean = firstAnalytic.get(0).mean();
+                double defaultMean = firstAnalytic.getFirst().mean();
 
-                ComparativeErrorStatisticsDTO result = StatisticsCalculatorComponent
-                                .calculateComparativeErrorStatistics(
-                                                analyticName, level, defaultMean, firstAnalytic, secondAnalytic,
-                                                monthList);
-
-                return result;
+            return StatisticsCalculatorComponent
+                            .calculateComparativeErrorStatistics(
+                                            analyticName, level, defaultMean, firstAnalytic, secondAnalytic,
+                                            monthList);
         }
 }

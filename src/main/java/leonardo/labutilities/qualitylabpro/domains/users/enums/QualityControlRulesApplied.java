@@ -1,5 +1,8 @@
 package leonardo.labutilities.qualitylabpro.domains.users.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum QualityControlRulesApplied {
     RULE_1_3S("1-3s", "One observation exceeds mean ±3 SD"), RULE_4_1S("4-1s",
             "Four consecutive measurements exceed ±1 SD on same side of mean"), RULE_10X("10x",
@@ -14,11 +17,4 @@ public enum QualityControlRulesApplied {
         this.description = description;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
 }

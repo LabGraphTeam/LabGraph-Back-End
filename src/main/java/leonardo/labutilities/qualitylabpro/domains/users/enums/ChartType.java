@@ -1,5 +1,8 @@
 package leonardo.labutilities.qualitylabpro.domains.users.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ChartType {
 
     SINGLE_LINE("single_line_chart"), MULTI_LINE("multi_line_chart");
@@ -10,7 +13,4 @@ public enum ChartType {
         this.type = type;
     }
 
-    public String getType() {
-        return type;
-    }
 }

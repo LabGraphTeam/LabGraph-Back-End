@@ -19,35 +19,35 @@ public class StatisticsCalculatorComponent {
 
         private StatisticsCalculatorComponent() {}
 
-        public static final MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(
-                        List<AnalyticsDTO> values) {
+        public static MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(
+                List<AnalyticsDTO> values) {
                 return computeStatistics(extractRecordValues(values));
         }
 
-        public static final List<Double> extractRecordValues(List<AnalyticsDTO> records) {
+        public static List<Double> extractRecordValues(List<AnalyticsDTO> records) {
                 return records.stream().map(AnalyticsDTO::value).toList();
         }
 
-        public static final double calculateCoefficientOfVariation(double standartDeviation,
-                        double mean) {
+        public static double calculateCoefficientOfVariation(double standartDeviation,
+                                                             double mean) {
                 return (standartDeviation / mean) * 100;
         }
 
-        public static final double calculateSistematicErrorPercentage(double calculatedMean,
-                        double mean) {
+        public static double calculateSistematicErrorPercentage(double calculatedMean,
+                                                                double mean) {
                 return ((calculatedMean - mean) * 100) / mean;
         }
 
-        public static final double calculateRamdonErrorPercentage(double coefficientOfVariation) {
+        public static double calculateRamdonErrorPercentage(double coefficientOfVariation) {
                 return 1.65 * coefficientOfVariation;
         }
 
-        public static final double calculateTotalErrorPercentage(double randomErrorPercentage,
-                        double sistematicErrorPercentage) {
+        public static double calculateTotalErrorPercentage(double randomErrorPercentage,
+                                                           double sistematicErrorPercentage) {
                 return randomErrorPercentage + sistematicErrorPercentage;
         }
 
-        public static final MeanAndStdDeviationDTO computeStatistics(List<Double> values) {
+        public static MeanAndStdDeviationDTO computeStatistics(List<Double> values) {
 
                 var calculetedMean = values.stream().mapToDouble(Double::doubleValue).average().orElse(0);
 
@@ -57,10 +57,10 @@ public class StatisticsCalculatorComponent {
                 return new MeanAndStdDeviationDTO(calculetedMean, calculetedStdDeviation);
         }
 
-        public static final ErrorStatisticsDTO calculateErrorStatistics(
-                        List<AnalyticsDTO> analyticsList,
-                        String defaultName,
-                        String defaultLevel, double defaultMean) {
+        public static ErrorStatisticsDTO calculateErrorStatistics(
+                List<AnalyticsDTO> analyticsList,
+                String defaultName,
+                String defaultLevel, double defaultMean) {
 
                 MeanAndStdDeviationDTO calculatedStatistics =
                                 calculateMeanAndStandardDeviation(analyticsList);
@@ -81,10 +81,10 @@ public class StatisticsCalculatorComponent {
                                 analyticsList.size());
         }
 
-        public static final ComparativeErrorStatisticsDTO calculateComparativeErrorStatistics(
-                        String defaultName, String defaultLevel, double defaultMean,
-                        List<AnalyticsDTO> firstAnalyticsList,
-                        List<AnalyticsDTO> secondAnalyticsList, List<String> monthList) {
+        public static ComparativeErrorStatisticsDTO calculateComparativeErrorStatistics(
+                String defaultName, String defaultLevel, double defaultMean,
+                List<AnalyticsDTO> firstAnalyticsList,
+                List<AnalyticsDTO> secondAnalyticsList, List<String> monthList) {
 
                 ErrorStatisticsDTO firstErrorStatistics = calculateErrorStatistics(firstAnalyticsList,
                                 defaultName, defaultLevel, defaultMean);

@@ -21,9 +21,8 @@ class AnalyticTests {
 	void setUp() {
 		this.user = new User();
 		this.user.setId(1L);
-		var analyticEntity = AnalyticMapper.toEntity(createSampleRecord());
 
-		this.analytic = analyticEntity;
+        this.analytic = AnalyticMapper.toEntity(createSampleRecord());
 		this.analyticsDTO = new AnalyticsDTO(this.analytic);
 	}
 

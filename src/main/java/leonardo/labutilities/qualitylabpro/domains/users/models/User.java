@@ -135,7 +135,7 @@ public class User implements UserDetails {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof User)) {
+        if (!(o instanceof User user)) {
             return false;
         }
         Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy
@@ -147,7 +147,6 @@ public class User implements UserDetails {
         if (thisEffectiveClass != oEffectiveClass) {
             return false;
         }
-        User user = (User) o;
         return this.getId() != null && Objects.equals(this.getId(), user.getId());
     }
 

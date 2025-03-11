@@ -32,7 +32,7 @@ class BiochemistryAnalyticServiceTests extends AnalyticServiceTests {
 	@Mock
 	private RulesProviderComponent controlRulesValidators;
 
-	private BiochemistryAnalyticService biochemistryAnalyticService;
+	private final BiochemistryAnalyticService biochemistryAnalyticService;
 
 	BiochemistryAnalyticServiceTests() {
 		this.biochemistryAnalyticService = new BiochemistryAnalyticService(this.analyticsRepository,

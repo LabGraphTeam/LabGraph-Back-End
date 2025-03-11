@@ -49,9 +49,7 @@ class AuthenticationServiceTests {
 		when(this.userRepository.getReferenceOneByUsername(username)).thenReturn(null);
 
 		// Act & Assert
-		var exception = assertThrows(UsernameNotFoundException.class, () -> {
-			this.authenticationService.loadUserByUsername(username);
-		});
+		var exception = assertThrows(UsernameNotFoundException.class, () -> this.authenticationService.loadUserByUsername(username));
 
 		assertEquals("User not found: " + username, exception.getMessage());
 		verify(this.userRepository, times(1)).getReferenceOneByUsername(username);

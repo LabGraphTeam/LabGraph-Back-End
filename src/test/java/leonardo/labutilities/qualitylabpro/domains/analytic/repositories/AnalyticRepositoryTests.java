@@ -89,7 +89,7 @@ class AnalyticRepositoryTests {
 		this.entityManager.clear();
 		Analytic analytic = this.repository
 				.findByNameAndLevelAndLevelLot(PageRequest.of(0, 10), "ALB2", "PCCC1", "0774693")
-				.get(0);
+				.getFirst();
 		System.out.println(analytic.getTargetMean());
 		assertThat(analytic.getTargetMean()).isEqualTo(3.25);
 	}
@@ -142,7 +142,7 @@ class AnalyticRepositoryTests {
 				this.testDate.minusDays(1), this.testDate.plusDays(1), Pageable.unpaged());
 
 		assertThat(results).isNotEmpty();
-		assertThat(results.getContent().get(0).name()).isEqualTo("ALB2");
+		assertThat(results.getContent().getFirst().name()).isEqualTo("ALB2");
 	}
 
 	@Test

@@ -65,9 +65,7 @@ class TokenServiceTests {
 		String invalidToken = "invalid.token.string";
 
 		// Act & Assert
-		assertThrows(JWTVerificationException.class, () -> {
-			this.tokenService.getSubject(invalidToken);
-		});
+		assertThrows(JWTVerificationException.class, () -> this.tokenService.getSubject(invalidToken));
 	}
 
 	@Test
@@ -79,8 +77,6 @@ class TokenServiceTests {
 				2hDgYN_KQy8R7UGxJXnsXtbJkO8JfHxFu0BbUAqVYsA""";
 
 		// Act & Assert
-		assertThrows(JWTVerificationException.class, () -> {
-			this.tokenService.getSubject(expiredToken);
-		});
+		assertThrows(JWTVerificationException.class, () -> this.tokenService.getSubject(expiredToken));
 	}
 }
