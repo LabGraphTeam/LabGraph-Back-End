@@ -1,7 +1,7 @@
 package leonardo.labutilities.qualitylabpro.domains.users.repositories;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 
 @Repository
@@ -28,7 +28,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	User findOneByUsernameOrEmail(String username, String email);
 
 	@Query("SELECT a FROM users u JOIN u.validatedAnalytics a WHERE u.id = :id")
-	List<Analytic> findAnalyticsByUserValidatedId(Long id);
+	Page<AnalyticsDTO> findAnalyticsByUserValidatedId(Long id, Pageable pageable);
 
 	boolean existsByUsernameOrEmail(String username, String email);
 
