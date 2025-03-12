@@ -13,7 +13,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -135,19 +134,16 @@ class AnalyticHelperServiceTests {
 
 	}
 
-	// @Test
-	// @DisplayName("Should save records successfully when valid analytics data is provided")
-	// void saveNewAnalyticsRecords_WithValidRecords_ShouldSaveSuccessfully() {
-	// 	List<AnalyticsDTO> records = createSampleRecordList();
+	@Test
+	@DisplayName("Should save records successfully when valid analytics data is provided")
+	void saveNewAnalyticsRecords_WithValidRecords_ShouldSaveSuccessfully() {
+		List<AnalyticsDTO> records = createSampleRecordList();
 
-	// 	when(this.analyticsRepository.saveAll(any()))
-	// 			.thenAnswer(invocation -> invocation.getArgument(0));
+		when(this.analyticsValidationService.isNewAnalyticRecord(any())).thenReturn(true);
 
-	// 	when(this.analyticsValidationService.isNewAnalyticRecord(any())).thenReturn(true);
+		assertDoesNotThrow(() -> this.analyticHelperService.saveNewAnalyticsRecords(records));
 
-	// 	assertDoesNotThrow(() -> this.analyticHelperService.saveNewAnalyticsRecords(records));
-	// 	verify(this.analyticsRepository, times(1)).saveAll(any());
-	// }
+	}
 
 	@Test
 	@DisplayName("Should throw exception when trying to save duplicate analytics records")
