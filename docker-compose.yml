@@ -51,7 +51,7 @@ services:
     profiles:
       - prod
     depends_on:
-      mariadb-dev:
+      mariadb:
         condition: service_healthy
     deploy:
       resources:
