@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 @Component
-public class SpecsValidatorComponent {
+public final class SpecsValidatorComponent {
 
 	private String description;
 	private String rules;

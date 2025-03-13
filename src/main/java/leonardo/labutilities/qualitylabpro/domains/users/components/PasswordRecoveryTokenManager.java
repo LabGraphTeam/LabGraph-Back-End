@@ -7,7 +7,7 @@ import java.util.HashMap;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PasswordRecoveryTokenManager {
+public final class PasswordRecoveryTokenManager {
 	private static final HashMap<String, String> stringHashMap = new HashMap<>();
 	private static final SecureRandom secureRandom = new SecureRandom();
 

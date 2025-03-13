@@ -2,10 +2,8 @@ package leonardo.labutilities.qualitylabpro.domains.analytics.components;
 
 import java.util.List;
 
-
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-
 
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
