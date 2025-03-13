@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Validated
-public class AnalyticsController extends AnalyticsHelperController {
+class AnalyticsController extends AnalyticsHelperController {
 
 	private final List<String> names;
 

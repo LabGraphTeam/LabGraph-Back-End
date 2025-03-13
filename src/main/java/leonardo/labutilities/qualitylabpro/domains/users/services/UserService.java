@@ -1,11 +1,14 @@
 package leonardo.labutilities.qualitylabpro.domains.users.services;
 
 import java.time.LocalDateTime;
-import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenService;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.responses.TokenJwtDTO;
@@ -13,7 +16,6 @@ import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.requests.EmailDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.requests.RecoveryEmailDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
-import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 import leonardo.labutilities.qualitylabpro.domains.users.components.BCryptEncoderComponent;
 import leonardo.labutilities.qualitylabpro.domains.users.components.PasswordRecoveryTokenManager;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
@@ -32,9 +34,10 @@ public class UserService {
 	private final AuthenticationManager authenticationManager;
 	private final TokenService tokenService;
 
-	public List<AnalyticsDTO> findAnalyticsByUserValidated(Long id) {
-		return this.userRepository.findAnalyticsByUserValidatedId(id).stream()
-				.map(AnalyticMapper::toRecord).toList();
+	public Page<AnalyticsDTO> findAnalyticsByUserValidated(Long id, Pageable pageable) {
+		return this.userRepository.findAnalyticsByUserValidatedId(id,
+				pageable);
+
 	}
 
 	private void sendRecoveryEmail(RecoveryEmailDTO recoveryEmailDTO) {

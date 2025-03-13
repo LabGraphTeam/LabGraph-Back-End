@@ -1,7 +1,9 @@
 package leonardo.labutilities.qualitylabpro.domains.users.controllers;
 
 import java.net.URI;
-import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,13 +14,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.responses.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.ForgotPasswordDTO;
-import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.SignInUserDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.RecoverPasswordDTO;
+import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.SignInUserDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.SignUpUsersDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.UpdatePasswordDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
@@ -35,12 +38,12 @@ public class UsersController {
     }
 
     @GetMapping("/validated-analytics")
-    public ResponseEntity<List<AnalyticsDTO>> getAnalyticsValidatedByUserId() {
+    public ResponseEntity<Page<AnalyticsDTO>> getAnalyticsValidatedByUserId(Pageable pageable) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()
                 && authentication.getPrincipal() instanceof User user) {
             var id = user.getId();
-            return ResponseEntity.ok(this.userService.findAnalyticsByUserValidated(id));
+            return ResponseEntity.ok(this.userService.findAnalyticsByUserValidated(id, pageable));
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }

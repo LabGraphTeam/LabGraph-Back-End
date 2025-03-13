@@ -13,22 +13,26 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenService;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.responses.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
-import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 import leonardo.labutilities.qualitylabpro.domains.users.components.BCryptEncoderComponent;
 import leonardo.labutilities.qualitylabpro.domains.users.components.PasswordRecoveryTokenManager;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
@@ -146,13 +150,16 @@ class UserServiceTests {
 
 	@Test
 	void testFindAnalyticsByUserValidated() {
-		List<Analytic> expectedAnalytics =
-				createSampleRecordList().stream().map((AnalyticMapper::toEntity)).toList();
-		when(this.userRepository.findAnalyticsByUserValidatedId(1L)).thenReturn(expectedAnalytics);
+		Pageable pageable = Pageable.unpaged();
+		List<AnalyticsDTO> expectedList = createSampleRecordList();
 
-		List<AnalyticsDTO> result = this.userService.findAnalyticsByUserValidated(1L);
+		Page<AnalyticsDTO> expectedPage = new PageImpl<>(expectedList);
+
+		when(this.userRepository.findAnalyticsByUserValidatedId(1L, pageable)).thenReturn(expectedPage);
+
+		Page<AnalyticsDTO> result = this.userService.findAnalyticsByUserValidated(1L, pageable);
 		assertNotNull(result);
-		assertEquals(4, result.size());
+		assertEquals(4, result.getSize());
 	}
 
 	@Test
