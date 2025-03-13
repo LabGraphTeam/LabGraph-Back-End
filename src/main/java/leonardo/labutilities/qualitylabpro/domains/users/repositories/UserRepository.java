@@ -1,5 +1,7 @@
 package leonardo.labutilities.qualitylabpro.domains.users.repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,17 +17,10 @@ import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-	boolean existsByUsername(String name);
 
-	boolean existsByEmail(String email);
+	Optional<UserDetails> getReferenceOneByUsername(String username);
 
-	UserDetails getReferenceOneByUsername(String username);
-
-	User findOneByUsername(String username);
-
-	User findOneByEmail(String email);
-
-	User findOneByUsernameOrEmail(String username, String email);
+	Optional<User> findOneByUsernameOrEmail(String username, String email);
 
 	@Query("SELECT a FROM users u JOIN u.validatedAnalytics a WHERE u.id = :id")
 	Page<AnalyticsDTO> findAnalyticsByUserValidatedId(Long id, Pageable pageable);
@@ -39,8 +34,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Transactional
 	@Modifying
 	@Query("UPDATE users u SET u.password = :newPassword WHERE u.username = :username")
-	void setPasswordWhereByUsername(@Param("username") String username,
-			@Param("newPassword") String newPassword);
+	void setPasswordWhereByUsername(@Param("username") String username, @Param("newPassword") String newPassword);
 
 	@Transactional
 	@Modifying

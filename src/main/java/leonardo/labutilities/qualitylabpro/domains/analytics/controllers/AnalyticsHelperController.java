@@ -32,21 +32,19 @@ public class AnalyticsHelperController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<AnalyticsDTO> getAnalyticsById(@PathVariable Long id) {
+	public ResponseEntity<AnalyticsDTO> getAnalyticsById(@PathVariable final Long id) {
 		return ResponseEntity.ok(this.analyticHelperService.findOneById(id));
 	}
 
-	public ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAllAnalyticsWithLinks(
-			List<String> names, Pageable pageable) {
-		Page<AnalyticsDTO> resultsList =
-				this.analyticHelperService.findAnalyticsPagedByNameIn(names, pageable);
+	public ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAllAnalyticsWithLinks(List<String> names,
+			Pageable pageable) {
+		Page<AnalyticsDTO> resultsList = this.analyticHelperService.findAnalyticsPagedByNameIn(names, pageable);
 
-		var entityModels = resultsList.getContent().stream().map(
-				analyticsRecord -> AnalyticsHelperUtility.createEntityModel(analyticsRecord, this))
-				.toList();
+		List<EntityModel<AnalyticsDTO>> entityModels = resultsList.getContent().stream()
+				.map(analyticsRecord -> AnalyticsHelperUtility.createEntityModel(analyticsRecord, this)).toList();
 
-		var result = AnalyticsHelperUtility.addPaginationLinks(CollectionModel.of(entityModels),
-				resultsList, pageable);
+		CollectionModel<EntityModel<AnalyticsDTO>> result =
+				AnalyticsHelperUtility.addPaginationLinks(CollectionModel.of(entityModels), resultsList, pageable);
 		return ResponseEntity.ok(result);
 	}
 
@@ -61,13 +59,11 @@ public class AnalyticsHelperController {
 			return ResponseEntity.noContent().build();
 		}
 
-		var entityModels = analyticsRecordPaged.getContent().stream().map(
-				analyticsRecord -> AnalyticsHelperUtility.createEntityModel(analyticsRecord, this))
-				.toList();
+		List<EntityModel<AnalyticsDTO>> entityModels = analyticsRecordPaged.getContent().stream()
+				.map(analyticsRecord -> AnalyticsHelperUtility.createEntityModel(analyticsRecord, this)).toList();
 
-		var collectionModel = CollectionModel.of(entityModels);
-		var result = AnalyticsHelperUtility.addPaginationLinks(collectionModel,
-				analyticsRecordPaged, pageable);
+		CollectionModel<EntityModel<AnalyticsDTO>> result = AnalyticsHelperUtility
+				.addPaginationLinks(CollectionModel.of(entityModels), analyticsRecordPaged, pageable);
 
 		return ResponseEntity.ok(result);
 	}

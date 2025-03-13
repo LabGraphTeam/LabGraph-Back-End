@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,8 +63,7 @@ class UserServiceTests {
 
 	@Test
 	void testRecoverPassword_UserExists() {
-		when(this.userRepository.existsByUsernameAndEmail(anyString(), anyString()))
-				.thenReturn(true);
+		when(this.userRepository.existsByUsernameAndEmail(anyString(), anyString())).thenReturn(true);
 
 		this.userService.recoverPassword("identifier", "identifier@example.com");
 
@@ -73,8 +73,7 @@ class UserServiceTests {
 
 	@Test
 	void testRecoverPassword_UserDoesNotExist() {
-		when(this.userRepository.existsByUsernameAndEmail(anyString(), anyString()))
-				.thenReturn(false);
+		when(this.userRepository.existsByUsernameAndEmail(anyString(), anyString())).thenReturn(false);
 
 		assertThrows(CustomGlobalErrorHandling.UserNotFoundException.class,
 				() -> this.userService.recoverPassword("identifier", "identifier@example.com"));
@@ -82,27 +81,23 @@ class UserServiceTests {
 
 	@Test
 	void testChangePassword_ValidToken() {
-		when(this.passwordRecoveryTokenManager.isRecoveryTokenValid(anyString(), anyString()))
-				.thenReturn(true);
+		when(this.passwordRecoveryTokenManager.isRecoveryTokenValid(anyString(), anyString())).thenReturn(true);
 		this.userService.changePassword("identifier@example.com", "tempPassword", "newPassword");
-		assertThat(this.passwordRecoveryTokenManager.isRecoveryTokenValid("tempPassword",
-				"identifier@example.com")).isTrue();
+		assertThat(this.passwordRecoveryTokenManager.isRecoveryTokenValid("tempPassword", "identifier@example.com"))
+				.isTrue();
 	}
 
 	@Test
 	void testChangePassword_InvalidToken() {
-		when(this.passwordRecoveryTokenManager.isRecoveryTokenValid(anyString(), anyString()))
-				.thenReturn(false);
+		when(this.passwordRecoveryTokenManager.isRecoveryTokenValid(anyString(), anyString())).thenReturn(false);
 
 		assertThrows(CustomGlobalErrorHandling.RecoveryTokenInvalidException.class,
-				() -> this.userService.changePassword("identifier@example.com", "tempPassword",
-						"newPassword"));
+				() -> this.userService.changePassword("identifier@example.com", "tempPassword", "newPassword"));
 	}
 
 	@Test
 	void testSignUp_UserAlreadyExists() {
-		when(this.userRepository.existsByUsernameOrEmail(anyString(), anyString()))
-				.thenReturn(true);
+		when(this.userRepository.existsByUsernameOrEmail(anyString(), anyString())).thenReturn(true);
 
 		assertThrows(CustomGlobalErrorHandling.UserAlreadyExistException.class,
 				() -> this.userService.signUp("identifier", "identifier@example.com", "password"));
@@ -110,8 +105,7 @@ class UserServiceTests {
 
 	@Test
 	void testSignUp_NewUser() {
-		when(this.userRepository.existsByUsernameOrEmail(anyString(), anyString()))
-				.thenReturn(false);
+		when(this.userRepository.existsByUsernameOrEmail(anyString(), anyString())).thenReturn(false);
 		when(this.userRepository.save(any(User.class)))
 				.thenReturn(new User("identifier", "encryptedPassword", "identifier@example.com"));
 
@@ -124,28 +118,22 @@ class UserServiceTests {
 
 	@Test
 	void should_return_error_with_testUpdateUserPassword_PasswordMatches() {
-		User user = new User("identifier", BCryptEncoderComponent.encrypt("newPassword"),
-				"identifier@example.com");
+		User user = new User("identifier", BCryptEncoderComponent.encrypt("newPassword"), "identifier@example.com");
 
-		when(this.userRepository.getReferenceByUsernameAndEmail(anyString(), anyString()))
-				.thenReturn(user);
+		when(this.userRepository.getReferenceByUsernameAndEmail(anyString(), anyString())).thenReturn(user);
 
-		assertThrows(CustomGlobalErrorHandling.PasswordNotMatchesException.class,
-				() -> this.userService.updateUserPassword("identifier", "identifier@example.com",
-						"oldPassword", "newPassword"));
+		assertThrows(CustomGlobalErrorHandling.PasswordNotMatchesException.class, () -> this.userService
+				.updateUserPassword("identifier", "identifier@example.com", "oldPassword", "newPassword"));
 		verify(this.userRepository, never()).setPasswordWhereByUsername(anyString(), anyString());
 	}
 
 	@Test
 	void testUpdateUserPassword_PasswordDoesNotMatch() {
-		User user = new User("identifier", BCryptEncoderComponent.encrypt("oldPassword"),
-				"identifier@example.com");
-		when(this.userRepository.getReferenceByUsernameAndEmail(anyString(), anyString()))
-				.thenReturn(user);
+		User user = new User("identifier", BCryptEncoderComponent.encrypt("oldPassword"), "identifier@example.com");
+		when(this.userRepository.getReferenceByUsernameAndEmail(anyString(), anyString())).thenReturn(user);
 
-		assertThrows(CustomGlobalErrorHandling.PasswordNotMatchesException.class,
-				() -> this.userService.updateUserPassword("identifier", "identifier@example.com",
-						"wrongPassword", "newPassword"));
+		assertThrows(CustomGlobalErrorHandling.PasswordNotMatchesException.class, () -> this.userService
+				.updateUserPassword("identifier", "identifier@example.com", "wrongPassword", "newPassword"));
 	}
 
 	@Test
@@ -164,8 +152,7 @@ class UserServiceTests {
 
 	@Test
 	void testSignIn_UserNotFound() {
-		when(this.userRepository.findOneByUsernameOrEmail(anyString(), anyString()))
-				.thenReturn(null);
+		when(this.userRepository.findOneByUsernameOrEmail(anyString(), anyString())).thenReturn(Optional.empty());
 		assertThrows(CustomGlobalErrorHandling.UserNotFoundException.class,
 				() -> this.userService.signIn("username", "password"));
 	}
@@ -173,14 +160,12 @@ class UserServiceTests {
 	@Test
 	void testSignIn_Successful() {
 		User user = new User("username", "encrypted", "user@example.com");
-		when(this.userRepository.findOneByUsernameOrEmail(anyString(), anyString()))
-				.thenReturn(user);
+		when(this.userRepository.findOneByUsernameOrEmail(anyString(), anyString())).thenReturn(Optional.of(user));
 
 		Authentication auth = mock(Authentication.class);
 		when(auth.isAuthenticated()).thenReturn(true);
 		when(auth.getPrincipal()).thenReturn(user);
-		when(this.authenticationManager
-				.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
+		when(this.authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
 
 		TokenJwtDTO token = new TokenJwtDTO("tokenValue", null);
 		when(this.tokenService.generateToken(user)).thenReturn(token);
@@ -197,12 +182,10 @@ class UserServiceTests {
 		String encryptedOldPassword = BCryptEncoderComponent.encrypt(rawOldPassword);
 		User user = new User("username", encryptedOldPassword, "user@example.com");
 
-		when(this.userRepository.getReferenceByUsernameAndEmail(anyString(), anyString()))
-				.thenReturn(user);
+		when(this.userRepository.getReferenceByUsernameAndEmail(anyString(), anyString())).thenReturn(user);
 		doNothing().when(this.userRepository).setPasswordWhereByUsername(anyString(), anyString());
 
-		this.userService.updateUserPassword("username", "user@example.com", rawOldPassword,
-				rawNewPassword);
+		this.userService.updateUserPassword("username", "user@example.com", rawOldPassword, rawNewPassword);
 
 		verify(this.userRepository).setPasswordWhereByUsername(eq("username"), anyString());
 	}

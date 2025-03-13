@@ -35,8 +35,7 @@ public class UserService {
 	private final TokenService tokenService;
 
 	public Page<AnalyticsDTO> findAnalyticsByUserValidated(Long id, Pageable pageable) {
-		return this.userRepository.findAnalyticsByUserValidatedId(id,
-				pageable);
+		return this.userRepository.findAnalyticsByUserValidatedId(id, pageable);
 
 	}
 
@@ -50,8 +49,7 @@ public class UserService {
 				Best regards,
 				Your Team""", recoveryEmailDTO.temporaryPassword());
 		log.info("Sending recovery identifier to: {}", recoveryEmailDTO.email());
-		this.emailService
-				.sendPlainTextEmail(new EmailDTO(recoveryEmailDTO.email(), subject, message));
+		this.emailService.sendPlainTextEmail(new EmailDTO(recoveryEmailDTO.email(), subject, message));
 	}
 
 	public void recoverPassword(String username, String email) {
@@ -71,22 +69,18 @@ public class UserService {
 		if (!this.passwordRecoveryTokenManager.isRecoveryTokenValid(temporaryPassword, email)) {
 			throw new CustomGlobalErrorHandling.RecoveryTokenInvalidException();
 		}
-		this.userRepository.setPasswordWhereByEmail(email,
-				BCryptEncoderComponent.encrypt(newPassword));
+		this.userRepository.setPasswordWhereByEmail(email, BCryptEncoderComponent.encrypt(newPassword));
 	}
 
 	private TokenJwtDTO authenticateAndGenerateToken(User credential, String password) {
 		try {
-			final var authToken =
-					new UsernamePasswordAuthenticationToken(credential.getUsername(), password);
+			final var authToken = new UsernamePasswordAuthenticationToken(credential.getUsername(), password);
 			final var auth = this.authenticationManager.authenticate(authToken);
 			final var user = (User) auth.getPrincipal();
 
 			if (!auth.isAuthenticated()) {
-				this.emailService.notifyFailedUserLogin(user.getUsername(), user.getEmail(),
-						LocalDateTime.now());
-				throw new BadCredentialsException(
-						"Authentication failed for user: " + credential.getUsername());
+				this.emailService.notifyFailedUserLogin(user.getUsername(), user.getEmail(), LocalDateTime.now());
+				throw new BadCredentialsException("Authentication failed for user: " + credential.getUsername());
 			}
 
 			return this.tokenService.generateToken(user);
@@ -107,32 +101,25 @@ public class UserService {
 		var savedUser = this.userRepository.save(user);
 
 		try {
-			this.emailService.notifyUserSignup(savedUser.getUsername(), savedUser.getEmail(),
-					LocalDateTime.now());
+			this.emailService.notifyUserSignup(savedUser.getUsername(), savedUser.getEmail(), LocalDateTime.now());
 		} catch (Exception e) {
-			log.error("Failed to send signup notification for user: {}. Exception: ",
-					savedUser.getEmail(), e);
+			log.error("Failed to send signup notification for user: {}. Exception: ", savedUser.getEmail(), e);
 		}
 
 		return savedUser;
 	}
 
 	public TokenJwtDTO signIn(String identifier, String password) {
-		final var credential = this.userRepository.findOneByUsernameOrEmail(identifier, identifier);
-
-		if (credential == null) {
-			throw new CustomGlobalErrorHandling.UserNotFoundException();
-		}
+		final var credential = this.userRepository.findOneByUsernameOrEmail(identifier, identifier)
+				.orElseThrow(() -> new CustomGlobalErrorHandling.UserNotFoundException());
 
 		return this.authenticateAndGenerateToken(credential, password);
 	}
 
 	public void updateUserPassword(String name, String email, String password, String newPassword) {
 		var oldPass = this.userRepository.getReferenceByUsernameAndEmail(name, email);
-		boolean oldPasswordMatches =
-				BCryptEncoderComponent.decrypt(password, oldPass.getPassword());
-		boolean newPasswordMatches =
-				BCryptEncoderComponent.decrypt(newPassword, oldPass.getPassword());
+		boolean oldPasswordMatches = BCryptEncoderComponent.decrypt(password, oldPass.getPassword());
+		boolean newPasswordMatches = BCryptEncoderComponent.decrypt(newPassword, oldPass.getPassword());
 		if (!oldPasswordMatches || newPasswordMatches) {
 			log.error("PasswordNotMatches. {}, {}", name, email);
 			throw new CustomGlobalErrorHandling.PasswordNotMatchesException();

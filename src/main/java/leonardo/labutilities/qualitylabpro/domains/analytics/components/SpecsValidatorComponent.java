@@ -15,13 +15,13 @@ public class SpecsValidatorComponent {
 	private String description;
 	private String rules;
 
-	public void validator(Double value, Double mean, Double sd) {
+	public void validator(final double value, final double mean, final double sd) {
 
-		List<Double> thresholds = List.of(mean + sd, mean + 2 * sd, mean + 3 * sd, mean - sd,
-				mean - 2 * sd, mean - 3 * sd);
-		List<String> thresholdRules = ThresholdAnalyticsRules.RULES;
+		final List<Double> thresholds =
+				List.of(mean + sd, mean + 2 * sd, mean + 3 * sd, mean - sd, mean - 2 * sd, mean - 3 * sd);
+		final List<String> thresholdRules = ThresholdAnalyticsRules.RULES;
 
-		List<String> descriptions = ValidationAnalyticsDescriptions.DESCRIPTIONS;
+		final List<String> descriptions = ValidationAnalyticsDescriptions.DESCRIPTIONS;
 
 		for (int i = 2; i >= 0; i--) {
 			if (value >= thresholds.get(i) || value <= thresholds.get(i + 3)) {

@@ -76,26 +76,22 @@ class AnalyticHelperServiceTests {
 					this.analyticFailedNotificationComponent, analyticsValidationService) {
 
 				@Override
-				public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable,
-						String name, String level) {
-					return AnalyticHelperServiceTests.this.analyticsRepository
-							.findByNameAndLevel(pageable, name, level).stream()
-							.map(AnalyticMapper::toRecord).toList();
+				public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable, String name, String level) {
+					return AnalyticHelperServiceTests.this.analyticsRepository.findByNameAndLevel(pageable, name, level)
+							.stream().map(AnalyticMapper::toRecord).toList();
 				}
 
 				@Override
 				public String convertLevel(String level) {
-					throw new UnsupportedOperationException("Unimplemented method 'convertLevel'");
+					return level.toUpperCase();
 				}
 
 				@Override
 				public AnalyticsWithCalcDTO findAnalyticsByNameLevelDate(String name, String level,
 						LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
-					List<AnalyticsDTO> analyticsList =
-							AnalyticHelperServiceTests.this.analyticsRepository
-									.findByNameAndLevelAndDateBetween(name, level, dateStart,
-											dateEnd, pageable)
-									.stream().map(AnalyticMapper::toRecord).toList();
+					List<AnalyticsDTO> analyticsList = AnalyticHelperServiceTests.this.analyticsRepository
+							.findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd, pageable).stream()
+							.map(AnalyticMapper::toRecord).toList();
 
 					MeanAndStdDeviationDTO calcSdAndMean = new MeanAndStdDeviationDTO(10.0, 0.5);
 
@@ -112,10 +108,10 @@ class AnalyticHelperServiceTests {
 	@DisplayName("Should update analytics mean value when valid parameters are provided")
 	void updateAnalyticsMean() {
 		var mockDto = new UpdateAnalyticsMeanDTO("Glucose", "PCCC1", "076587", 1.0);
-		this.analyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(mockDto.name(),
-				mockDto.level(), mockDto.levelLot(), mockDto.mean());
-		verify(this.analyticsRepository).updateMeanByNameAndLevelAndLevelLot(mockDto.name(),
-				mockDto.level(), mockDto.levelLot(), mockDto.mean());
+		this.analyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(mockDto.name(), mockDto.level(),
+				mockDto.levelLot(), mockDto.mean());
+		verify(this.analyticsRepository).updateMeanByNameAndLevelAndLevelLot(mockDto.name(), mockDto.level(),
+				mockDto.levelLot(), mockDto.mean());
 	}
 
 	@Test
@@ -189,15 +185,13 @@ class AnalyticHelperServiceTests {
 		String name = "Glucose";
 		String level = "Normal";
 		Pageable pageable = PageRequest.of(0, 10);
-		List<Analytic> expectedRecords = createSampleRecordList().stream()
-				.filter(r -> r.name().equals(name) && r.level().equals(level)).toList().stream()
-				.map(AnalyticMapper::toNewEntity).toList();
+		List<Analytic> expectedRecords =
+				createSampleRecordList().stream().filter(r -> r.name().equals(name) && r.level().equals(level)).toList()
+						.stream().map(AnalyticMapper::toNewEntity).toList();
 
-		when(this.analyticsRepository.findByNameAndLevel(pageable, name, level))
-				.thenReturn(expectedRecords);
+		when(this.analyticsRepository.findByNameAndLevel(pageable, name, level)).thenReturn(expectedRecords);
 
-		List<AnalyticsDTO> result =
-				this.analyticHelperService.findAnalyticsByNameAndLevel(pageable, name, level);
+		List<AnalyticsDTO> result = this.analyticHelperService.findAnalyticsByNameAndLevel(pageable, name, level);
 
 		assertEquals(expectedRecords.size(), result.size());
 		verify(this.analyticsRepository).findByNameAndLevel(pageable, name, level);
@@ -213,11 +207,11 @@ class AnalyticHelperServiceTests {
 		List<Analytic> mockResultRepository =
 				createDateRangeRecords().stream().map(AnalyticMapper::toNewEntity).toList();
 
-		when(this.analyticsRepository.findByNameAndLevelAndDateBetween(eq(name), eq(level),
-				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockResultRepository);
+		when(this.analyticsRepository.findByNameAndLevelAndDateBetween(eq(name), eq(level), eq(startDate), eq(endDate),
+				any(Pageable.class))).thenReturn(mockResultRepository);
 
-		AnalyticsWithCalcDTO result = this.analyticHelperService.findAnalyticsByNameLevelDate(name,
-				level, startDate, endDate, Pageable.unpaged());
+		AnalyticsWithCalcDTO result = this.analyticHelperService.findAnalyticsByNameLevelDate(name, level, startDate,
+				endDate, Pageable.unpaged());
 
 		assertNotNull(result);
 	}
@@ -250,8 +244,7 @@ class AnalyticHelperServiceTests {
 	void ensureNameExists_WithValidName_ShouldNotThrowException() {
 		String name = "Glucose";
 
-		assertDoesNotThrow(
-				() -> this.analyticsValidationService.ensureAnalyticTestNameExists(name));
+		assertDoesNotThrow(() -> this.analyticsValidationService.ensureAnalyticTestNameExists(name));
 	}
 
 	@Test
@@ -270,8 +263,7 @@ class AnalyticHelperServiceTests {
 	void isAnalyticsNonExistent_WithExistentRecord_ShouldReturnFalse() {
 		AnalyticsDTO analyticsRecord = createSampleRecord();
 
-		when(this.analyticsValidationService.isNewAnalyticRecord(analyticsRecord))
-				.thenReturn(false);
+		when(this.analyticsValidationService.isNewAnalyticRecord(analyticsRecord)).thenReturn(false);
 
 		boolean result = this.analyticsValidationService.isNewAnalyticRecord(analyticsRecord);
 
@@ -284,19 +276,18 @@ class AnalyticHelperServiceTests {
 		String name = "Glucose";
 		LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
 		LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
-		List<Analytic> records =
-				createSampleRecordList().stream().map(AnalyticMapper::toNewEntity).toList();
+		List<Analytic> records = createSampleRecordList().stream().map(AnalyticMapper::toNewEntity).toList();
 
-		when(this.analyticsRepository.findByNameAndDateBetweenGroupByLevel(eq(name), eq(startDate),
-				eq(endDate), any(Pageable.class))).thenReturn(records);
+		when(this.analyticsRepository.findByNameAndDateBetweenGroupByLevel(eq(name), eq(startDate), eq(endDate),
+				any(Pageable.class))).thenReturn(records);
 
-		List<GroupedValuesByLevelDTO> result = this.analyticHelperService
-				.findGroupedAnalyticsByLevel(name, startDate, endDate, Pageable.unpaged());
+		List<GroupedValuesByLevelDTO> result =
+				this.analyticHelperService.findGroupedAnalyticsByLevel(name, startDate, endDate, Pageable.unpaged());
 
 		assertNotNull(result);
 		assertFalse(result.isEmpty());
-		verify(this.analyticsRepository).findByNameAndDateBetweenGroupByLevel(eq(name),
-				eq(startDate), eq(endDate), any(Pageable.class));
+		verify(this.analyticsRepository).findByNameAndDateBetweenGroupByLevel(eq(name), eq(startDate), eq(endDate),
+				any(Pageable.class));
 	}
 
 	@Test
@@ -308,11 +299,11 @@ class AnalyticHelperServiceTests {
 		LocalDateTime startDate = LocalDateTime.now().minusDays(7);
 		LocalDateTime endDate = LocalDateTime.now();
 
-		when(analyticsStatisticsService.calculateMeanAndStandardDeviation(name, level, startDate,
-				endDate, Pageable.unpaged())).thenReturn(new MeanAndStdDeviationDTO(10, 0.5));
+		when(analyticsStatisticsService.calculateMeanAndStandardDeviation(name, level, startDate, endDate,
+				Pageable.unpaged())).thenReturn(new MeanAndStdDeviationDTO(10, 0.5));
 		// Act
-		var result = this.analyticsStatisticsService.calculateMeanAndStandardDeviation(name, level,
-				startDate, endDate, Pageable.unpaged());
+		var result = this.analyticsStatisticsService.calculateMeanAndStandardDeviation(name, level, startDate, endDate,
+				Pageable.unpaged());
 
 		// Assert
 		assertNotNull(result);
@@ -328,8 +319,7 @@ class AnalyticHelperServiceTests {
 		// Act
 		this.analyticFailedNotificationComponent.processFailedRecordsNotification(failedRecords);
 		// Assert
-		verify(this.analyticFailedNotificationComponent)
-				.processFailedRecordsNotification(failedRecords);
+		verify(this.analyticFailedNotificationComponent).processFailedRecordsNotification(failedRecords);
 	}
 
 	@Test
@@ -350,16 +340,14 @@ class AnalyticHelperServiceTests {
 	@DisplayName("Should validate grouped records correctly")
 	void isGroupedRecordValid_WithValidRecords_ShouldReturnTrue() {
 		// Arrange
-		List<AnalyticsDTO> validRecords = createSampleRecordList().stream()
-				.map((AnalyticMapper::toEntity)).map(analyticsRecord -> {
-					analyticsRecord.setControlRules(
-							"Approved according to current Westgard configured rules"); // Invalid
+		List<AnalyticsDTO> validRecords =
+				createSampleRecordList().stream().map((AnalyticMapper::toEntity)).map(analyticsRecord -> {
+					analyticsRecord.setControlRules("Approved according to current Westgard configured rules"); // Invalid
 					// rule
 					return AnalyticMapper.toRecord(analyticsRecord);
 				}).toList();
 
-		GroupedValuesByLevelDTO groupedRecords =
-				new GroupedValuesByLevelDTO("Normal", validRecords);
+		GroupedValuesByLevelDTO groupedRecords = new GroupedValuesByLevelDTO("Normal", validRecords);
 		when(this.analyticsValidationService.isGroupedRecordValid(groupedRecords)).thenReturn(true);
 
 		// Act
@@ -373,16 +361,14 @@ class AnalyticHelperServiceTests {
 	@DisplayName("Should identify invalid grouped records correctly")
 	void isGroupedRecordValid_WithInvalidRecords_ShouldReturnFalse() {
 		// Arrange
-		List<AnalyticsDTO> invalidRecords = createSampleRecordList().stream()
-				.map((AnalyticMapper::toEntity)).map(analyticsRecord -> {
+		List<AnalyticsDTO> invalidRecords =
+				createSampleRecordList().stream().map((AnalyticMapper::toEntity)).map(analyticsRecord -> {
 					analyticsRecord.setControlRules("-3s"); // Invalid rule
 					return AnalyticMapper.toRecord(analyticsRecord);
 				}).toList();
 
-		GroupedValuesByLevelDTO groupedRecords =
-				new GroupedValuesByLevelDTO("Normal", invalidRecords);
-		when(this.analyticsValidationService.isGroupedRecordValid(groupedRecords))
-				.thenReturn(false);
+		GroupedValuesByLevelDTO groupedRecords = new GroupedValuesByLevelDTO("Normal", invalidRecords);
+		when(this.analyticsValidationService.isGroupedRecordValid(groupedRecords)).thenReturn(false);
 
 		// Act
 		boolean result = this.analyticsValidationService.isGroupedRecordValid(groupedRecords);
@@ -399,13 +385,12 @@ class AnalyticHelperServiceTests {
 		LocalDateTime startDate = LocalDateTime.now().minusDays(7);
 		LocalDateTime endDate = LocalDateTime.now();
 
-		when(analyticsStatisticsService.calculateGroupedMeanAndStandardDeviation(name, startDate,
-				endDate, Pageable.unpaged()))
-						.thenReturn(List.of(new GroupedMeanAndStdByLevelDTO("Normal",
-								List.of(new MeanAndStdDeviationDTO(10, 0.5)))));
+		when(analyticsStatisticsService.calculateGroupedMeanAndStandardDeviation(name, startDate, endDate,
+				Pageable.unpaged())).thenReturn(List
+						.of(new GroupedMeanAndStdByLevelDTO("Normal", List.of(new MeanAndStdDeviationDTO(10, 0.5)))));
 		// Act
-		var result = this.analyticsStatisticsService.calculateGroupedMeanAndStandardDeviation(name,
-				startDate, endDate, Pageable.unpaged());
+		var result = this.analyticsStatisticsService.calculateGroupedMeanAndStandardDeviation(name, startDate, endDate,
+				Pageable.unpaged());
 
 		// Assert
 		assertNotNull(result);
@@ -423,15 +408,12 @@ class AnalyticHelperServiceTests {
 		// Arrange
 		LocalDateTime startDate = LocalDateTime.now().minusDays(7);
 		LocalDateTime endDate = LocalDateTime.now();
-		List<Analytic> expectedAnalytics =
-				createDateRangeRecords().stream().map(AnalyticMapper::toNewEntity).toList();
+		List<Analytic> expectedAnalytics = createDateRangeRecords().stream().map(AnalyticMapper::toNewEntity).toList();
 
-		when(this.analyticsRepository.findByDateBetween(startDate, endDate))
-				.thenReturn(expectedAnalytics);
+		when(this.analyticsRepository.findByDateBetween(startDate, endDate)).thenReturn(expectedAnalytics);
 
 		// Act
-		List<AnalyticsDTO> result =
-				this.analyticHelperService.findAnalyticsByDate(startDate, endDate);
+		List<AnalyticsDTO> result = this.analyticHelperService.findAnalyticsByDate(startDate, endDate);
 
 		// Assert
 		assertNotNull(result);

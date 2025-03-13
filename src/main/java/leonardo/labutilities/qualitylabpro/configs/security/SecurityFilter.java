@@ -25,16 +25,16 @@ public class SecurityFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
-            throws IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws IOException {
         try {
             log.info("Starting security filter for request to: {}", request.getRequestURI());
             var tokenJWT = this.getToken(request);
             if (tokenJWT != null) {
                 log.debug("JWT token found in request");
                 var subject = this.tokenService.getSubject(tokenJWT);
-                var users = this.userRepository.getReferenceOneByUsername(subject);
+                var users = this.userRepository.getReferenceOneByUsername(subject)
+                        .orElseThrow(() -> new RuntimeException("User not found: " + subject));
 
                 if (!users.isAccountNonLocked() || !users.isEnabled()) {
                     log.warn("User account is locked or disabled, {}", users.getUsername());
@@ -44,8 +44,7 @@ public class SecurityFilter extends OncePerRequestFilter {
                     return;
                 }
 
-                var authentication = new UsernamePasswordAuthenticationToken(users, null,
-                        users.getAuthorities());
+                var authentication = new UsernamePasswordAuthenticationToken(users, null, users.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
             filterChain.doFilter(request, response);

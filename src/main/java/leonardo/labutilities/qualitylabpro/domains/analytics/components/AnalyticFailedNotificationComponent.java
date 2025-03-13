@@ -1,8 +1,12 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.components;
 
 import java.util.List;
+
+
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +28,7 @@ public class AnalyticFailedNotificationComponent {
     public void processFailedRecordsNotification(List<AnalyticsDTO> failedRecords) {
         if (!failedRecords.isEmpty()) {
             try {
-                String content = this.controlRulesValidators.validateRules(failedRecords);
+                final String content = this.controlRulesValidators.validateRules(failedRecords);
 
                 this.emailService.sendFailedAnalyticsNotification(failedRecords, content);
             } catch (Exception e) {

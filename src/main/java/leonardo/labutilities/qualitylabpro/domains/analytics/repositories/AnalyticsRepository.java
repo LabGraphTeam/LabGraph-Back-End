@@ -23,8 +23,7 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 	// Existence Checks
 	boolean existsByTestName(String name);
 
-	boolean existsByMeasurementDateAndControlLevelAndTestName(LocalDateTime date, String level,
-			String value);
+	boolean existsByMeasurementDateAndControlLevelAndTestName(LocalDateTime date, String level, String name);
 
 	// Fetch Analytics by Name
 	@Query("SELECT ga FROM analytics ga WHERE ga.testName = :testName")
@@ -34,14 +33,12 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 	@Query(value = """
 			SELECT ga FROM analytics ga WHERE ga.testName = :name AND ga.controlLevel = :level ORDER BY ga.measurementDate DESC LIMIT 10
 			""")
-	List<AnalyticsDTO> findLast10ByTestNameAndControlLevel(@Param("name") String name,
-			@Param("level") String level);
+	List<AnalyticsDTO> findLast10ByTestNameAndControlLevel(@Param("name") String name, @Param("level") String level);
 
 	@Query(value = """
 			SELECT ga FROM analytics ga WHERE ga.testName = :name AND ga.controlLevel = :level ORDER BY ga.measurementDate DESC LIMIT 1
 			""")
-	List<AnalyticsDTO> findLastByTestNameAndControlLevel(@Param("name") String name,
-			@Param("level") String level);
+	List<AnalyticsDTO> findLastByTestNameAndControlLevel(@Param("name") String name, @Param("level") String level);
 
 	// Update Operations
 	@Transactional
@@ -50,16 +47,14 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 			UPDATE analytics ga SET ga.targetMean = :mean WHERE
 			 ga.testName = :name AND ga.controlLevel = :level AND ga.controlLevelLot = :levelLot
 			""")
-	void updateMeanByNameAndLevelAndLevelLot(@Param("name") String name,
-			@Param("level") String level, @Param("levelLot") String levelLot,
-			@Param("mean") double mean);
+	void updateMeanByNameAndLevelAndLevelLot(@Param("name") String name, @Param("level") String level,
+			@Param("levelLot") String levelLot, @Param("mean") double mean);
 
 	// Fetch Analytics by Name and Level
 	@Query(value = """
 			SELECT ga FROM analytics ga WHERE ga.testName = :name AND ga.controlLevel = :level
 			""")
-	List<Analytic> findByNameAndLevel(Pageable pageable, @Param("name") String name,
-			@Param("level") String level);
+	List<Analytic> findByNameAndLevel(Pageable pageable, @Param("name") String name, @Param("level") String level);
 
 	@Query(value = """
 			SELECT ga FROM analytics ga WHERE ga.testName = :name AND ga.controlLevel = :level AND ga.controlLevelLot = :levelLot
@@ -67,21 +62,20 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 	List<Analytic> findByNameAndLevelAndLevelLot(Pageable pageable, @Param("name") String name,
 			@Param("level") String level, @Param("levelLot") String levelLot);
 
-	@QueryHints({@QueryHint(name = "org.hibernate.readOnly", value = "true"),
+	@QueryHints({ @QueryHint(name = "org.hibernate.readOnly", value = "true"),
 			@QueryHint(name = "org.hibernate.fetchSize", value = "100"),
-			@QueryHint(name = "org.hibernate.cacheable", value = "true")})
+			@QueryHint(name = "org.hibernate.cacheable", value = "true") })
 	@Query("""
 			SELECT ga FROM analytics ga WHERE ga.testName = :name
 			AND ga.controlLevel = :level AND ga.measurementDate BETWEEN :startDate AND :endDate ORDER BY ga.measurementDate ASC
 			""")
-	List<Analytic> findByNameAndLevelAndDateBetween(@Param("name") String name,
-			@Param("level") String level, @Param("startDate") LocalDateTime startDate,
-			@Param("endDate") LocalDateTime endDate, Pageable pageable);
+	List<Analytic> findByNameAndLevelAndDateBetween(@Param("name") String name, @Param("level") String level,
+			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 	// Fetch Analytics by Multiple Names and Date
-	@QueryHints({@QueryHint(name = "org.hibernate.readOnly", value = "true"),
-			@QueryHint(name = "org.hibernate.fetchSize", value = "50"),
-			@QueryHint(name = "org.hibernate.cacheable", value = "true")})
+	@QueryHints({ @QueryHint(name = "org.hibernate.readOnly", value = "true"),
+			@QueryHint(name = "org.hibernate.fetchSize", value = "100"),
+			@QueryHint(name = "org.hibernate.cacheable", value = "true") })
 	@Query(value = """
 			SELECT ga FROM analytics ga WHERE
 			 ga.testName IN (:names) AND ga.controlLevel = :level AND ga.measurementDate BETWEEN
@@ -95,8 +89,7 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 			SELECT ga FROM analytics ga WHERE ga.testName IN (:names) AND ga.measurementDate BETWEEN :startDate AND :endDate
 			""")
 	Page<AnalyticsDTO> findByNameInAndDateBetweenPaged(@Param("names") List<String> names,
-			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate,
-			Pageable pageable);
+			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 	@Query(value = """
 			SELECT ga FROM analytics ga WHERE ga.testName IN (:names) ORDER BY ga.measurementDate ASC
@@ -125,6 +118,5 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 			AND ga.measurementDate BETWEEN :startDate AND :endDate
 			""")
 	List<Analytic> findByNameAndDateBetweenGroupByLevel(@Param("name") String name,
-			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate,
-			Pageable pageable);
+			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 }

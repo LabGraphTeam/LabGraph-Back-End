@@ -5,16 +5,21 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
+
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedValuesByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
@@ -32,42 +37,24 @@ class AnalyticsValidationServiceTests {
     private static final AnalyticsDTO validRecord = mock(AnalyticsDTO.class);
     private static final AnalyticsDTO invalidRecord = mock(AnalyticsDTO.class);
 
-
-
     @BeforeEach
     void setUp() {
-        analyticsValidationService = new AnalyticsValidationService(analyticsRepository) {
-            @Override
-            public boolean isGroupedRecordValid(GroupedValuesByLevelDTO groupedValuesByLevelDTO) {
-                return groupedValuesByLevelDTO.values().stream()
-                        .allMatch(groupedValue -> !Objects.equals(groupedValue.rules(), "+3s")
-                                && !Objects.equals(groupedValue.rules(), "-3s"));
-            }
-
-            @Override
-            public boolean isNotThreeSigma(AnalyticsDTO analyticsDTO) {
-                String rules = analyticsDTO.rules();
-                return (!Objects.equals(rules, "+3s") || !Objects.equals(rules, "-3s"));
-            }
-        };
+        analyticsValidationService = new AnalyticsValidationService(analyticsRepository) {};
     }
-
 
     @Test
     @DisplayName("isGroupedRecordValid should return false when records contain -3s rules")
     void isGroupedRecordValid_WithMinus3sRules_ShouldReturnFalse() {
 
-        List<AnalyticsDTO> invalidRecords = createSampleRecordList().stream()
-                .map(AnalyticMapper::toEntity).map(analyticsRecord -> {
+        List<AnalyticsDTO> invalidRecords =
+                createSampleRecordList().stream().map(AnalyticMapper::toEntity).map(analyticsRecord -> {
                     analyticsRecord.setControlRules("-3s");
                     return AnalyticMapper.toRecord(analyticsRecord);
                 }).toList();
 
-        GroupedValuesByLevelDTO groupedRecords =
-                new GroupedValuesByLevelDTO("Normal", invalidRecords);
+        GroupedValuesByLevelDTO groupedRecords = new GroupedValuesByLevelDTO("Normal", invalidRecords);
 
         boolean result = analyticsValidationService.isGroupedRecordValid(groupedRecords);
-
 
         assertFalse(result, "GroupedRecords with -3s rules should be invalid");
     }
@@ -76,17 +63,15 @@ class AnalyticsValidationServiceTests {
     @DisplayName("isGroupedRecordValid should return false when records contain +3s rules")
     void isGroupedRecordValid_WithPlus3sRules_ShouldReturnFalse() {
 
-        List<AnalyticsDTO> invalidRecords = createSampleRecordList().stream()
-                .map(AnalyticMapper::toEntity).map(analyticsRecord -> {
+        List<AnalyticsDTO> invalidRecords =
+                createSampleRecordList().stream().map(AnalyticMapper::toEntity).map(analyticsRecord -> {
                     analyticsRecord.setControlRules("+3s");
                     return AnalyticMapper.toRecord(analyticsRecord);
                 }).toList();
 
-        GroupedValuesByLevelDTO groupedRecords =
-                new GroupedValuesByLevelDTO("Normal", invalidRecords);
+        GroupedValuesByLevelDTO groupedRecords = new GroupedValuesByLevelDTO("Normal", invalidRecords);
 
         boolean result = analyticsValidationService.isGroupedRecordValid(groupedRecords);
-
 
         assertFalse(result, "GroupedRecords with +3s rules should be invalid");
     }
@@ -95,17 +80,15 @@ class AnalyticsValidationServiceTests {
     @DisplayName("isGroupedRecordValid should return true when records have valid rules")
     void isGroupedRecordValid_WithValidRules_ShouldReturnTrue() {
 
-        List<AnalyticsDTO> validRecords = createSampleRecordList().stream()
-                .map(AnalyticMapper::toEntity).map(analyticsRecord -> {
+        List<AnalyticsDTO> validRecords =
+                createSampleRecordList().stream().map(AnalyticMapper::toEntity).map(analyticsRecord -> {
                     analyticsRecord.setControlRules("normal");
                     return AnalyticMapper.toRecord(analyticsRecord);
                 }).toList();
 
-        GroupedValuesByLevelDTO groupedRecords =
-                new GroupedValuesByLevelDTO("Normal", validRecords);
+        GroupedValuesByLevelDTO groupedRecords = new GroupedValuesByLevelDTO("Normal", validRecords);
 
         boolean result = analyticsValidationService.isGroupedRecordValid(groupedRecords);
-
 
         assertTrue(result, "GroupedRecords with normal rules should be valid");
     }
@@ -126,7 +109,6 @@ class AnalyticsValidationServiceTests {
 
         boolean result = analyticsValidationService.isGroupedRecordValid(groupedRecords);
 
-
         assertFalse(result, "GroupedRecords with mixed rules should be invalid");
     }
 
@@ -134,11 +116,9 @@ class AnalyticsValidationServiceTests {
     @DisplayName("isGroupedRecordValid should return true for empty grouped values")
     void isGroupedRecordValid_WithEmptyValues_ShouldReturnTrue() {
 
-        GroupedValuesByLevelDTO groupedRecords =
-                new GroupedValuesByLevelDTO("Empty", Collections.emptyList());
+        GroupedValuesByLevelDTO groupedRecords = new GroupedValuesByLevelDTO("Empty", Collections.emptyList());
 
         boolean result = analyticsValidationService.isGroupedRecordValid(groupedRecords);
-
 
         assertTrue(result, "Empty GroupedRecords should be valid");
     }
@@ -152,7 +132,6 @@ class AnalyticsValidationServiceTests {
 
         boolean result = analyticsValidationService.isNotThreeSigma(analyticsRecord);
 
-
         assertTrue(result, "Records with normal rules should not be classified as 3-sigma");
     }
 
@@ -164,8 +143,7 @@ class AnalyticsValidationServiceTests {
 
         boolean result = analyticsValidationService.isNotThreeSigma(invalidRecord);
 
-        assertTrue(result,
-                "According to implementation, isNotThreeSigma should return true for +3s");
+        assertTrue(result, "According to implementation, isNotThreeSigma should return true for +3s");
     }
 
     @Test
@@ -176,7 +154,6 @@ class AnalyticsValidationServiceTests {
 
         boolean result = analyticsValidationService.isNotThreeSigma(invalidRecord);
 
-        assertTrue(result,
-                "According to implementation, isNotThreeSigma should return true for -3s");
+        assertTrue(result, "According to implementation, isNotThreeSigma should return true for -3s");
     }
 }

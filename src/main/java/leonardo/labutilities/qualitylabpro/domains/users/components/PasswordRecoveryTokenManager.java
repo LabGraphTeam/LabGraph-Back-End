@@ -3,6 +3,7 @@ package leonardo.labutilities.qualitylabpro.domains.users.components;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HashMap;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,14 +15,14 @@ public class PasswordRecoveryTokenManager {
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(new byte[16]);
 	}
 
-	public String generateAndStoreToken(String email) {
-		String token = generateRecoveryToken();
+	public String generateAndStoreToken(final String email) {
+		final String token = generateRecoveryToken();
 		stringHashMap.put(token, email);
 		return token;
 	}
 
-	public boolean isRecoveryTokenValid(String token, String email) {
-		String storedEmail = stringHashMap.get(token);
+	public boolean isRecoveryTokenValid(final String token, final String email) {
+		final String storedEmail = stringHashMap.get(token);
 		if (storedEmail == null) {
 			return false;
 		}

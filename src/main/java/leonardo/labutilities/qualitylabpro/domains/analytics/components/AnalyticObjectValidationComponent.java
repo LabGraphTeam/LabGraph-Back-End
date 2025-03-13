@@ -11,22 +11,20 @@ import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobal
 public class AnalyticObjectValidationComponent {
     private AnalyticObjectValidationComponent() {}
 
-    public static void validateResultsNotEmpty(List<?> results, String message) {
+    public static void validateResultsNotEmpty(List<?> results, final String message) {
         if (results == null || results.isEmpty()) {
             throw new CustomGlobalErrorHandling.ResourceNotFoundException(message);
         }
     }
 
-    public static boolean isRuleBroken(Analytic analytic) {
-        String rules = analytic.getControlRules();
+    public static boolean isRuleBroken(final Analytic analytic) {
+        final String rules = analytic.getControlRules();
         return (ThresholdAnalyticsRules.RULES.contains(rules));
     }
 
-    public static List<Analytic> filterFailedRecords(List<Analytic> persistedRecords) {
+    public static List<Analytic> filterFailedRecords(final List<Analytic> persistedRecords) {
         return persistedRecords.stream().filter(AnalyticObjectValidationComponent::isRuleBroken)
-                .filter(analytics -> !AnalyticsBlackList.BLACK_LIST
-                        .contains(analytics.getTestName()))
-                .toList();
+                .filter(analytics -> !AnalyticsBlackList.BLACK_LIST.contains(analytics.getTestName())).toList();
     }
 
 }

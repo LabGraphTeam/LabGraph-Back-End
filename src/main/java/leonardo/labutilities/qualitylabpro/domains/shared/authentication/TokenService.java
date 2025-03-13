@@ -21,25 +21,22 @@ public class TokenService {
 	@Value("${api.security.issuer}")
 	private String issuer;
 
-	public TokenJwtDTO generateToken(User user) {
+	public TokenJwtDTO generateToken(final User user) {
 		try {
 			var algorithm = Algorithm.HMAC256(this.secret);
-			return new TokenJwtDTO(JWT.create().withIssuer(this.issuer)
-					.withSubject(user.getUsername()).withExpiresAt(dateExp()).sign(algorithm),
-					dateExp());
+			return new TokenJwtDTO(JWT.create().withIssuer(this.issuer).withSubject(user.getUsername())
+					.withExpiresAt(dateExp()).sign(algorithm), dateExp());
 		} catch (JWTCreationException exception) {
 			throw new JWTCreationException("Error generating token", exception);
 		}
 	}
 
-	public String getSubject(String tokenJWT) {
+	public String getSubject(final String tokenJWT) {
 		try {
 			var algorithm = Algorithm.HMAC256(this.secret);
-			return JWT.require(algorithm).withIssuer(this.issuer).build().verify(tokenJWT)
-					.getSubject();
+			return JWT.require(algorithm).withIssuer(this.issuer).build().verify(tokenJWT).getSubject();
 		} catch (JWTVerificationException exception) {
-			throw new JWTVerificationException("Invalid token: " + exception.getMessage(),
-					exception);
+			throw new JWTVerificationException("Invalid token: " + exception.getMessage(), exception);
 		}
 	}
 

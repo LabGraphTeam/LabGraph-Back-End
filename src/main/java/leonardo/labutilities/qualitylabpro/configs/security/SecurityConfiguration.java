@@ -13,8 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import leonardo.labutilities.qualitylabpro.configs.constants.ApiEndpoints;
@@ -29,21 +28,17 @@ public class SecurityConfiguration {
       private final SecurityFilter securityFilter;
 
       @Bean
-      protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+      protected DefaultSecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
             return http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults())
-                        .sessionManagement(
-                                    sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                         .authorizeHttpRequests(req -> {
                               // Public endpoints
                               req.requestMatchers(PUBLIC_PATHS).permitAll();
-                              req.requestMatchers(HttpMethod.POST, ApiEndpoints.PUBLIC_POST_PATHS)
-                                          .permitAll();
-                              req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.PASSWORD_PATH)
-                                          .permitAll();
+                              req.requestMatchers(HttpMethod.POST, ApiEndpoints.PUBLIC_POST_PATHS).permitAll();
+                              req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.PASSWORD_PATH).permitAll();
 
                               // Admin endpoints
-                              req.requestMatchers(HttpMethod.DELETE,
-                                          ApiEndpoints.ADMIN_MODIFY_PATHS)
+                              req.requestMatchers(HttpMethod.DELETE, ApiEndpoints.ADMIN_MODIFY_PATHS)
                                           .hasRole(UserRoles.ADMIN.getRole());
                               req.requestMatchers(HttpMethod.PUT, ApiEndpoints.ADMIN_MODIFY_PATHS)
                                           .hasRole(UserRoles.ADMIN.getRole());
@@ -60,19 +55,16 @@ public class SecurityConfiguration {
 
                               // Require authentication for all other requests
                               req.anyRequest().authenticated();
-                        })
-                        .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-                        .build();
+                        }).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class).build();
       }
 
       @Bean
-      AuthenticationManager authMenager(AuthenticationConfiguration configuration)
-                  throws Exception {
+      AuthenticationManager authMenager(AuthenticationConfiguration configuration) throws Exception {
             return configuration.getAuthenticationManager();
       }
 
       @Bean
-      PasswordEncoder passwordEncoder() {
+      BCryptPasswordEncoder passwordEncoder() {
             return new BCryptPasswordEncoder();
       }
 }

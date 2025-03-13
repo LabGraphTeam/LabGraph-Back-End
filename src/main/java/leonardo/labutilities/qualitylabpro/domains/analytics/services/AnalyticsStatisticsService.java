@@ -39,22 +39,19 @@ public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
         public List<GroupedMeanAndStdByLevelDTO> returnMeanAndStandardDeviationForGroups(
                         List<GroupedValuesByLevelDTO> records) {
                 return records.stream().map(group -> new GroupedMeanAndStdByLevelDTO(group.level(),
-                                Collections.singletonList(StatisticsCalculatorComponent
-                                                .computeStatistics(StatisticsCalculatorComponent
-                                                                .extractRecordValues(group.values())))))
+                                Collections.singletonList(StatisticsCalculatorComponent.computeStatistics(
+                                                StatisticsCalculatorComponent.extractRecordValues(group.values())))))
                                 .toList();
         }
 
         @Override
         @Cacheable(value = "meanAndStdDeviation",
                         key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
-        public MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(String name, String level,
+        public MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(final String name, String level,
                         LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
                 List<AnalyticsDTO> values = analyticsRepository
-                                .findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd, pageable)
-                                .stream()
-                                .map(AnalyticMapper::toRecord)
-                                .filter(analyticsValidationService::isNotThreeSigma)
+                                .findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd, pageable).stream()
+                                .map(AnalyticMapper::toRecord).filter(analyticsValidationService::isNotThreeSigma)
                                 .toList();
                 return StatisticsCalculatorComponent.calculateMeanAndStandardDeviation(values);
         }
@@ -62,39 +59,30 @@ public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
         @Override
         @Cacheable(value = "calculateGroupedMeanAndStandardDeviation",
                         key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
-        public List<GroupedMeanAndStdByLevelDTO> calculateGroupedMeanAndStandardDeviation(
-                        String name,
+        public List<GroupedMeanAndStdByLevelDTO> calculateGroupedMeanAndStandardDeviation(final String name,
                         LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
                 List<AnalyticsDTO> records = analyticsRepository
-                                .findByNameAndDateBetweenGroupByLevel(name, startDate, endDate, pageable)
-                                .stream().map(AnalyticMapper::toRecord).toList();
+                                .findByNameAndDateBetweenGroupByLevel(name, startDate, endDate, pageable).stream()
+                                .map(AnalyticMapper::toRecord).toList();
 
-                var values = records.stream()
-                                .collect(Collectors.groupingBy(AnalyticsDTO::level))
-                                .entrySet().stream()
-                                .map(entry -> new GroupedValuesByLevelDTO(entry.getKey(),
-                                                entry.getValue()))
-                                .toList();
+                var values = records.stream().collect(Collectors.groupingBy(AnalyticsDTO::level)).entrySet().stream()
+                                .map(entry -> new GroupedValuesByLevelDTO(entry.getKey(), entry.getValue())).toList();
 
                 return returnMeanAndStandardDeviationForGroups(values);
         }
 
         @Override
-        public List<ErrorStatisticsDTO> calculateErrorStatistics(List<String> names, String level,
+        public List<ErrorStatisticsDTO> calculateErrorStatistics(final List<String> names, String level,
                         LocalDateTime startDate, LocalDateTime endDate) {
-                var analytics = analyticsRepository
-                                .findByNameInAndLevelAndDateBetween(names, level, startDate, endDate,
-                                                Pageable.unpaged())
-                                .stream().toList();
+                var analytics = analyticsRepository.findByNameInAndLevelAndDateBetween(names, level, startDate, endDate,
+                                Pageable.unpaged()).stream().toList();
 
                 if (analytics.isEmpty()) {
-                        throw new ResourceNotFoundException(
-                                        "No data found for the given parameters");
+                        throw new ResourceNotFoundException("No data found for the given parameters");
                 }
 
                 Map<String, List<AnalyticsDTO>> analyticsByName =
-                                analytics.stream()
-                                                .collect(Collectors.groupingBy(AnalyticsDTO::name));
+                                analytics.stream().collect(Collectors.groupingBy(AnalyticsDTO::name));
 
                 List<ErrorStatisticsDTO> result = new ArrayList<>();
                 for (Map.Entry<String, List<AnalyticsDTO>> entry : analyticsByName.entrySet()) {
@@ -106,9 +94,8 @@ public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
 
                         double defaultMean = analyticsForName.getFirst().mean();
 
-                        ErrorStatisticsDTO stat = StatisticsCalculatorComponent
-                                        .calculateErrorStatistics(analyticsForName, defalutName, defaultLevel,
-                                                        defaultMean);
+                        ErrorStatisticsDTO stat = StatisticsCalculatorComponent.calculateErrorStatistics(
+                                        analyticsForName, defalutName, defaultLevel, defaultMean);
                         result.add(stat);
                 }
 
@@ -116,36 +103,31 @@ public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
         }
 
         @Override
-        public ComparativeErrorStatisticsDTO calculateComparativeErrorStatistics(String analyticName,
-                        String level, LocalDateTime firstStartDate,
-                        LocalDateTime firstEndDate,
-                        LocalDateTime secondStartDate,
-                        LocalDateTime secondEndDate) {
+        public ComparativeErrorStatisticsDTO calculateComparativeErrorStatistics(final String analyticName,
+                        String level, LocalDateTime firstStartDate, LocalDateTime firstEndDate,
+                        LocalDateTime secondStartDate, LocalDateTime secondEndDate) {
 
                 List<String> monthList = List.of(firstStartDate.getMonth().name(), secondStartDate.getMonth().name());
 
-                List<AnalyticsDTO> firstAnalytic = analyticsRepository
-                                .findByNameAndLevelAndDateBetween(
-                                                analyticName, level, firstStartDate,
-                                                firstEndDate, Pageable.unpaged())
-                                .stream().map(AnalyticMapper::toRecord).toList();
+                List<AnalyticsDTO> firstAnalytic =
+                                analyticsRepository
+                                                .findByNameAndLevelAndDateBetween(analyticName, level, firstStartDate,
+                                                                firstEndDate, Pageable.unpaged())
+                                                .stream().map(AnalyticMapper::toRecord).toList();
 
-                List<AnalyticsDTO> secondAnalytic = analyticsRepository
-                                .findByNameAndLevelAndDateBetween(
-                                                analyticName, level, secondStartDate,
-                                                secondEndDate, Pageable.unpaged())
-                                .stream().map(AnalyticMapper::toRecord).toList();
+                List<AnalyticsDTO> secondAnalytic =
+                                analyticsRepository
+                                                .findByNameAndLevelAndDateBetween(analyticName, level, secondStartDate,
+                                                                secondEndDate, Pageable.unpaged())
+                                                .stream().map(AnalyticMapper::toRecord).toList();
 
                 if (firstAnalytic.isEmpty() || secondAnalytic.isEmpty()) {
-                        throw new ResourceNotFoundException(
-                                        "No data found for the given parameters");
+                        throw new ResourceNotFoundException("No data found for the given parameters");
                 }
 
                 double defaultMean = firstAnalytic.getFirst().mean();
 
-            return StatisticsCalculatorComponent
-                            .calculateComparativeErrorStatistics(
-                                            analyticName, level, defaultMean, firstAnalytic, secondAnalytic,
-                                            monthList);
+                return StatisticsCalculatorComponent.calculateComparativeErrorStatistics(analyticName, level,
+                                defaultMean, firstAnalytic, secondAnalytic, monthList);
         }
 }

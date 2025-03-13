@@ -1,6 +1,7 @@
 package leonardo.labutilities.qualitylabpro.domains.user.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.event.annotation.BeforeTestExecution;
 import org.springframework.transaction.annotation.Transactional;
+
 import leonardo.labutilities.qualitylabpro.domains.users.components.BCryptEncoderComponent;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 import leonardo.labutilities.qualitylabpro.domains.users.repositories.UserRepository;
@@ -42,9 +44,9 @@ class UserRepositoryTests {
 	@Order(1)
 	@DisplayName("Should return null when username is empty")
 	@Transactional
-	void findByLoginUserDataBaseIsUserNotExists() {
+	void shouldReturnNullWhenUsernameIsEmpty() {
 		var userEmpty = this.userRepository.getReferenceOneByUsername("");
-		assertThat(userEmpty).isNull();
+		assertThat(userEmpty).isEmpty();
 	}
 
 	@Test
@@ -67,16 +69,13 @@ class UserRepositoryTests {
 		String oldPassword = "12345";
 		String newPassword = "newPassword!@#";
 
-		var userWithOldPassword =
-				this.userRepository.getReferenceByUsernameAndEmail("UserTest", "leo@hotmail.com");
+		var userWithOldPassword = this.userRepository.getReferenceByUsernameAndEmail("UserTest", "leo@hotmail.com");
 
 		this.userRepository.setPasswordWhereByUsername(username, newPassword);
 
-		var userWithNewPassword =
-				this.userRepository.getReferenceByUsernameAndEmail("UserTest", "leo@hotmail.com");
+		var userWithNewPassword = this.userRepository.getReferenceByUsernameAndEmail("UserTest", "leo@hotmail.com");
 
 		assertThat(BCryptEncoderComponent.decrypt(oldPassword, userWithOldPassword.getPassword())
-				|| BCryptEncoderComponent.decrypt(newPassword, userWithNewPassword.getPassword()))
-						.isTrue();
+				|| BCryptEncoderComponent.decrypt(newPassword, userWithNewPassword.getPassword())).isTrue();
 	}
 }
