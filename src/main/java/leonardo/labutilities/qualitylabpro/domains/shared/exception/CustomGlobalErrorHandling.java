@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.DuplicateKeyException;
@@ -21,11 +20,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
-
 
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,9 +41,9 @@ public class CustomGlobalErrorHandling {
 	// ==========================================
 	// 400 BAD REQUEST exceptions
 	// ==========================================
-	@ApiResponses(value = { @ApiResponse(responseCode = "400", description = "Invalid input supplied",
-			content = @Content(schema = @Schema(implementation = ApiError.class))) })
-	@ExceptionHandler({ MethodArgumentNotValidException.class })
+	@ApiResponses(value = {@ApiResponse(responseCode = "400", description = "Invalid input supplied",
+			content = @Content(schema = @Schema(implementation = ApiError.class)))})
+	@ExceptionHandler({MethodArgumentNotValidException.class})
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex,
 			HttpServletRequest request) {
@@ -55,6 +54,20 @@ public class CustomGlobalErrorHandling {
 				.withValidationErrors(errors);
 
 		log.error("400 Bad Request: Validation failed [{}]: {}", request.getRequestURI(), errors);
+		return ResponseEntity.badRequest().body(apiError);
+	}
+
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ResponseEntity<ApiError> handleMissingParameter(MissingServletRequestParameterException ex,
+			HttpServletRequest request) {
+		ApiError apiError = ApiError.of(HttpStatus.BAD_REQUEST, "Missing required parameter", request.getRequestURI());
+		apiError.details().add(
+				"Required parameter '" + ex.getParameterName() + "' of type " + ex.getParameterType() + " is missing");
+		apiError.details().add("Please provide all required parameters and try again.");
+
+		log.error("400 Bad Request: Missing required parameter [{}]: {}", request.getRequestURI(),
+				ex.getParameterName());
 		return ResponseEntity.badRequest().body(apiError);
 	}
 
@@ -75,9 +88,9 @@ public class CustomGlobalErrorHandling {
 	// ==========================================
 	// 401 UNAUTHORIZED exceptions
 	// ==========================================
-	@ApiResponses(value = { @ApiResponse(responseCode = "401", description = "Authentication failed",
-			content = @Content(schema = @Schema(implementation = ApiError.class))) })
-	@ExceptionHandler({ BadCredentialsException.class, PasswordNotMatchesException.class })
+	@ApiResponses(value = {@ApiResponse(responseCode = "401", description = "Authentication failed",
+			content = @Content(schema = @Schema(implementation = ApiError.class)))})
+	@ExceptionHandler({BadCredentialsException.class, PasswordNotMatchesException.class})
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)
 	public ResponseEntity<ApiError> handleAuthenticationErrors(Exception ex, HttpServletRequest request) {
 		String errorMessage = "Invalid credentials or password does not match";
@@ -96,8 +109,8 @@ public class CustomGlobalErrorHandling {
 	// ==========================================
 	// 403 FORBIDDEN exceptions
 	// ==========================================
-	@ApiResponses(value = { @ApiResponse(responseCode = "403", description = "Invalid recovery token",
-			content = @Content(schema = @Schema(implementation = ApiError.class))) })
+	@ApiResponses(value = {@ApiResponse(responseCode = "403", description = "Invalid recovery token",
+			content = @Content(schema = @Schema(implementation = ApiError.class)))})
 	@ExceptionHandler(RecoveryTokenInvalidException.class)
 	@ResponseStatus(HttpStatus.FORBIDDEN)
 	public ResponseEntity<ApiError> handleRecoveryTokenInvalid(RecoveryTokenInvalidException ex,
@@ -111,8 +124,8 @@ public class CustomGlobalErrorHandling {
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
 	}
 
-	@ApiResponses(value = { @ApiResponse(responseCode = "403", description = "Access denied",
-			content = @Content(schema = @Schema(implementation = ApiError.class))) })
+	@ApiResponses(value = {@ApiResponse(responseCode = "403", description = "Access denied",
+			content = @Content(schema = @Schema(implementation = ApiError.class)))})
 	@ExceptionHandler(AccessDeniedException.class)
 	@ResponseStatus(HttpStatus.FORBIDDEN)
 	public ResponseEntity<ApiError> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
@@ -127,8 +140,8 @@ public class CustomGlobalErrorHandling {
 	// ==========================================
 	// 404 NOT FOUND exceptions
 	// ==========================================
-	@ApiResponses(value = { @ApiResponse(responseCode = "404", description = "Resource not found",
-			content = @Content(schema = @Schema(implementation = ApiError.class))) })
+	@ApiResponses(value = {@ApiResponse(responseCode = "404", description = "Resource not found",
+			content = @Content(schema = @Schema(implementation = ApiError.class)))})
 	@ExceptionHandler(ResourceNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
@@ -185,8 +198,8 @@ public class CustomGlobalErrorHandling {
 	// ==========================================
 	// 409 CONFLICT exceptions
 	// ==========================================
-	@ApiResponses(value = { @ApiResponse(responseCode = "409", description = "User already exists",
-			content = @Content(schema = @Schema(implementation = ApiError.class))) })
+	@ApiResponses(value = {@ApiResponse(responseCode = "409", description = "User already exists",
+			content = @Content(schema = @Schema(implementation = ApiError.class)))})
 	@ExceptionHandler(UserAlreadyExistException.class)
 	@ResponseStatus(HttpStatus.CONFLICT)
 	public ResponseEntity<ApiError> handleUserAlreadyExist(UserAlreadyExistException ex, HttpServletRequest request) {

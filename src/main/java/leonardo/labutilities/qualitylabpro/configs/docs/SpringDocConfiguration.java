@@ -16,10 +16,10 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
-@Profile({ "dev", "local" })
+@Profile({"dev", "local"})
 public class SpringDocConfiguration {
 
-        @Value("${spring.application.name:QualityLab-Pro}")
+        @Value("${spring.application.name: LabGraph}")
         private String applicationName;
 
         @Bean
