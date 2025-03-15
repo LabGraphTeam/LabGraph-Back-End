@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -52,23 +53,25 @@ class AnalyticsController extends AnalyticsHelperController {
 
 	@DeleteMapping("/{id}")
 	@Transactional
-	public ResponseEntity<Void> deleteAnalyticsResultById(@PathVariable final Long id) {
+	public ResponseEntity<Void> deleteAnalyticsResultById(@PathVariable Long id) {
 		analyticHelperService.deleteAnalyticsById(id);
-		return ResponseEntity.noContent().build();
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
 	@PatchMapping("/{id}/validate")
 	@Transactional
-	public ResponseEntity<AnalyticsDTO> patchValidateAnalyticByUser(@PathVariable final Long id) {
+	public ResponseEntity<AnalyticsDTO> patchValidateAnalyticByUser(@PathVariable Long id) {
 		var respose = analyticHelperService.validateAnalyticByUser(id);
-		return ResponseEntity.ok(respose);
+		return ResponseEntity.status(HttpStatus.OK).body(respose);
 	}
 
 	@PostMapping
 	@Transactional
-	public ResponseEntity<List<AnalyticsDTO>> postAnalytics(@RequestBody @Valid List<AnalyticsDTO> values) {
-		analyticHelperService.saveNewAnalyticsRecords(values);
-		return ResponseEntity.status(201).build();
+	public ResponseEntity<List<AnalyticsDTO>> postAnalytics(
+			@RequestBody @Valid List<AnalyticsDTO> values) {
+		var response = analyticHelperService.saveNewAnalyticsRecords(values);
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 	@GetMapping
@@ -79,26 +82,28 @@ class AnalyticsController extends AnalyticsHelperController {
 	}
 
 	@GetMapping("/name")
-	public List<AnalyticsDTO> getAnalyticsByNameWithPagination(@RequestParam final String name,
+	public ResponseEntity<List<AnalyticsDTO>> getAnalyticsByNameWithPagination(@RequestParam String name,
 			@PageableDefault(sort = "measurementDate", direction = Sort.Direction.DESC,
-					size = 100) @ParameterObject Pageable pageable) {
-		return analyticHelperService.findAnalyticsByNameWithPagination(names, name, pageable);
+					size = 200) @ParameterObject Pageable pageable) {
+		var response = analyticHelperService.findAnalyticsByNameWithPagination(names, name, pageable);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
 	@GetMapping("/date-range")
 	public ResponseEntity<Page<AnalyticsDTO>> getAnalyticsDateBetween(
-			@ParameterObject AnalyticsDateRangeParamsDTO params, @PageableDefault(sort = "measurementDate",
-					direction = Sort.Direction.DESC, size = 100) @ParameterObject Pageable pageable) {
+			@ParameterObject AnalyticsDateRangeParamsDTO params,
+			@PageableDefault(sort = "measurementDate", direction = Sort.Direction.DESC,
+					size = 1500) @ParameterObject Pageable pageable) {
 
-		log.info("Fetching analytics between {} and {} with pagination: {}", params.startDate(), params.endDate(),
-				pageable);
-
-		var result = analyticHelperService.findAnalyticsByNameInAndDateBetween(names, params.startDate(),
+		log.info("Fetching analytics between {} and {} with pagination: {}", params.startDate(),
 				params.endDate(), pageable);
+
+		var result = analyticHelperService.findAnalyticsByNameInAndDateBetween(names,
+				params.startDate(), params.endDate(), pageable);
 
 		log.debug("Found {} analytics entries in date range", result.getTotalElements());
 
-		return ResponseEntity.ok(result);
+		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 
 	@GetMapping("/level-date-range")
@@ -106,32 +111,36 @@ class AnalyticsController extends AnalyticsHelperController {
 			@ParameterObject AnalyticsLevelDateRangeParamsDTO params,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 
-		log.info("Fetching analytics for level {} between {} and {}", params.level(), params.startDate(),
-				params.endDate());
+		log.info("Fetching analytics for level {} between {} and {}", params.level(),
+				params.startDate(), params.endDate());
 
 		var result = analyticHelperService.findAnalyticsByNameInByLevel(names,
-				analyticHelperService.convertLevel(params.level()), params.startDate(), params.endDate(), pageable);
+				analyticHelperService.convertLevel(params.level()), params.startDate(),
+				params.endDate(), pageable);
 
-		log.debug("Found {} analytics entries for level {}", result.getTotalElements(), params.level());
+		log.debug("Found {} analytics entries for level {}", result.getTotalElements(),
+				params.level());
 
-		return ResponseEntity.ok(result);
+		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 
 	@GetMapping("/mean-standard-deviation")
-	public ResponseEntity<MeanAndStdDeviationDTO> getMeanAndStandardDeviation(@RequestParam String name,
-			@RequestParam String level, @RequestParam("startDate") LocalDateTime startDate,
+	public ResponseEntity<MeanAndStdDeviationDTO> getMeanAndStandardDeviation(
+			@RequestParam String name, @RequestParam String level,
+			@RequestParam("startDate") LocalDateTime startDate,
 			@RequestParam("endDate") LocalDateTime endDate,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 
-		log.info("Calculating mean and standard deviation for {} at level {} between {} and {}", name, level, startDate,
-				endDate);
+		log.info("Calculating mean and standard deviation for {} at level {} between {} and {}",
+				name, level, startDate, endDate);
 
 		var result = analyticsStatisticsService.calculateMeanAndStandardDeviation(name,
 				analyticHelperService.convertLevel(level), startDate, endDate, pageable);
 
-		log.debug("Calculated statistics: mean={}, stdDev={}", result.mean(), result.standardDeviation());
+		log.debug("Calculated statistics: mean={}, stdDev={}", result.mean(),
+				result.standardDeviation());
 
-		return ResponseEntity.ok(result);
+		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 
 	@GetMapping("/name-and-level-date-range")
@@ -139,69 +148,79 @@ class AnalyticsController extends AnalyticsHelperController {
 			@ParameterObject AnalyticsNameAndLevelDateRangeParamsDTO params,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 
-		log.info("Fetching analytics for name={} level={} between {} and {}", params.name(), params.level(),
-				params.startDate(), params.endDate());
+		log.info("Fetching analytics for name={} level={} between {} and {}", params.name(),
+				params.level(), params.startDate(), params.endDate());
 
 		var result = analyticHelperService.findAnalyticsByNameLevelDate(params.name(),
-				analyticHelperService.convertLevel(params.level()), params.startDate(), params.endDate(), pageable);
+				analyticHelperService.convertLevel(params.level()), params.startDate(),
+				params.endDate(), pageable);
 
-		log.debug("Retrieved analytics with calculated values: analytics={}, calcs={}", result.analyticsDTO(),
-				result.calcMeanAndStdDTO());
+		log.debug("Retrieved analytics with calculated values: analytics={}, calcs={}",
+				result.analyticsDTO(), result.calcMeanAndStdDTO());
 
-		return ResponseEntity.ok(result);
+		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 
 	@GetMapping("/grouped-by-level")
-	public ResponseEntity<List<GroupedResultsByLevelDTO>> getGroupedByLevel(@RequestParam final String name,
-			@RequestParam("startDate") LocalDateTime startDate, @RequestParam("endDate") LocalDateTime endDate,
+	public ResponseEntity<List<GroupedResultsByLevelDTO>> getGroupedByLevel(
+			@RequestParam String name, @RequestParam("startDate") LocalDateTime startDate,
+			@RequestParam("endDate") LocalDateTime endDate,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 
-		List<GroupedResultsByLevelDTO> groupedData =
-				analyticHelperService.findAnalyticsWithGroupedResults(name, startDate, endDate, pageable);
+		List<GroupedResultsByLevelDTO> result = analyticHelperService
+				.findAnalyticsWithGroupedResults(name, startDate, endDate, pageable);
 
-		return ResponseEntity.ok(groupedData);
+		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 
 	@GetMapping("/grouped-by-level/mean-deviation")
-	public ResponseEntity<List<GroupedMeanAndStdByLevelDTO>> getMeanAndDeviationGrouped(@RequestParam final String name,
-			@RequestParam("startDate") LocalDateTime startDate, @RequestParam("endDate") LocalDateTime endDate,
+	public ResponseEntity<List<GroupedMeanAndStdByLevelDTO>> getMeanAndDeviationGrouped(
+			@RequestParam String name, @RequestParam("startDate") LocalDateTime startDate,
+			@RequestParam("endDate") LocalDateTime endDate,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 
-		List<GroupedMeanAndStdByLevelDTO> groupedData =
-				analyticsStatisticsService.calculateGroupedMeanAndStandardDeviation(name, startDate, endDate, pageable);
+		List<GroupedMeanAndStdByLevelDTO> response = analyticsStatisticsService
+				.calculateGroupedMeanAndStandardDeviation(name, startDate, endDate, pageable);
 
-		return ResponseEntity.ok(groupedData);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
 	@GetMapping("/error-statistics")
-	public ResponseEntity<List<ErrorStatisticsDTO>> getErrorStatistics(@RequestParam String level,
-			@RequestParam("startDate") LocalDateTime startDate, @RequestParam("endDate") LocalDateTime endDate) {
+	public ResponseEntity<List<ErrorStatisticsDTO>> getErrorStatistics(
+			@RequestParam String level,
+			@RequestParam("startDate") LocalDateTime startDate,
+			@RequestParam("endDate") LocalDateTime endDate) {
 
-		List<ErrorStatisticsDTO> errorStatistics = analyticsStatisticsService.calculateErrorStatistics(names,
-				analyticHelperService.convertLevel(level), startDate, endDate);
+		List<ErrorStatisticsDTO> response = analyticsStatisticsService
+				.calculateErrorStatistics(names, analyticHelperService.convertLevel(level), startDate, endDate);
 
-		return ResponseEntity.ok(errorStatistics);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
 	@GetMapping("/error-statistics/comparative")
 	public ResponseEntity<ComparativeErrorStatisticsDTO> getErrorStatisticsComparative(
 			@ParameterObject ComparativeErrorStatisticsParamsDTO params) {
 
-		ComparativeErrorStatisticsDTO comparativeErrorStatisticsDTO =
-				analyticsStatisticsService.calculateComparativeErrorStatistics(params.analyticName(),
-						analyticHelperService.convertLevel(params.analyticLevel()), params.firstStartDate(),
-						params.firstEndDate(), params.secondStartDate(), params.secondEndDate());
+		ComparativeErrorStatisticsDTO response = analyticsStatisticsService
+				.calculateComparativeErrorStatistics(params.analyticName(),
+						analyticHelperService.convertLevel(params.analyticLevel()),
+						params.firstStartDate(),
+						params.firstEndDate(),
+						params.secondStartDate(),
+						params.secondEndDate());
 
-		return ResponseEntity.ok(comparativeErrorStatisticsDTO);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
 	@PatchMapping()
-	public ResponseEntity<Void> updateAnalyticsMean(@Valid @RequestBody UpdateAnalyticsMeanDTO updateAnalyticsMeanDTO) {
+	public ResponseEntity<Void> updateAnalyticsMean(
+			@Valid @RequestBody UpdateAnalyticsMeanDTO updateAnalyticsMeanDTO) {
 
-		analyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(updateAnalyticsMeanDTO.name(),
-				analyticHelperService.convertLevel(updateAnalyticsMeanDTO.level()), updateAnalyticsMeanDTO.levelLot(),
-				updateAnalyticsMeanDTO.mean());
+		analyticHelperService.updateAnalyticsMeanByNameAndLevelAndLevelLot(
+				updateAnalyticsMeanDTO.name(),
+				analyticHelperService.convertLevel(updateAnalyticsMeanDTO.level()),
+				updateAnalyticsMeanDTO.levelLot(), updateAnalyticsMeanDTO.mean());
 
-		return ResponseEntity.noContent().build();
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 }
