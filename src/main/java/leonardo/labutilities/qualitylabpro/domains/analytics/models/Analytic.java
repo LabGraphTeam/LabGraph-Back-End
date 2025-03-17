@@ -1,10 +1,12 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.models;
 
 import java.time.LocalDateTime;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.beans.BeanUtils;
 import org.springframework.hateoas.RepresentationModel;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -35,7 +37,7 @@ public class Analytic extends RepresentationModel<Analytic> {
 	@JoinColumn(name = "owner_user_id")
 	private User ownerUserId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "validator_user_id")
 	private User validatorUserId;
 

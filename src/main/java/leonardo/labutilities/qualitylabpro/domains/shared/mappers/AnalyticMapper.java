@@ -60,6 +60,6 @@ public class AnalyticMapper {
 				analytic.getControlLevel(), analytic.getMeasurementValue(),
 				analytic.getTargetMean(), analytic.getStandardDeviation(),
 				analytic.getMeasurementUnit(), analytic.getControlRules(),
-				analytic.getDescription());
+				analytic.getDescription(), analytic.getValidatorUserId().getUsername());
 	}
 }

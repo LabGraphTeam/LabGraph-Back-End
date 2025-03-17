@@ -106,6 +106,10 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         }
 
         @Override
+        @CacheEvict(value = {"analyticsByNameAndDateRange", "meanAndStdDeviation",
+                        "calculateGroupedMeanAndStandardDeviation",
+                        "AnalyticsByNameWithPagination"},
+                        allEntries = true)
         public AnalyticsDTO validateAnalyticByUser(Long id) {
                 Analytic analytic = analyticsRepository.getReferenceById(id);
 

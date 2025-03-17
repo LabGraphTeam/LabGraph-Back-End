@@ -46,7 +46,12 @@ public record AnalyticsDTO(
                                 example = "-2s") String rules,
 
                 @Schema(description = "Additional description or notes about the analysis",
-                                example = "Within acceptable range") String description) {
+                                example = "Within acceptable range") String description,
+
+                @Schema(description = "Username of the validator",
+                                example = "john.doe") String validator_user)
+
+{
 
         public AnalyticsDTO(Analytic analytic) {
                 this(analytic.getId(), analytic.getMeasurementDate(), analytic.getControlLevelLot(),
@@ -54,8 +59,18 @@ public record AnalyticsDTO(
                                 analytic.getControlLevel(), analytic.getMeasurementValue(),
                                 analytic.getTargetMean(), analytic.getStandardDeviation(),
                                 analytic.getMeasurementUnit(), analytic.getControlRules(),
-                                analytic.getDescription());
-
+                                analytic.getDescription(),
+                                // Use a safer approach with try-catch to prevent breaking if method doesn't exist
+                                getValidatorUsername(analytic));
         }
 
+        private static String getValidatorUsername(Analytic analytic) {
+                try {
+                        return analytic.getValidatorUserId() != null ? analytic.getValidatorUserId().getUsername()
+                                        : null;
+                } catch (Exception e) {
+                        // If any exception occurs, return null
+                        return null;
+                }
+        }
 }
