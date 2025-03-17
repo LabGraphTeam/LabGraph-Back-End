@@ -123,6 +123,19 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         }
 
         @Override
+        @CacheEvict(value = {"analyticsByNameAndDateRange", "meanAndStdDeviation",
+                        "calculateGroupedMeanAndStandardDeviation",
+                        "AnalyticsByNameWithPagination"},
+                        allEntries = true)
+        public AnalyticsDTO updateDescription(Long id, String description) {
+                Analytic analytic = analyticsRepository.findById(id)
+                                .orElseThrow(() -> new CustomGlobalErrorHandling.ResourceNotFoundException(
+                                                "AnalyticsDTO by id not found"));
+                analytic.setDescription(description);
+                return AnalyticMapper.toRecord(analyticsRepository.save(analytic));
+        }
+
+        @Override
         public String convertLevel(String level) {
                 if (level == null) {
                         throw new IllegalArgumentException("Level cannot be null");
@@ -288,4 +301,5 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 analyticsRepository.updateMeanByNameAndLevelAndLevelLot(name, level, levelLot,
                                 mean);
         }
+
 }

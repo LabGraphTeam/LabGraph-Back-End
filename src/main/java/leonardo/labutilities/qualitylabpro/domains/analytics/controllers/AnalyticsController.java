@@ -65,6 +65,14 @@ class AnalyticsController extends AnalyticsHelperController {
 		return ResponseEntity.status(HttpStatus.OK).body(respose);
 	}
 
+	@PatchMapping("/{id}/description")
+	@Transactional
+	public ResponseEntity<AnalyticsDTO> patchDescriptionAnalyticByUser(@PathVariable Long id,
+			@RequestBody String description) {
+		var respose = analyticHelperService.updateDescription(id, description);
+		return ResponseEntity.status(HttpStatus.OK).body(respose);
+	}
+
 	@PostMapping
 	@Transactional
 	public ResponseEntity<List<AnalyticsDTO>> postAnalytics(

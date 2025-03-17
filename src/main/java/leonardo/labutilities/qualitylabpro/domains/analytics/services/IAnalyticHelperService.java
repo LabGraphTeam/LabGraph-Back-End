@@ -15,6 +15,8 @@ public interface IAnalyticHelperService {
 
 	String convertLevel(String level);
 
+	AnalyticsDTO updateDescription(Long id, String description);
+
 	List<GroupedResultsByLevelDTO> findAnalyticsWithGroupedResults(String name,
 			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
