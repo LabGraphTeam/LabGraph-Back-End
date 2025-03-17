@@ -3,6 +3,7 @@ package leonardo.labutilities.qualitylabpro.domains.shared.mappers;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.SpecsValidatorComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
+import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 
 public class AnalyticMapper {
 
@@ -50,6 +51,7 @@ public class AnalyticMapper {
 		analytic.setMeasurementUnit(analyticsDTO.unit_value());
 		analytic.setControlRules(analyticsDTO.rules());
 		analytic.setDescription(analyticsDTO.description());
+		analytic.setValidatorUserId(new User());
 
 		return analytic;
 	}
@@ -60,6 +62,15 @@ public class AnalyticMapper {
 				analytic.getControlLevel(), analytic.getMeasurementValue(),
 				analytic.getTargetMean(), analytic.getStandardDeviation(),
 				analytic.getMeasurementUnit(), analytic.getControlRules(),
-				analytic.getDescription(), analytic.getValidatorUserId().getUsername());
+				analytic.getDescription(), getValidatorUsername(analytic));
+	}
+
+	private static String getValidatorUsername(Analytic analytic) {
+		try {
+			return analytic.getValidatorUserId() != null ? analytic.getValidatorUserId().getUsername()
+					: "Not validated";
+		} catch (Exception e) {
+			throw new RuntimeException("Error getting validator username", e);
+		}
 	}
 }

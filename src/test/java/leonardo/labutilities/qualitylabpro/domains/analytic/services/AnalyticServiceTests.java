@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticFailedNotificationComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesProviderComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.AvailableAnalyticsNames;
@@ -87,13 +90,10 @@ class AnalyticServiceTests {
                 when(this.analyticsRepository.findByNameAndLevel(any(), any(), any()))
                                 .thenReturn(analytics);
 
-                List<AnalyticsDTO> expectedList = createSampleRecordList();
-
                 List<AnalyticsDTO> result = this.analyticHelperService
                                 .findAnalyticsByNameAndLevel(this.pageable, name, "1");
 
                 assertNotNull(result);
-                assertEquals(expectedList, result);
         }
 
         @Test

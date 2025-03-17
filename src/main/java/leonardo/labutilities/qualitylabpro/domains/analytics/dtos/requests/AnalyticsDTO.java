@@ -60,17 +60,15 @@ public record AnalyticsDTO(
                                 analytic.getTargetMean(), analytic.getStandardDeviation(),
                                 analytic.getMeasurementUnit(), analytic.getControlRules(),
                                 analytic.getDescription(),
-                                // Use a safer approach with try-catch to prevent breaking if method doesn't exist
                                 getValidatorUsername(analytic));
         }
 
         private static String getValidatorUsername(Analytic analytic) {
                 try {
                         return analytic.getValidatorUserId() != null ? analytic.getValidatorUserId().getUsername()
-                                        : null;
+                                        : "Not validated";
                 } catch (Exception e) {
-                        // If any exception occurs, return null
-                        return null;
+                        throw new RuntimeException("Error getting validator username", e);
                 }
         }
 }
