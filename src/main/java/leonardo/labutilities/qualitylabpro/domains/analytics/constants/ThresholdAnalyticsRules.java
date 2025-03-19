@@ -6,5 +6,5 @@ public class ThresholdAnalyticsRules {
 
 	private ThresholdAnalyticsRules() {}
 
-	public static final List<String> RULES = List.of("+2s", "+3s", "-2s", "-3s");
+	public static final List<String> RULES = List.of("+1", "+2s", "+3s", "-1", "-2s", "-3s");
 }
