@@ -2,9 +2,7 @@ package leonardo.labutilities.qualitylabpro.domains.analytics.components;
 
 import java.util.List;
 
-
 import org.springframework.stereotype.Component;
-
 
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.ThresholdAnalyticsRules;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
@@ -23,6 +21,9 @@ public final class AnalyticObjectValidationComponent {
 
     public static boolean isRuleBroken(final Analytic analytic) {
         final String rules = analytic.getControlRules();
+        if ("+1s".equals(rules) || "-1s".equals(rules)) {
+            return false;
+        }
         return (ThresholdAnalyticsRules.RULES.contains(rules));
     }
 
