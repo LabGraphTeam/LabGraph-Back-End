@@ -1,4 +1,4 @@
-FROM eclipse-temurin:23-jdk-alpine
+FROM eclipse-temurin:21-jdk-alpine
 
 # Install maven and create non-root user
 RUN apk add --no-cache maven && \
