@@ -151,7 +151,7 @@ services:
 #----------------------------------------------
 # Test Services
 #----------------------------------------------
-  db-test:
+  mariadb-test:
     container_name: mariadb-test
     restart: "no"
     image: mariadb:11.2
@@ -166,6 +166,12 @@ services:
       - quality-net-dev
     profiles:
       - test
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 3
 
   app-test:
     container_name: quality-lab-pro-back-end-test
@@ -174,7 +180,6 @@ services:
       dockerfile: .docker/Dockerfile.test
     working_dir: /usr/src/app
     restart: "no"
-    env_file: ./.env
     ports:
       - ${SERVER_DOCKER_PORT}
     environment:
@@ -192,6 +197,9 @@ services:
     tty: true
     profiles:
       - test
+    depends_on:
+      mariadb-test:
+        condition: service_healthy
     volumes:
       - ./:/usr/src/app
       - ~/.m2:/root/.m2

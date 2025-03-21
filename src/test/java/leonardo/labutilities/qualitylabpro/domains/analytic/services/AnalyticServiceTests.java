@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticFailedNotificationComponent;
+import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticObjectValidationComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesProviderComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.AvailableAnalyticsNames;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
@@ -48,6 +49,9 @@ class AnalyticServiceTests {
         @Mock
         private AnalyticFailedNotificationComponent analyticFailedNotificationComponent;
 
+        @Mock
+        private AnalyticObjectValidationComponent analyticObjectValidationComponent;
+
         private AnalyticHelperService analyticHelperService;
 
         private Pageable pageable;
@@ -69,7 +73,7 @@ class AnalyticServiceTests {
                 List<String> names = AvailableAnalyticsNames.ALL_ANALYTICS;
                 List<AnalyticsDTO> expectedList = createSampleRecordList();
 
-                Page<AnalyticsDTO> expectedPage = new PageImpl<>(expectedList);
+                Page<AnalyticsDTO> expectedPage = new PageImpl<AnalyticsDTO>(expectedList);
 
                 when(this.analyticsRepository.findByNameInAndLevelAndDateBetween(any(), any(),
                                 any(), any(), any())).thenReturn(expectedPage);

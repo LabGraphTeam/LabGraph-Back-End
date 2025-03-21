@@ -1,20 +1,17 @@
 FROM eclipse-temurin:21-jdk-alpine
 
 # Install maven and create non-root user
-RUN apk add --no-cache maven && \
-    addgroup -S appgroup && \
-    adduser -S appuser -G appgroup
+RUN apk add --no-cache maven
+
+# Create non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+USER appuser
 
 WORKDIR /usr/src/app
 
-# Set ownership
-RUN chown -R appuser:appgroup /usr/src/app
-
 ENV SERVER_PORT=8080 \
     SPRING_PROFILES_ACTIVE=test
-
-# Switch to non-root user
-USER appuser
 
 EXPOSE ${SERVER_PORT}
 
