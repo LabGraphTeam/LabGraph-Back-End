@@ -80,7 +80,7 @@ class AnalyticHelperServiceTests {
 
 	@BeforeEach
 	void setUp() {
-		try (AutoCloseable closeable = MockitoAnnotations.openMocks(this)) {
+		try (AutoCloseable _ = MockitoAnnotations.openMocks(this)) {
 			this.analyticHelperService = new AnalyticHelperService(this.analyticsRepository,
 					this.analyticFailedNotificationComponent, analyticsValidationService) {
 
