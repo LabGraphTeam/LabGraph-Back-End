@@ -44,9 +44,9 @@ jobs:
           EMAIL_TO_SEND_LIST: ${{ secrets.EMAIL_TO_SEND_LIST }}
         run: |
           docker compose --profile test up -d 
-          docker compose --profile test run --rm
+          docker compose --profile test run --rm app-test
           echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
-          docker compose --profile test down
+          docker compose --profile test down --volumes --remove-orphans
       
       - name: Notify test status
         if: always()
@@ -56,3 +56,4 @@ jobs:
           else
             echo "❌ Tests failed!"
             exit 1
+          fi
