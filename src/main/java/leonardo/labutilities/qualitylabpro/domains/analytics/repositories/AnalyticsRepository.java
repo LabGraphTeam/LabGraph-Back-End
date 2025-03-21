@@ -62,9 +62,10 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 	List<Analytic> findByNameAndLevelAndLevelLot(Pageable pageable, @Param("name") String name,
 			@Param("level") String level, @Param("levelLot") String levelLot);
 
-	@QueryHints({ @QueryHint(name = "org.hibernate.readOnly", value = "true"),
+	@QueryHints({@QueryHint(name = "org.hibernate.readOnly", value = "true"),
 			@QueryHint(name = "org.hibernate.fetchSize", value = "100"),
-			@QueryHint(name = "org.hibernate.cacheable", value = "true") })
+			@QueryHint(name = "org.hibernate.cacheable", value = "true")})
+
 	@Query("""
 			SELECT ga FROM analytics ga WHERE ga.testName = :name
 			AND ga.controlLevel = :level AND ga.measurementDate BETWEEN :startDate AND :endDate ORDER BY ga.measurementDate ASC
@@ -73,9 +74,9 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 	// Fetch Analytics by Multiple Names and Date
-	@QueryHints({ @QueryHint(name = "org.hibernate.readOnly", value = "true"),
+	@QueryHints({@QueryHint(name = "org.hibernate.readOnly", value = "true"),
 			@QueryHint(name = "org.hibernate.fetchSize", value = "100"),
-			@QueryHint(name = "org.hibernate.cacheable", value = "true") })
+			@QueryHint(name = "org.hibernate.cacheable", value = "true")})
 	@Query(value = """
 			SELECT ga FROM analytics ga WHERE
 			 ga.testName IN (:names) AND ga.controlLevel = :level AND ga.measurementDate BETWEEN
@@ -86,9 +87,26 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 			@Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 	@Query(value = """
+			SELECT ga FROM analytics ga
+			WHERE ga.testName IN (:names)
+			AND ga.controlLevel = :level
+			AND ga.validatorUserId IS NULL
+			AND ga.measurementDate BETWEEN :startDate AND :endDate
+			""")
+	Page<AnalyticsDTO> findUnValidByNameInAndLevelAndDateBetween(@Param("names") List<String> names,
+			@Param("level") String level, @Param("startDate") LocalDateTime startDate,
+			@Param("endDate") LocalDateTime endDate, Pageable pageable);
+
+	@Query(value = """
 			SELECT ga FROM analytics ga WHERE ga.testName IN (:names) AND ga.measurementDate BETWEEN :startDate AND :endDate
 			""")
 	Page<AnalyticsDTO> findByNameInAndDateBetweenPaged(@Param("names") List<String> names,
+			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
+
+	@Query(value = """
+			SELECT ga FROM analytics ga WHERE ga.testName IN (:names) AND ga.validatorUserId IS NULL AND ga.measurementDate BETWEEN :startDate AND :endDate
+			""")
+	Page<AnalyticsDTO> findUnvalidByNameInAndDateBetweenPaged(@Param("names") List<String> names,
 			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 	@Query(value = """

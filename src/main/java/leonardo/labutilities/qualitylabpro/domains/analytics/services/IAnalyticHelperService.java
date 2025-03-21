@@ -41,9 +41,15 @@ public interface IAnalyticHelperService {
 	Page<AnalyticsDTO> findAnalyticsByNameInByLevel(List<String> names, String level,
 			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
+	Page<AnalyticsDTO> findUnvalidAnalyticsByNameInByLevel(List<String> names, String level,
+			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+
 	List<AnalyticsDTO> findAnalyticsByDate(LocalDateTime dateStart, LocalDateTime dateEnd);
 
 	Page<AnalyticsDTO> findAnalyticsByNameInAndDateBetween(List<String> names,
+			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+
+	Page<AnalyticsDTO> findUnvalidAnalyticsByNameInAndDateBetween(List<String> names,
 			LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
 	List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable, String name, String level);

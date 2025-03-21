@@ -188,8 +188,26 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         public Page<AnalyticsDTO> findAnalyticsByNameInAndDateBetween(List<String> names,
                         LocalDateTime dateStart,
                         LocalDateTime dateEnd, Pageable pageable) {
-                return analyticsRepository.findByNameInAndDateBetweenPaged(names, dateStart,
+                var analytics = analyticsRepository.findByNameInAndDateBetweenPaged(names, dateStart,
                                 dateEnd, pageable);
+
+                AnalyticObjectValidationComponent.validateResultsNotEmpty(analytics.getContent(),
+                                "No analytics found for the given parameters with pagination");
+                return analytics;
+
+        }
+
+        @Override
+        public Page<AnalyticsDTO> findUnvalidAnalyticsByNameInAndDateBetween(List<String> names,
+                        LocalDateTime dateStart,
+                        LocalDateTime dateEnd, Pageable pageable) {
+                var analytics = analyticsRepository.findUnvalidByNameInAndDateBetweenPaged(names, dateStart,
+                                dateEnd, pageable);
+
+                AnalyticObjectValidationComponent.validateResultsNotEmpty(analytics.getContent(),
+                                "No analytics found for the given parameters with pagination");
+
+                return analytics;
         }
 
         @Override
@@ -217,6 +235,18 @@ public class AnalyticHelperService implements IAnalyticHelperService {
 
         @Override
         public Page<AnalyticsDTO> findAnalyticsByNameInByLevel(List<String> names, String level,
+                        LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+                Page<AnalyticsDTO> results =
+                                analyticsRepository.findUnValidByNameInAndLevelAndDateBetween(names, level,
+                                                startDate, endDate, pageable);
+
+                AnalyticObjectValidationComponent.validateResultsNotEmpty(results.getContent(),
+                                "No analytics found for the given parameters with pagination");
+                return results;
+        }
+
+        @Override
+        public Page<AnalyticsDTO> findUnvalidAnalyticsByNameInByLevel(List<String> names, String level,
                         LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
                 Page<AnalyticsDTO> results =
                                 analyticsRepository.findByNameInAndLevelAndDateBetween(names, level,

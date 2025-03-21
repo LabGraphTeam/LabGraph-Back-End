@@ -114,6 +114,23 @@ class AnalyticsController extends AnalyticsHelperController {
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 
+	@GetMapping("/date-range/unvalid")
+	public ResponseEntity<Page<AnalyticsDTO>> getUnvalidAnalyticsDateBetween(
+			@ParameterObject AnalyticsDateRangeParamsDTO params,
+			@PageableDefault(sort = "measurementDate", direction = Sort.Direction.DESC,
+					size = 1500) @ParameterObject Pageable pageable) {
+
+		log.info("Fetching analytics between {} and {} with pagination: {}", params.startDate(),
+				params.endDate(), pageable);
+
+		var result = analyticHelperService.findUnvalidAnalyticsByNameInAndDateBetween(names,
+				params.startDate(), params.endDate(), pageable);
+
+		log.debug("Found {} analytics entries in date range", result.getTotalElements());
+
+		return ResponseEntity.status(HttpStatus.OK).body(result);
+	}
+
 	@GetMapping("/level-date-range")
 	public ResponseEntity<Page<AnalyticsDTO>> getAllAnalyticsByLevelDateRange(
 			@ParameterObject AnalyticsLevelDateRangeParamsDTO params,
@@ -123,6 +140,24 @@ class AnalyticsController extends AnalyticsHelperController {
 				params.startDate(), params.endDate());
 
 		var result = analyticHelperService.findAnalyticsByNameInByLevel(names,
+				analyticHelperService.convertLevel(params.level()), params.startDate(),
+				params.endDate(), pageable);
+
+		log.debug("Found {} analytics entries for level {}", result.getTotalElements(),
+				params.level());
+
+		return ResponseEntity.status(HttpStatus.OK).body(result);
+	}
+
+	@GetMapping("/level-date-range/unvalid")
+	public ResponseEntity<Page<AnalyticsDTO>> getAllUnvalidAnalyticsByLevelDateRange(
+			@ParameterObject AnalyticsLevelDateRangeParamsDTO params,
+			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
+
+		log.info("Fetching analytics for level {} between {} and {}", params.level(),
+				params.startDate(), params.endDate());
+
+		var result = analyticHelperService.findUnvalidAnalyticsByNameInByLevel(names,
 				analyticHelperService.convertLevel(params.level()), params.startDate(),
 				params.endDate(), pageable);
 

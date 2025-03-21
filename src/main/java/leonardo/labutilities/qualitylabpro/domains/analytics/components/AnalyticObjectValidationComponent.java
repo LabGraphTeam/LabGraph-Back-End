@@ -15,6 +15,8 @@ public final class AnalyticObjectValidationComponent {
     private AnalyticObjectValidationComponent() {}
 
     public static void validateResultsNotEmpty(List<?> results, final String message) {
+        System.out.println(results);
+
         if (results == null || results.isEmpty()) {
             throw new CustomGlobalErrorHandling.ResourceNotFoundException(message);
         }
