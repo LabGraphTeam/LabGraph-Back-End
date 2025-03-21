@@ -3,6 +3,11 @@ FROM eclipse-temurin:21-jdk-alpine
 # Install maven and create non-root user
 RUN apk add --no-cache maven
 
+# Create non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+USER appuser
+
 WORKDIR /usr/src/app
 
 ENV SERVER_PORT=8080 \
