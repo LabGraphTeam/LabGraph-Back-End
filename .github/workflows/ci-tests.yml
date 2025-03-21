@@ -1,0 +1,58 @@
+name: CI Tests Pipeline
+
+on:
+  pull_request:
+    branches: [ 'main' ]
+    paths-ignore:
+      - '**/*.md'
+      - 'README*'
+      - 'LICENSE'
+      - '.gitignore'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: [ self-hosted, linux, x64, backend ]
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Run tests with Docker Compose
+        id: tests
+        env:
+          DB_DATABASE: ${{ secrets.DB_DATABASE_TEST }}
+          DB_DATABASE_TEST: ${{ secrets.DB_DATABASE_TEST }}
+          DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+          DB_LOCAL_PORT: ${{ secrets.DB_LOCAL_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_DOCKER_PORT: ${{ secrets.DB_DOCKER_PORT }}
+          SERVER_LOCAL_PORT: ${{ secrets.SERVER_LOCAL_PORT }}
+          SERVER_DOCKER_PORT: ${{ secrets.SERVER_DOCKER_PORT }}
+          SPRING_PROFILES_ACTIVE: test
+          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+          API_SECURITY_ISSUER: ${{ secrets.API_SECURITY_ISSUER }}
+          API_SECURITY_TOKEN_SECRET: ${{ secrets.API_SECURITY_TOKEN_SECRET }}
+          SPRING_MAIL_USERNAME: ${{ secrets.SPRING_MAIL_USERNAME }}
+          SPRING_MAIL_PASSWORD: ${{ secrets.SPRING_MAIL_PASSWORD }}
+          EMAIL_TO_SEND_LIST: ${{ secrets.EMAIL_TO_SEND_LIST }}
+        run: |
+          docker compose --profile test up -d 
+          docker compose --profile test run --rm
+          echo "TEST_EXIT_CODE=$?" >> $GITHUB_ENV
+          docker compose --profile test down
+      
+      - name: Notify test status
+        if: always()
+        run: |
+          if [ "${{ env.TEST_EXIT_CODE }}" == "0" ]; then
+            echo "✅ Tests passed successfully!"
+          else
+            echo "❌ Tests failed!"
+            exit 1

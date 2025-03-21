@@ -237,7 +237,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         public Page<AnalyticsDTO> findAnalyticsByNameInByLevel(List<String> names, String level,
                         LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
                 Page<AnalyticsDTO> results =
-                                analyticsRepository.findUnValidByNameInAndLevelAndDateBetween(names, level,
+                                analyticsRepository.findByNameInAndLevelAndDateBetween(names, level,
                                                 startDate, endDate, pageable);
 
                 AnalyticObjectValidationComponent.validateResultsNotEmpty(results.getContent(),
@@ -249,7 +249,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         public Page<AnalyticsDTO> findUnvalidAnalyticsByNameInByLevel(List<String> names, String level,
                         LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
                 Page<AnalyticsDTO> results =
-                                analyticsRepository.findByNameInAndLevelAndDateBetween(names, level,
+                                analyticsRepository.findUnValidByNameInAndLevelAndDateBetween(names, level,
                                                 startDate, endDate, pageable);
                 AnalyticObjectValidationComponent.validateResultsNotEmpty(results.getContent(),
                                 "No analytics found for the given parameters with pagination");
