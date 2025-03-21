@@ -25,12 +25,16 @@ public final class SpecsValidatorComponent {
 
 		for (int i = 2; i >= 0; i--) {
 			if (value >= thresholds.get(i) || value <= thresholds.get(i + 3)) {
-				this.description = descriptions.get(i);
 				if (value >= thresholds.get(i)) {
+					this.description = descriptions.get(i);
 					this.rules = thresholdRules.get(i);
-				} else {
+				}
+
+				if (value <= thresholds.get(i + 3)) {
+					this.description = descriptions.get(i + 3);
 					this.rules = thresholdRules.get(i + 3);
 				}
+
 				return;
 			}
 		}
