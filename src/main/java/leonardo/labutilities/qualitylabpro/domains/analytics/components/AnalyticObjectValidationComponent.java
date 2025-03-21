@@ -1,6 +1,7 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.components;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -20,16 +21,20 @@ public final class AnalyticObjectValidationComponent {
     }
 
     public static boolean isRuleBroken(final Analytic analytic) {
-        final String rules = analytic.getControlRules();
-        if ("+1s".equals(rules) || "-1s".equals(rules)) {
-            return false;
-        }
-        return (ThresholdAnalyticsRules.RULES.contains(rules));
+        return Optional.ofNullable(analytic.getControlRules())
+                .filter(rules -> !"+1s".equals(rules) && !"-1s".equals(rules))
+                .map(ThresholdAnalyticsRules.RULES::contains)
+                .orElse(false);
     }
 
     public static List<Analytic> filterFailedRecords(final List<Analytic> persistedRecords) {
-        return persistedRecords.stream().filter(AnalyticObjectValidationComponent::isRuleBroken)
-                .filter(analytics -> !AnalyticsBlackList.BLACK_LIST.contains(analytics.getTestName())).toList();
-    }
+        return Optional.ofNullable(persistedRecords)
+                .map(records -> records.stream()
+                        .filter(analytics -> isRuleBroken(analytics) &&
+                                !AnalyticsBlackList.BLACK_LIST.toString()
+                                        .equals(analytics.getTestName()))
+                        .toList())
+                .orElse(List.of());
 
+    }
 }

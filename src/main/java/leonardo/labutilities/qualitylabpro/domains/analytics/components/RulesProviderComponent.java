@@ -125,13 +125,12 @@ public final class RulesProviderComponent {
 				reportedViolations.add(violationKey);
 			}
 
-			//DISABLED for now: 4-1s rule
-			// if (RulesProviderComponent.fourOneSigmaRule(values, mean, stdDev)) {
-			// 	errors.append(String.format(ERROR_MESSAGE_TEMPLATE, "4-1s", analytic.name(), analytic.level(),
-			// 			"Four consecutive measurements exceed ±1 SD on same side of mean",
-			// 			"Systematic Error. Check for calibration drift, reagent lot changes, or environmental conditions."));
-			// 	reportedViolations.add(violationKey);
-			// }
+			if (RulesProviderComponent.fourOneSigmaRule(values, mean, stdDev)) {
+				errors.append(String.format(ERROR_MESSAGE_TEMPLATE, "4-1s", analytic.name(), analytic.level(),
+						"Four consecutive measurements exceed ±1 SD on same side of mean",
+						"Systematic Error. Check for calibration drift, reagent lot changes, or environmental conditions."));
+				reportedViolations.add(violationKey);
+			}
 
 			if (RulesProviderComponent.tenConsecutiveRule(values, mean, stdDev)) {
 				errors.append(String.format(ERROR_MESSAGE_TEMPLATE, "10x", analytic.name(), analytic.level(),
