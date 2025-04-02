@@ -101,7 +101,7 @@ class AnalyticsController extends AnalyticsHelperController {
 	public ResponseEntity<Page<AnalyticsDTO>> getAnalyticsDateBetween(
 			@ParameterObject AnalyticsDateRangeParamsDTO params,
 			@PageableDefault(sort = "measurementDate", direction = Sort.Direction.DESC,
-					size = 1500) @ParameterObject Pageable pageable) {
+					size = 2500) @ParameterObject Pageable pageable) {
 
 		log.info("Fetching analytics between {} and {} with pagination: {}", params.startDate(),
 				params.endDate(), pageable);
