@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -45,8 +44,6 @@ public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
         }
 
         @Override
-        @Cacheable(value = "meanAndStdDeviation",
-                        key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
         public MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(final String name, String level,
                         LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
                 List<AnalyticsDTO> values = analyticsRepository
@@ -57,8 +54,6 @@ public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
         }
 
         @Override
-        @Cacheable(value = "calculateGroupedMeanAndStandardDeviation",
-                        key = "{#name, #level, #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
         public List<GroupedMeanAndStdByLevelDTO> calculateGroupedMeanAndStandardDeviation(final String name,
                         LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
                 List<AnalyticsDTO> records = analyticsRepository

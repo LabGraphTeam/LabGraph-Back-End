@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -106,10 +105,6 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         }
 
         @Override
-        @CacheEvict(value = {"analyticsByNameAndDateRange", "meanAndStdDeviation",
-                        "calculateGroupedMeanAndStandardDeviation",
-                        "AnalyticsByNameWithPagination"},
-                        allEntries = true)
         public AnalyticsDTO validateAnalyticByUser(Long id) {
                 Analytic analytic = analyticsRepository.getReferenceById(id);
 
@@ -123,10 +118,6 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         }
 
         @Override
-        @CacheEvict(value = {"analyticsByNameAndDateRange", "meanAndStdDeviation",
-                        "calculateGroupedMeanAndStandardDeviation",
-                        "AnalyticsByNameWithPagination"},
-                        allEntries = true)
         public AnalyticsDTO updateDescription(Long id, String description) {
                 Analytic analytic = analyticsRepository.findById(id)
                                 .orElseThrow(() -> new CustomGlobalErrorHandling.ResourceNotFoundException(
@@ -163,7 +154,6 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         }
 
         @Override
-        @Cacheable("AnalyticsByNameWithPagination")
         public List<AnalyticsDTO> findAnalyticsByNameWithPagination(List<String> names, String name,
                         Pageable pageable) {
 
@@ -183,8 +173,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         }
 
         @Override
-        @Cacheable(value = "analyticsByNameAndDateRange",
-                        key = "{#names.hashCode(), #dateStart, #dateEnd, #pageable.pageNumber, #pageable.pageSize}")
+
         public Page<AnalyticsDTO> findAnalyticsByNameInAndDateBetween(List<String> names,
                         LocalDateTime dateStart,
                         LocalDateTime dateEnd, Pageable pageable) {
@@ -275,7 +264,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                                 new AnalyticsWithCalcDTO(results, calcSdAndMean);
 
                 AnalyticObjectValidationComponent.validateResultsNotEmpty(results,
-                                "No analytics found for the given name, level, dateStart, dateEnd -> parameters");
+                                "No analytics found for the given parameters");
                 return analyticsWithCalcDTO;
         }
 
