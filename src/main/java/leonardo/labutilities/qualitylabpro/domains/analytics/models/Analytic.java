@@ -41,6 +41,10 @@ public class Analytic extends RepresentationModel<Analytic> {
 	@JoinColumn(name = "validator_user_id")
 	private User validatorUserId;
 
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "equipment_id")
+	private Equipment equipmentId;
+
 	@Column(name = "measurement_date", nullable = false)
 	private LocalDateTime measurementDate;
 
