@@ -58,28 +58,6 @@ services:
         limits:
           memory: 384M
 
-  nginx:
-    restart: always
-    image: nginx:latest
-    volumes:
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /etc/ssl/lab-spec.systems:/etc/ssl/lab-spec.systems:ro
-      - ./nginx:/etc/nginx:ro
-      - ./nginx/certs:/etc/nginx/certs:ro
-    networks:
-      - quality-net
-    ports:
-      - '80:80'
-      - '443:443'
-    depends_on:
-      - app-prod
-    profiles:
-      - prod
-    deploy:
-      resources:
-        limits:
-          memory: 64M
-
   #---------------------
   # Development services
   #---------------------
