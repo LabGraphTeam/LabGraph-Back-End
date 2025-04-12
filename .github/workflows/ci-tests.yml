@@ -22,8 +22,9 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Fix .git permissions
-        run: chown -R "$(id -u):$(id -g)" .git
+      - name: Fix permissions
+        run: |
+          chown -R "$(id -u):$(id -g)" logs/ target/
 
       - uses: actions/checkout@v4
       
