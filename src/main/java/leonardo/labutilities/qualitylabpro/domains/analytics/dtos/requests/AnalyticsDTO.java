@@ -49,9 +49,10 @@ public record AnalyticsDTO(
                                 example = "Within acceptable range") String description,
 
                 @Schema(description = "Username of the validator",
-                                example = "john.doe") String validator_user)
+                                example = "john.doe") String validator_user,
 
-{
+                @Schema(description = "Username of the validator",
+                                example = "john.doe") String owner_user) {
 
         public AnalyticsDTO(Analytic analytic) {
                 this(analytic.getId(), analytic.getMeasurementDate(), analytic.getControlLevelLot(),
@@ -60,12 +61,22 @@ public record AnalyticsDTO(
                                 analytic.getTargetMean(), analytic.getStandardDeviation(),
                                 analytic.getMeasurementUnit(), analytic.getControlRules(),
                                 analytic.getDescription(),
-                                getValidatorUsername(analytic));
+                                getValidatorUsername(analytic),
+                                getCreatedBy(analytic));
         }
 
         private static String getValidatorUsername(Analytic analytic) {
                 try {
                         return analytic.getValidatorUserId() != null ? analytic.getValidatorUserId().getUsername()
+                                        : "Not validated";
+                } catch (Exception e) {
+                        throw new RuntimeException("Error getting validator username", e);
+                }
+        }
+
+        private static String getCreatedBy(Analytic analytic) {
+                try {
+                        return analytic.getOwnerUserId() != null ? analytic.getOwnerUserId().getUsername()
                                         : "Not validated";
                 } catch (Exception e) {
                         throw new RuntimeException("Error getting validator username", e);

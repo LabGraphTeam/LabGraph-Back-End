@@ -238,7 +238,7 @@ class RulesProviderComponentTests {
                 return new AnalyticsDTO(sample.id(), sample.date(), sample.level_lot(), sample.test_lot(),
 
                                 name, level, value, mean, sd, sample.unit_value(), sample.level_lot(),
-                                sample.description(), sample.validator_user());
+                                sample.description(), sample.validator_user(), sample.owner_user());
         }
 
         private List<AnalyticsDTO> createAnalyticsList(String name, String level,

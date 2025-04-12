@@ -33,7 +33,7 @@ public class Analytic extends RepresentationModel<Analytic> {
 	@EqualsAndHashCode.Include
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "owner_user_id")
 	private User ownerUserId;
 
