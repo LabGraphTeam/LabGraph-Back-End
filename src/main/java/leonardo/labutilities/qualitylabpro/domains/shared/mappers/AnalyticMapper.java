@@ -52,6 +52,7 @@ public class AnalyticMapper {
 		analytic.setControlRules(analyticsDTO.rules());
 		analytic.setDescription(analyticsDTO.description());
 		analytic.setValidatorUserId(new User());
+		analytic.setOwnerUserId(new User());
 
 		return analytic;
 	}
@@ -62,15 +63,27 @@ public class AnalyticMapper {
 				analytic.getControlLevel(), analytic.getMeasurementValue(),
 				analytic.getTargetMean(), analytic.getStandardDeviation(),
 				analytic.getMeasurementUnit(), analytic.getControlRules(),
-				analytic.getDescription(), getValidatorUsername(analytic));
+				analytic.getDescription(), getValidatorUsername(analytic),
+				getOwnerUsername(analytic));
 	}
 
 	private static String getValidatorUsername(Analytic analytic) {
 		try {
-			return analytic.getValidatorUserId() != null ? analytic.getValidatorUserId().getUsername()
+			return analytic.getValidatorUserId() != null
+					? analytic.getValidatorUserId().getUsername()
 					: "Not validated";
 		} catch (Exception e) {
-			throw new RuntimeException("Error getting validator username", e);
+			throw new IllegalStateException("Error while retrieving the validator user's name", e);
+		}
+	}
+
+	private static String getOwnerUsername(Analytic analytic) {
+		try {
+			return analytic.getOwnerUserId() != null
+					? analytic.getOwnerUserId().getUsername()
+					: "-";
+		} catch (Exception e) {
+			throw new IllegalStateException("Error while retrieving the owner's name", e);
 		}
 	}
 }

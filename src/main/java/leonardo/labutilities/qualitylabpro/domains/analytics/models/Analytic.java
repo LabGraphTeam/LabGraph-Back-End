@@ -33,13 +33,17 @@ public class Analytic extends RepresentationModel<Analytic> {
 	@EqualsAndHashCode.Include
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "owner_user_id")
 	private User ownerUserId;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "validator_user_id")
 	private User validatorUserId;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "equipment_id")
+	private Equipment equipmentId;
 
 	@Column(name = "measurement_date", nullable = false)
 	private LocalDateTime measurementDate;
