@@ -14,11 +14,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+
+
+
   build-and-test:
     runs-on: [ self-hosted, linux, x64, backend ]
     timeout-minutes: 15
 
     steps:
+      - name: Fix .git permissions
+        run: sudo chown -R "$(id -u):$(id -g)" .git
+        
       - uses: actions/checkout@v4
       
       - name: Set up Docker Buildx
