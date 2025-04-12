@@ -23,8 +23,8 @@ jobs:
 
     steps:
       - name: Fix .git permissions
-        run: sudo chown -R "$(id -u):$(id -g)" .git
-        
+        run: chown -R "$(id -u):$(id -g)" .git
+
       - uses: actions/checkout@v4
       
       - name: Set up Docker Buildx
