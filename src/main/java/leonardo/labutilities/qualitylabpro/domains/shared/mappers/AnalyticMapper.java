@@ -1,5 +1,7 @@
 package leonardo.labutilities.qualitylabpro.domains.shared.mappers;
 
+import org.springframework.expression.spel.InternalParseException;
+
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.SpecsValidatorComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
@@ -72,16 +74,16 @@ public class AnalyticMapper {
 			return analytic.getValidatorUserId() != null ? analytic.getValidatorUserId().getUsername()
 					: "Not validated";
 		} catch (Exception e) {
-			throw new RuntimeException("Error getting validator username", e);
+			throw new InternalParseException(null);
 		}
 	}
 
 	private static String getOwnerUsername(Analytic analytic) {
 		try {
 			return analytic.getOwnerUserId() != null ? analytic.getOwnerUserId().getUsername()
-					: "Not validated";
+					: "-";
 		} catch (Exception e) {
-			throw new RuntimeException("Error getting validator username", e);
+			throw new InternalParseException(null);
 		}
 	}
 }
