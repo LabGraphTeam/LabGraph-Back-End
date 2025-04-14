@@ -33,6 +33,7 @@ public class SecurityConfiguration {
                         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                         .authorizeHttpRequests(req -> {
                               // Public endpoints
+                              req.requestMatchers(ApiEndpoints.EQUIPMENT_PATH).permitAll();
                               req.requestMatchers(PUBLIC_PATHS).permitAll();
                               req.requestMatchers(HttpMethod.POST, ApiEndpoints.PUBLIC_POST_PATHS).permitAll();
                               req.requestMatchers(HttpMethod.PATCH, ApiEndpoints.PASSWORD_PATH).permitAll();

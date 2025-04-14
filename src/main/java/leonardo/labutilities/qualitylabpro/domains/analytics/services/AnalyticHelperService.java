@@ -78,7 +78,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
 
                 if (newAnalyticsRecords.isEmpty()) {
                         log.warn("No new analytics records to save.");
-                        throw new CustomGlobalErrorHandling.DataIntegrityViolationException();
+                        throw new CustomGlobalErrorHandling.AnalyticsDataIntegrityViolationException();
                 }
 
                 var authentication = SecurityContextHolder.getContext().getAuthentication();
