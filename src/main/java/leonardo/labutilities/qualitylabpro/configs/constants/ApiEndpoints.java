@@ -22,7 +22,7 @@ public final class ApiEndpoints {
 
 	public static final String[] ADMIN_MODIFY_PATHS = {ApiEndpoints.GENERIC_ANALYTICS_PATH,
 			ApiEndpoints.BIOCHEMISTRY_ANALYTICS_PATH, ApiEndpoints.HEMATOLOGY_ANALYTICS_PATH,
-			ApiEndpoints.COAGULATION_ANALYTICS_PATH, ApiEndpoints.SIGN_UP_PATH};
+			ApiEndpoints.COAGULATION_ANALYTICS_PATH, ApiEndpoints.SIGN_UP_PATH, ApiEndpoints.EQUIPMENT_PATH};
 
 	private ApiEndpoints() {}
 }

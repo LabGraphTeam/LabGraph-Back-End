@@ -1,16 +1,16 @@
 package leonardo.labutilities.qualitylabpro.domains.shared.mappers;
 
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.CreateEquipmentDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.EquipmentDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Equipment;
 
 public class EquipmentMapper {
 
     private EquipmentMapper() {}
 
-    public static Equipment mapToEquipment(CreateEquipmentDTO createEquipmentDTO) {
+    public static Equipment mapToEquipment(EquipmentDTO equipmentDTO) {
         return new Equipment(
-                createEquipmentDTO.commercialName(),
-                createEquipmentDTO.workSector(),
-                createEquipmentDTO.serialNumber());
+                equipmentDTO.commercialName(),
+                equipmentDTO.workSector(),
+                equipmentDTO.serialNumber());
     }
 }

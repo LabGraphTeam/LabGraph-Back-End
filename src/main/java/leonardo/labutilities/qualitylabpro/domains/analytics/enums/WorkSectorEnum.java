@@ -1,9 +1,10 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.enums;
 
 public enum WorkSectorEnum {
-    HEMATOLOGY("Hematology"), BIOCHEMISTRY("Biochemistry"), IMMUNOLOGY("Immunology"), MICROBIOLOGY(
-            "Microbiology"), URINALYSIS("Urinalysis"), BLOOD_BANK("Blood Bank"), MOLECULAR_BIOLOGY(
-                    "Molecular Biology"), PATHOLOGY("Pathology"), CYTOLOGY("Cytology"), HISTOLOGY("Histology");
+    HEMATOLOGY("Hematology"), COAGULATION("Coagulation"), BIOCHEMISTRY("Biochemistry"), IMMUNOLOGY(
+            "Immunology"), MICROBIOLOGY("Microbiology"), URINALYSIS("Urinalysis"), BLOOD_BANK(
+                    "Blood Bank"), MOLECULAR_BIOLOGY(
+                            "Molecular Biology"), PATHOLOGY("Pathology"), CYTOLOGY("Cytology"), HISTOLOGY("Histology");
 
     private final String sector;
 
