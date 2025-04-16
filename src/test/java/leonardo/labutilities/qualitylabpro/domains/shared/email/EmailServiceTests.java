@@ -12,8 +12,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+
 import java.time.LocalDateTime;
 import java.util.List;
+
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,9 +28,11 @@ import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
+
+
 import jakarta.mail.internet.MimeMessage;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.requests.EmailDTO;
+import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.EmailDTO;
 
 @ExtendWith(MockitoExtension.class)
 class EmailServiceTests {

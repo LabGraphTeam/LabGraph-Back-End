@@ -13,8 +13,8 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.Analyti
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenService;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.responses.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
-import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.requests.EmailDTO;
-import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.requests.RecoveryEmailDTO;
+import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.EmailDTO;
+import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.RecoveryEmailDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling.UserNotFoundException;
 import leonardo.labutilities.qualitylabpro.domains.users.components.PasswordRecoveryTokenManager;

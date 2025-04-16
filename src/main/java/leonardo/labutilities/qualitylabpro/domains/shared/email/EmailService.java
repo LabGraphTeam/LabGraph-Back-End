@@ -6,11 +6,15 @@ import static leonardo.labutilities.qualitylabpro.domains.shared.email.constants
 import static leonardo.labutilities.qualitylabpro.domains.shared.email.constants.EmailTemplate.LAST_ANALYTICS_PARAGRAPH;
 import static leonardo.labutilities.qualitylabpro.domains.shared.email.constants.EmailTemplate.TABLE_ROW;
 import static leonardo.labutilities.qualitylabpro.domains.shared.email.constants.EmailTemplate.TABLE_STYLE;
+
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.SimpleMailMessage;
@@ -19,6 +23,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
+
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import jakarta.mail.MessagingException;
@@ -26,7 +32,7 @@ import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.requests.EmailDTO;
+import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.EmailDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling.EmailSendingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
