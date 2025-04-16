@@ -1,12 +1,10 @@
-package leonardo.labutilities.qualitylabpro.domains.users.components;
+package leonardo.labutilities.qualitylabpro.domains.users.utils;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
 
-@Component
-public final class BCryptEncoderComponent {
+public final class BCryptEncoder {
 
-	private BCryptEncoderComponent() {}
+	private BCryptEncoder() {}
 
 	public static Boolean decrypt(String pass, String password) {
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();

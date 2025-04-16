@@ -15,9 +15,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.event.annotation.BeforeTestExecution;
 import org.springframework.transaction.annotation.Transactional;
 
-import leonardo.labutilities.qualitylabpro.domains.users.components.BCryptEncoderComponent;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 import leonardo.labutilities.qualitylabpro.domains.users.repositories.UserRepository;
+import leonardo.labutilities.qualitylabpro.domains.users.utils.BCryptEncoder;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -36,7 +36,7 @@ class UserRepositoryTests {
 
 	private void setupTestData() {
 
-		var user = new User("UserTest", BCryptEncoderComponent.encrypt("12345"), "leo@hotmail.com");
+		var user = new User("UserTest", BCryptEncoder.encrypt("12345"), "leo@hotmail.com");
 		this.userRepository.save(user);
 	}
 
@@ -75,7 +75,7 @@ class UserRepositoryTests {
 
 		var userWithNewPassword = this.userRepository.getReferenceByUsernameAndEmail("UserTest", "leo@hotmail.com");
 
-		assertThat(BCryptEncoderComponent.decrypt(oldPassword, userWithOldPassword.getPassword())
-				|| BCryptEncoderComponent.decrypt(newPassword, userWithNewPassword.getPassword())).isTrue();
+		assertThat(BCryptEncoder.decrypt(oldPassword, userWithOldPassword.getPassword())
+				|| BCryptEncoder.decrypt(newPassword, userWithNewPassword.getPassword())).isTrue();
 	}
 }

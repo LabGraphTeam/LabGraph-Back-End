@@ -16,10 +16,11 @@ import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.requests.EmailDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.requests.RecoveryEmailDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
-import leonardo.labutilities.qualitylabpro.domains.users.components.BCryptEncoderComponent;
+import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling.UserNotFoundException;
 import leonardo.labutilities.qualitylabpro.domains.users.components.PasswordRecoveryTokenManager;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 import leonardo.labutilities.qualitylabpro.domains.users.repositories.UserRepository;
+import leonardo.labutilities.qualitylabpro.domains.users.utils.BCryptEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,7 +70,7 @@ public class UserService {
 		if (!this.passwordRecoveryTokenManager.isRecoveryTokenValid(temporaryPassword, email)) {
 			throw new CustomGlobalErrorHandling.RecoveryTokenInvalidException();
 		}
-		this.userRepository.setPasswordWhereByEmail(email, BCryptEncoderComponent.encrypt(newPassword));
+		this.userRepository.setPasswordWhereByEmail(email, BCryptEncoder.encrypt(newPassword));
 	}
 
 	private TokenJwtDTO authenticateAndGenerateToken(User credential, String password) {
@@ -97,7 +98,7 @@ public class UserService {
 			throw new CustomGlobalErrorHandling.UserAlreadyExistException();
 		}
 
-		var user = new User(username, BCryptEncoderComponent.encrypt(password), email);
+		var user = new User(username, BCryptEncoder.encrypt(password), email);
 		var savedUser = this.userRepository.save(user);
 
 		try {
@@ -111,21 +112,21 @@ public class UserService {
 
 	public TokenJwtDTO signIn(String identifier, String password) {
 		final var credential = this.userRepository.findOneByUsernameOrEmail(identifier, identifier)
-				.orElseThrow(() -> new CustomGlobalErrorHandling.UserNotFoundException());
+				.orElseThrow(UserNotFoundException::new);
 
 		return this.authenticateAndGenerateToken(credential, password);
 	}
 
 	public void updateUserPassword(String name, String email, String password, String newPassword) {
 		var oldPass = this.userRepository.getReferenceByUsernameAndEmail(name, email);
-		boolean oldPasswordMatches = BCryptEncoderComponent.decrypt(password, oldPass.getPassword());
-		boolean newPasswordMatches = BCryptEncoderComponent.decrypt(newPassword, oldPass.getPassword());
+		boolean oldPasswordMatches = BCryptEncoder.decrypt(password, oldPass.getPassword());
+		boolean newPasswordMatches = BCryptEncoder.decrypt(newPassword, oldPass.getPassword());
 		if (!oldPasswordMatches || newPasswordMatches) {
 			log.error("PasswordNotMatches. {}, {}", name, email);
 			throw new CustomGlobalErrorHandling.PasswordNotMatchesException();
 		} else {
 			this.userRepository.setPasswordWhereByUsername(oldPass.getUsername(),
-					BCryptEncoderComponent.encrypt(newPassword));
+					BCryptEncoder.encrypt(newPassword));
 		}
 	}
 }

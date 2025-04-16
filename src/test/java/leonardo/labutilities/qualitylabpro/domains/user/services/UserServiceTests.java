@@ -34,11 +34,11 @@ import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenSe
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.responses.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
-import leonardo.labutilities.qualitylabpro.domains.users.components.BCryptEncoderComponent;
 import leonardo.labutilities.qualitylabpro.domains.users.components.PasswordRecoveryTokenManager;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 import leonardo.labutilities.qualitylabpro.domains.users.repositories.UserRepository;
 import leonardo.labutilities.qualitylabpro.domains.users.services.UserService;
+import leonardo.labutilities.qualitylabpro.domains.users.utils.BCryptEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTests {
@@ -118,7 +118,7 @@ class UserServiceTests {
 
 	@Test
 	void should_return_error_with_testUpdateUserPassword_PasswordMatches() {
-		User user = new User("identifier", BCryptEncoderComponent.encrypt("newPassword"), "identifier@example.com");
+		User user = new User("identifier", BCryptEncoder.encrypt("newPassword"), "identifier@example.com");
 
 		when(this.userRepository.getReferenceByUsernameAndEmail(anyString(), anyString())).thenReturn(user);
 
@@ -129,7 +129,7 @@ class UserServiceTests {
 
 	@Test
 	void testUpdateUserPassword_PasswordDoesNotMatch() {
-		User user = new User("identifier", BCryptEncoderComponent.encrypt("oldPassword"), "identifier@example.com");
+		User user = new User("identifier", BCryptEncoder.encrypt("oldPassword"), "identifier@example.com");
 		when(this.userRepository.getReferenceByUsernameAndEmail(anyString(), anyString())).thenReturn(user);
 
 		assertThrows(CustomGlobalErrorHandling.PasswordNotMatchesException.class, () -> this.userService
@@ -179,7 +179,7 @@ class UserServiceTests {
 	void testUpdateUserPassword_Successful() {
 		String rawOldPassword = "oldPassword";
 		String rawNewPassword = "newPassword";
-		String encryptedOldPassword = BCryptEncoderComponent.encrypt(rawOldPassword);
+		String encryptedOldPassword = BCryptEncoder.encrypt(rawOldPassword);
 		User user = new User("username", encryptedOldPassword, "user@example.com");
 
 		when(this.userRepository.getReferenceByUsernameAndEmail(anyString(), anyString())).thenReturn(user);
