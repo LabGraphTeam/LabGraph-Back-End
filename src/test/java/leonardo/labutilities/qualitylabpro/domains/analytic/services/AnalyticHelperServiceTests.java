@@ -183,7 +183,7 @@ class AnalyticHelperServiceTests {
 		when(this.analyticsValidationService.isNewAnalyticRecord(any())).thenReturn(false);
 
 		// Act & Assert
-		assertThrows(CustomGlobalErrorHandling.DataIntegrityViolationException.class,
+		assertThrows(CustomGlobalErrorHandling.AnalyticsDataIntegrityViolationException.class,
 				() -> this.analyticHelperService.saveNewAnalyticsRecords(records));
 
 		// Verify
@@ -223,7 +223,7 @@ class AnalyticHelperServiceTests {
 
 		when(this.analyticsValidationService.isNewAnalyticRecord(any())).thenReturn(false);
 
-		assertThrows(CustomGlobalErrorHandling.DataIntegrityViolationException.class,
+		assertThrows(CustomGlobalErrorHandling.AnalyticsDataIntegrityViolationException.class,
 				() -> this.analyticHelperService.saveNewAnalyticsRecords(records));
 		verify(this.analyticsRepository, never()).saveAll(any());
 	}

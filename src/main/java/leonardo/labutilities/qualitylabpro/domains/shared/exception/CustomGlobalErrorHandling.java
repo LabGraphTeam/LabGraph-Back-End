@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.QueryTimeoutException;
@@ -212,6 +213,18 @@ public class CustomGlobalErrorHandling {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
 	}
 
+	@ExceptionHandler(AnalyticsDataIntegrityViolationException.class)
+	@ResponseStatus(HttpStatus.CONFLICT)
+	public ResponseEntity<ApiError> handleDataIntegrityViolation(AnalyticsDataIntegrityViolationException ex,
+			HttpServletRequest request) {
+		ApiError apiError = ApiError.of(HttpStatus.CONFLICT, "Data integrity violation", request.getRequestURI());
+		apiError.details().add("The operation could not be completed due to data constraints.");
+		apiError.details().add("Please verify your input and try again.");
+
+		log.error("409 Conflict: Data integrity violation [{}] - {}", request.getRequestURI(), ex.getMessage());
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+	}
+
 	@ExceptionHandler(DataIntegrityViolationException.class)
 	@ResponseStatus(HttpStatus.CONFLICT)
 	public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex,
@@ -370,12 +383,12 @@ public class CustomGlobalErrorHandling {
 		}
 	}
 
-	public static class DataIntegrityViolationException extends RuntimeException {
-		public DataIntegrityViolationException() {
-			super("Data integrity violation occurred");
+	public static class AnalyticsDataIntegrityViolationException extends RuntimeException {
+		public AnalyticsDataIntegrityViolationException() {
+			super("Analytics Data integrity violation occurred");
 		}
 
-		public DataIntegrityViolationException(String message) {
+		public AnalyticsDataIntegrityViolationException(String message) {
 			super(message);
 		}
 	}

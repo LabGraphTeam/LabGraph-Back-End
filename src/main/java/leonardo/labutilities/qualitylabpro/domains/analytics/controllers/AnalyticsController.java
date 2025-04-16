@@ -85,7 +85,6 @@ class AnalyticsController extends AnalyticsHelperController {
 	@GetMapping
 	public ResponseEntity<CollectionModel<EntityModel<AnalyticsDTO>>> getAllAnalytics(
 			@ParameterObject Pageable pageable) {
-		log.info("Fetching all analytics with pagination: {}", pageable);
 		return getAllAnalyticsWithLinks(names, pageable);
 	}
 
@@ -102,10 +101,6 @@ class AnalyticsController extends AnalyticsHelperController {
 			@ParameterObject AnalyticsDateRangeParamsDTO params,
 			@PageableDefault(sort = "measurementDate", direction = Sort.Direction.DESC,
 					size = 2500) @ParameterObject Pageable pageable) {
-
-		log.info("Fetching analytics between {} and {} with pagination: {}", params.startDate(),
-				params.endDate(), pageable);
-
 		var result = analyticHelperService.findAnalyticsByNameInAndDateBetween(names,
 				params.startDate(), params.endDate(), pageable);
 
@@ -120,9 +115,6 @@ class AnalyticsController extends AnalyticsHelperController {
 			@PageableDefault(sort = "measurementDate", direction = Sort.Direction.DESC,
 					size = 1500) @ParameterObject Pageable pageable) {
 
-		log.info("Fetching analytics between {} and {} with pagination: {}", params.startDate(),
-				params.endDate(), pageable);
-
 		var result = analyticHelperService.findUnvalidAnalyticsByNameInAndDateBetween(names,
 				params.startDate(), params.endDate(), pageable);
 
@@ -135,9 +127,6 @@ class AnalyticsController extends AnalyticsHelperController {
 	public ResponseEntity<Page<AnalyticsDTO>> getAllAnalyticsByLevelDateRange(
 			@ParameterObject AnalyticsLevelDateRangeParamsDTO params,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
-
-		log.info("Fetching analytics for level {} between {} and {}", params.level(),
-				params.startDate(), params.endDate());
 
 		var result = analyticHelperService.findAnalyticsByNameInByLevel(names,
 				analyticHelperService.convertLevel(params.level()), params.startDate(),
@@ -153,9 +142,6 @@ class AnalyticsController extends AnalyticsHelperController {
 	public ResponseEntity<Page<AnalyticsDTO>> getAllUnvalidAnalyticsByLevelDateRange(
 			@ParameterObject AnalyticsLevelDateRangeParamsDTO params,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
-
-		log.info("Fetching analytics for level {} between {} and {}", params.level(),
-				params.startDate(), params.endDate());
 
 		var result = analyticHelperService.findUnvalidAnalyticsByNameInByLevel(names,
 				analyticHelperService.convertLevel(params.level()), params.startDate(),
@@ -174,9 +160,6 @@ class AnalyticsController extends AnalyticsHelperController {
 			@RequestParam("endDate") LocalDateTime endDate,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
 
-		log.info("Calculating mean and standard deviation for {} at level {} between {} and {}",
-				name, level, startDate, endDate);
-
 		var result = analyticsStatisticsService.calculateMeanAndStandardDeviation(name,
 				analyticHelperService.convertLevel(level), startDate, endDate, pageable);
 
@@ -190,9 +173,6 @@ class AnalyticsController extends AnalyticsHelperController {
 	public ResponseEntity<AnalyticsWithCalcDTO> getAllAnalyticsByNameAndLevelDateRange(
 			@ParameterObject AnalyticsNameAndLevelDateRangeParamsDTO params,
 			@PageableDefault(size = 100) @ParameterObject Pageable pageable) {
-
-		log.info("Fetching analytics for name={} level={} between {} and {}", params.name(),
-				params.level(), params.startDate(), params.endDate());
 
 		var result = analyticHelperService.findAnalyticsByNameLevelDate(params.name(),
 				analyticHelperService.convertLevel(params.level()), params.startDate(),

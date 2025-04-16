@@ -60,7 +60,7 @@ public class User implements UserDetails {
     private SortedMap<Long, Analytic> validatedAnalytics = new TreeMap<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,
-            fetch = FetchType.LAZY)
+            fetch = FetchType.EAGER)
     private UserConfig userConfig;
 
     @Column(name = "user_roles", nullable = false)

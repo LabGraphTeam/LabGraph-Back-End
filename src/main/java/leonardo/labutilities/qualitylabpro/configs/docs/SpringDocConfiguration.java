@@ -16,7 +16,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
-@Profile({"dev", "local"})
+@Profile({"dev", "local", "default"})
 public class SpringDocConfiguration {
 
         @Value("${spring.application.name: LabGraph}")
