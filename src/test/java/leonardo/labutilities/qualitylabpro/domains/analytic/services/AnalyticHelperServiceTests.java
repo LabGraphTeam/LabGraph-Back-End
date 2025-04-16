@@ -49,8 +49,8 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.Mean
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
-import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsStatisticsService;
-import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsValidationService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticStatisticsService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticValidationService;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
@@ -66,9 +66,9 @@ class AnalyticHelperServiceTests {
 	@Mock
 	private AnalyticFailedNotificationComponent analyticFailedNotificationComponent;
 	@Mock
-	private AnalyticsValidationService analyticsValidationService;
+	private AnalyticValidationService analyticsValidationService;
 	@Mock
-	private AnalyticsStatisticsService analyticsStatisticsService;
+	private AnalyticStatisticsService analyticsStatisticsService;
 	@Mock
 	private EmailService emailService;
 	@Mock
@@ -82,7 +82,7 @@ class AnalyticHelperServiceTests {
 	void setUp() {
 		try (AutoCloseable autoCloseable = MockitoAnnotations.openMocks(this)) {
 			this.analyticHelperService = new AnalyticHelperService(this.analyticsRepository,
-					this.analyticFailedNotificationComponent, analyticsValidationService) {
+					analyticsValidationService, this.analyticFailedNotificationComponent) {
 
 				@Override
 				public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable,

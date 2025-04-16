@@ -11,7 +11,7 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.Grou
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedValuesByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
 
-public interface IAnalyticsStatisticsService {
+public interface IAnalyticStatisticsService {
         MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(String testName, String level,
                         LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable);
 

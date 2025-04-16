@@ -10,8 +10,8 @@ public class HematologyAnalyticService extends AnalyticHelperService {
 
 	public HematologyAnalyticService(AnalyticsRepository analyticsRepository,
 			AnalyticFailedNotificationComponent analyticFailedNotificationComponent,
-			AnalyticsValidationService analyticsValidationService) {
-		super(analyticsRepository, analyticFailedNotificationComponent, analyticsValidationService);
+			AnalyticValidationService analyticsValidationService) {
+		super(analyticsRepository, analyticsValidationService, analyticFailedNotificationComponent);
 	}
 
 	@Override

@@ -37,7 +37,7 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.Grou
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedValuesByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
-import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsStatisticsService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticStatisticsService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.HematologyAnalyticService;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenService;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
@@ -66,7 +66,7 @@ class HematologyAnalyticControllerTests {
 	private HematologyAnalyticService hematologyAnalyticsService;
 
 	@MockitoBean
-	private AnalyticsStatisticsService analyticsStatisticsService;
+	private AnalyticStatisticsService analyticsStatisticsService;
 
 	@Autowired
 	private JacksonTester<List<AnalyticsDTO>> jacksonGenericValuesRecord;

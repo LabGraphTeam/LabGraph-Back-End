@@ -28,7 +28,7 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.Anal
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
-import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsValidationService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticValidationService;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 
@@ -44,7 +44,7 @@ class AnalyticServiceTests {
         private RulesProviderComponent controlRulesValidators;
 
         @Mock
-        private AnalyticsValidationService analyticsValidationService;
+        private AnalyticValidationService analyticsValidationService;
 
         @Mock
         private AnalyticFailedNotificationComponent analyticFailedNotificationComponent;
@@ -61,8 +61,8 @@ class AnalyticServiceTests {
         @BeforeEach
         void setUp() {
                 this.analyticHelperService = new AnalyticHelperService(this.analyticsRepository,
-                                this.analyticFailedNotificationComponent,
-                                this.analyticsValidationService);
+                                this.analyticsValidationService,
+                                this.analyticFailedNotificationComponent);
                 this.pageable = PageRequest.of(0, 10);
                 this.startDate = LocalDateTime.now().minusDays(7);
                 this.endDate = LocalDateTime.now();

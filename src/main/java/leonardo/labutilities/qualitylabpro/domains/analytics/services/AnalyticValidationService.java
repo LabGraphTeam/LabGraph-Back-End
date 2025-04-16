@@ -10,11 +10,11 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.Analyt
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
 
 @Service
-public class AnalyticsValidationService implements IAnalyticsValidationService {
+public class AnalyticValidationService implements IAnalyticValidationService {
 
     private final AnalyticsRepository analyticsRepository;
 
-    public AnalyticsValidationService(AnalyticsRepository analyticsRepository) {
+    public AnalyticValidationService(AnalyticsRepository analyticsRepository) {
         this.analyticsRepository = analyticsRepository;
     }
 

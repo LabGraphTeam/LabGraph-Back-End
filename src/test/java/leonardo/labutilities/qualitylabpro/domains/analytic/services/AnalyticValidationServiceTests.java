@@ -6,11 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,27 +17,26 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedValuesByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
-import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsValidationService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticValidationService;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 
 @ExtendWith(MockitoExtension.class)
-class AnalyticsValidationServiceTests {
+class AnalyticValidationServiceTests {
 
     @Mock
     private AnalyticsRepository analyticsRepository;
 
-    private AnalyticsValidationService analyticsValidationService;
+    private AnalyticValidationService analyticsValidationService;
 
     private static final AnalyticsDTO validRecord = mock(AnalyticsDTO.class);
     private static final AnalyticsDTO invalidRecord = mock(AnalyticsDTO.class);
 
     @BeforeEach
     void setUp() {
-        analyticsValidationService = new AnalyticsValidationService(analyticsRepository) {};
+        analyticsValidationService = new AnalyticValidationService(analyticsRepository) {};
     }
 
     @Test

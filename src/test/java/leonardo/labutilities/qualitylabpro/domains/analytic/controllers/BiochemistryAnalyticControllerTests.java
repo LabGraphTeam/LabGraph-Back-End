@@ -40,7 +40,7 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.Grou
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedValuesByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
-import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsStatisticsService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticStatisticsService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.BiochemistryAnalyticService;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenService;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
@@ -69,7 +69,7 @@ class BiochemistryAnalyticControllerTests {
 	private BiochemistryAnalyticService biochemistryAnalyticsService;
 
 	@MockitoBean
-	private AnalyticsStatisticsService analyticsStatisticsService;
+	private AnalyticStatisticsService analyticsStatisticsService;
 
 	@Autowired
 	private JacksonTester<List<AnalyticsDTO>> jacksonGenericValuesRecord;
@@ -153,7 +153,7 @@ class BiochemistryAnalyticControllerTests {
 
 	@Test
 	@DisplayName("Should return analytics records when searching within date range")
-	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	@WithMockUser(username = "admin", roles = {"ADMIN"})
 	void shouldReturnAnalyticsRecordsWhenSearchingWithinDateRange() throws Exception {
 		Page<AnalyticsDTO> records = new PageImpl<>(createSampleRecordList());
 

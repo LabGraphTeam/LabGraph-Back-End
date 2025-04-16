@@ -36,7 +36,7 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.Grou
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedResultsByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
-import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsStatisticsService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticStatisticsService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -46,7 +46,7 @@ class AnalyticsController extends AnalyticsHelperController {
 	private final List<String> names;
 
 	protected AnalyticsController(AnalyticHelperService analyticHelperService,
-			AnalyticsStatisticsService analyticsStatisticsService, List<String> names) {
+			AnalyticStatisticsService analyticsStatisticsService, List<String> names) {
 		super(analyticHelperService, analyticsStatisticsService);
 		this.names = names;
 	}

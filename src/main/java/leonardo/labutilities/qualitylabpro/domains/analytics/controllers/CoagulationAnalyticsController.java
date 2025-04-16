@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.AvailableCoagulationAnalytics;
-import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticsStatisticsService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticStatisticsService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.CoagulationAnalyticService;
 
 @Validated
@@ -20,7 +20,7 @@ public class CoagulationAnalyticsController extends AnalyticsController {
 	private static final List<String> names = AvailableCoagulationAnalytics.DEFAULT_COAG_ANALYTICS;
 
 	public CoagulationAnalyticsController(CoagulationAnalyticService coagulationAnalyticsService,
-			AnalyticsStatisticsService analyticsStatisticsService) {
+			AnalyticStatisticsService analyticsStatisticsService) {
 		super(coagulationAnalyticsService, analyticsStatisticsService, names);
 	}
 }

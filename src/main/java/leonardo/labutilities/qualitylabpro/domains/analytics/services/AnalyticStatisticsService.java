@@ -22,13 +22,13 @@ import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobal
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 
 @Service
-public class AnalyticsStatisticsService implements IAnalyticsStatisticsService {
+public class AnalyticStatisticsService implements IAnalyticStatisticsService {
 
         private final AnalyticsRepository analyticsRepository;
-        private final IAnalyticsValidationService analyticsValidationService;
+        private final IAnalyticValidationService analyticsValidationService;
 
-        public AnalyticsStatisticsService(AnalyticsRepository analyticsRepository,
-                        AnalyticsValidationService analyticsValidationService) {
+        public AnalyticStatisticsService(AnalyticsRepository analyticsRepository,
+                        AnalyticValidationService analyticsValidationService) {
                 this.analyticsRepository = analyticsRepository;
                 this.analyticsValidationService = analyticsValidationService;
 

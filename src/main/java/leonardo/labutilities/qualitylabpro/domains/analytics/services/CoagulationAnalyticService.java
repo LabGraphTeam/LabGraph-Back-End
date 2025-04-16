@@ -10,8 +10,8 @@ public class CoagulationAnalyticService extends AnalyticHelperService {
 
 	public CoagulationAnalyticService(AnalyticsRepository analyticsRepository,
 			AnalyticFailedNotificationComponent analyticFailedNotificationComponent,
-			AnalyticsValidationService analyticsValidationService) {
-		super(analyticsRepository, analyticFailedNotificationComponent, analyticsValidationService);
+			AnalyticValidationService analyticsValidationService) {
+		super(analyticsRepository, analyticsValidationService, analyticFailedNotificationComponent);
 	}
 
 	@Override
