@@ -29,8 +29,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import leonardo.labutilities.qualitylabpro.configs.TestSecurityConfig;
-import leonardo.labutilities.qualitylabpro.domains.analytics.controllers.HematologyAnalyticsController;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.controllers.HematologyAnalyticController;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedResultsByLevelDTO;
@@ -43,7 +43,7 @@ import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenSe
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 import leonardo.labutilities.qualitylabpro.domains.users.repositories.UserRepository;
 
-@WebMvcTest(HematologyAnalyticsController.class)
+@WebMvcTest(HematologyAnalyticController.class)
 @Import(TestSecurityConfig.class)
 @AutoConfigureMockMvc
 @AutoConfigureJsonTesters

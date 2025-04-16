@@ -25,7 +25,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
 import jakarta.mail.internet.MimeMessage;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.requests.EmailDTO;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,7 +70,8 @@ class EmailServiceTests {
 				.send(any(MimeMessage.class));
 
 		// Then
-		RuntimeException exception = assertThrows(RuntimeException.class, () -> this.emailService.sendHtmlEmailWithoutBcc(emailDTO));
+		RuntimeException exception =
+				assertThrows(RuntimeException.class, () -> this.emailService.sendHtmlEmailWithoutBcc(emailDTO));
 		assertEquals("Email sending failed", exception.getMessage());
 	}
 

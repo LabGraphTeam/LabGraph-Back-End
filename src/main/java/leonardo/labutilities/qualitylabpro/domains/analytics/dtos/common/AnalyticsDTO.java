@@ -1,4 +1,4 @@
-package leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests;
+package leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common;
 
 import java.time.LocalDateTime;
 

@@ -10,14 +10,14 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import leonardo.labutilities.qualitylabpro.domains.analytics.components.StatisticsCalculatorComponent;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.ComparativeErrorStatisticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.ErrorStatisticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedValuesByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
+import leonardo.labutilities.qualitylabpro.domains.analytics.utils.StatisticsCalculatorUtility;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling.ResourceNotFoundException;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 
@@ -38,8 +38,8 @@ public class AnalyticStatisticsService implements IAnalyticStatisticsService {
         public List<GroupedMeanAndStdByLevelDTO> returnMeanAndStandardDeviationForGroups(
                         List<GroupedValuesByLevelDTO> records) {
                 return records.stream().map(group -> new GroupedMeanAndStdByLevelDTO(group.level(),
-                                Collections.singletonList(StatisticsCalculatorComponent.computeStatistics(
-                                                StatisticsCalculatorComponent.extractRecordValues(group.values())))))
+                                Collections.singletonList(StatisticsCalculatorUtility.computeStatistics(
+                                                StatisticsCalculatorUtility.extractRecordValues(group.values())))))
                                 .toList();
         }
 
@@ -50,7 +50,7 @@ public class AnalyticStatisticsService implements IAnalyticStatisticsService {
                                 .findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd, pageable).stream()
                                 .map(AnalyticMapper::toRecord).filter(analyticsValidationService::isNotThreeSigma)
                                 .toList();
-                return StatisticsCalculatorComponent.calculateMeanAndStandardDeviation(values);
+                return StatisticsCalculatorUtility.calculateMeanAndStandardDeviation(values);
         }
 
         @Override
@@ -89,7 +89,7 @@ public class AnalyticStatisticsService implements IAnalyticStatisticsService {
 
                         double defaultMean = analyticsForName.getFirst().mean();
 
-                        ErrorStatisticsDTO stat = StatisticsCalculatorComponent.calculateErrorStatistics(
+                        ErrorStatisticsDTO stat = StatisticsCalculatorUtility.calculateErrorStatistics(
                                         analyticsForName, defalutName, defaultLevel, defaultMean);
                         result.add(stat);
                 }
@@ -122,7 +122,7 @@ public class AnalyticStatisticsService implements IAnalyticStatisticsService {
 
                 double defaultMean = firstAnalytic.getFirst().mean();
 
-                return StatisticsCalculatorComponent.calculateComparativeErrorStatistics(analyticName, level,
+                return StatisticsCalculatorUtility.calculateComparativeErrorStatistics(analyticName, level,
                                 defaultMean, firstAnalytic, secondAnalytic, monthList);
         }
 }

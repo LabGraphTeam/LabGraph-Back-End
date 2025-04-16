@@ -17,11 +17,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/biochemistry-analytics")
 @Slf4j
 @RestController
-public class BiochemistryAnalyticsController extends AnalyticsController {
+public class BiochemistryAnalyticController extends AnalyticController {
 
 	private static final List<String> names = AvailableBiochemistryAnalytics.DEFAULT_BIO_ANALYTICS;
 
-	public BiochemistryAnalyticsController(BiochemistryAnalyticService biochemistryAnalyticsService,
+	public BiochemistryAnalyticController(BiochemistryAnalyticService biochemistryAnalyticsService,
 			AnalyticStatisticsService analyticsStatisticsService) {
 		super(biochemistryAnalyticsService, analyticsStatisticsService, names);
 	}

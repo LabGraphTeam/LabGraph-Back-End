@@ -20,15 +20,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticFailedNotificationComponent;
-import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticObjectValidationComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesProviderComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.AvailableAnalyticsNames;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticValidationService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.utils.AnalyticRulesValidation;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 
@@ -50,7 +50,7 @@ class AnalyticServiceTests {
         private AnalyticFailedNotificationComponent analyticFailedNotificationComponent;
 
         @Mock
-        private AnalyticObjectValidationComponent analyticObjectValidationComponent;
+        private AnalyticRulesValidation analyticObjectValidationComponent;
 
         private AnalyticHelperService analyticHelperService;
 

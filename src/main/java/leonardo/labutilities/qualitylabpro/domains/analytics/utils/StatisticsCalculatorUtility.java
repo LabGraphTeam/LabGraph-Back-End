@@ -1,18 +1,15 @@
-package leonardo.labutilities.qualitylabpro.domains.analytics.components;
+package leonardo.labutilities.qualitylabpro.domains.analytics.utils;
 
 import java.util.List;
 
-import org.springframework.stereotype.Component;
-
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.ComparativeErrorStatisticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.ErrorStatisticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
 
-@Component
-public final class StatisticsCalculatorComponent {
+public final class StatisticsCalculatorUtility {
 
-        private StatisticsCalculatorComponent() {}
+        private StatisticsCalculatorUtility() {}
 
         public static MeanAndStdDeviationDTO calculateMeanAndStandardDeviation(List<AnalyticsDTO> values) {
                 return computeStatistics(extractRecordValues(values));

@@ -18,9 +18,9 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.enums.WorkSectorEnu
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Equipment;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.EquipmentService;
 
-@RestController
 @SecurityRequirement(name = "bearer-key")
 @RequestMapping("/equipment")
+@RestController
 public class EquipmentController {
     private final EquipmentService equipmentService;
 

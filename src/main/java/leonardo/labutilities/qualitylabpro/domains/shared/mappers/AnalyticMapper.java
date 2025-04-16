@@ -1,8 +1,8 @@
 package leonardo.labutilities.qualitylabpro.domains.shared.mappers;
 
-import leonardo.labutilities.qualitylabpro.domains.analytics.components.SpecsValidatorComponent;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
+import leonardo.labutilities.qualitylabpro.domains.analytics.utils.SpecsValidatorUtility;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 
 public class AnalyticMapper {
@@ -11,7 +11,7 @@ public class AnalyticMapper {
 
 	}
 
-	private static final SpecsValidatorComponent rulesValidatorComponent = new SpecsValidatorComponent();
+	private static final SpecsValidatorUtility rulesValidatorComponent = new SpecsValidatorUtility();
 
 	private static Analytic toEntityRulesValidator(AnalyticsDTO analyticsDTO) {
 		Analytic analytic = new Analytic();

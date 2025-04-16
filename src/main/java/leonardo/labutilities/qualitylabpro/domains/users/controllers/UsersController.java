@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.responses.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.ForgotPasswordDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.dtos.requests.RecoverPasswordDTO;

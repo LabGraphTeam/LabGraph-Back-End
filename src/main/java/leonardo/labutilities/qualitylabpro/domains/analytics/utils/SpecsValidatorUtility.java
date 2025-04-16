@@ -1,16 +1,13 @@
-package leonardo.labutilities.qualitylabpro.domains.analytics.components;
+package leonardo.labutilities.qualitylabpro.domains.analytics.utils;
 
 import java.util.List;
-
-import org.springframework.stereotype.Component;
 
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.ThresholdAnalyticsRules;
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.ValidationAnalyticsDescriptions;
 import lombok.Getter;
 
 @Getter
-@Component
-public final class SpecsValidatorComponent {
+public final class SpecsValidatorUtility {
 
 	private String description;
 	private String rules;

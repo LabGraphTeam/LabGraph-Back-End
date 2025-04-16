@@ -13,8 +13,8 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticObjectValidationComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
+import leonardo.labutilities.qualitylabpro.domains.analytics.utils.AnalyticRulesValidation;
 import leonardo.labutilities.qualitylabpro.domains.shared.blacklist.AnalyticsBlackList;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
 
@@ -28,7 +28,7 @@ class AnalyticObjectValidationComponentTests {
 
         // Act & Assert
         assertDoesNotThrow(
-                () -> AnalyticObjectValidationComponent.validateResultsNotEmpty(results, "Results not found"));
+                () -> AnalyticRulesValidation.validateResultsNotEmpty(results, "Results not found"));
     }
 
     @Test
@@ -40,7 +40,7 @@ class AnalyticObjectValidationComponentTests {
         // Act & Assert
         CustomGlobalErrorHandling.ResourceNotFoundException exception =
                 assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
-                        () -> AnalyticObjectValidationComponent.validateResultsNotEmpty(results, errorMessage));
+                        () -> AnalyticRulesValidation.validateResultsNotEmpty(results, errorMessage));
 
         assertEquals(errorMessage, exception.getMessage());
     }
@@ -54,7 +54,7 @@ class AnalyticObjectValidationComponentTests {
         // Act & Assert
         CustomGlobalErrorHandling.ResourceNotFoundException exception =
                 assertThrows(CustomGlobalErrorHandling.ResourceNotFoundException.class,
-                        () -> AnalyticObjectValidationComponent.validateResultsNotEmpty(results, errorMessage));
+                        () -> AnalyticRulesValidation.validateResultsNotEmpty(results, errorMessage));
 
         assertEquals(errorMessage, exception.getMessage());
     }
@@ -66,7 +66,7 @@ class AnalyticObjectValidationComponentTests {
         when(analytic.getControlRules()).thenReturn("+3s");
 
         // Act
-        boolean result = AnalyticObjectValidationComponent.isRuleBroken(analytic);
+        boolean result = AnalyticRulesValidation.isRuleBroken(analytic);
 
         // Assert
         assertTrue(result);
@@ -82,7 +82,7 @@ class AnalyticObjectValidationComponentTests {
         when(analytic.getControlRules()).thenReturn(rule);
 
         // Act
-        boolean result = AnalyticObjectValidationComponent.isRuleBroken(analytic);
+        boolean result = AnalyticRulesValidation.isRuleBroken(analytic);
 
         // Assert
         assertFalse(result);
@@ -110,7 +110,7 @@ class AnalyticObjectValidationComponentTests {
         records.add(blacklistedTest);
 
         // Act
-        List<Analytic> result = AnalyticObjectValidationComponent.filterFailedRecords(records);
+        List<Analytic> result = AnalyticRulesValidation.filterFailedRecords(records);
 
         // Assert
         assertEquals(1, result.size());
@@ -128,7 +128,7 @@ class AnalyticObjectValidationComponentTests {
         records.add(notBrokenRule);
 
         // Act
-        List<Analytic> result = AnalyticObjectValidationComponent.filterFailedRecords(records);
+        List<Analytic> result = AnalyticRulesValidation.filterFailedRecords(records);
 
         // Assert
         assertTrue(result.isEmpty());
@@ -137,7 +137,7 @@ class AnalyticObjectValidationComponentTests {
     @Test
     void filterFailedRecords_shouldReturnEmptyList_whenRecordsNull() {
         // Act
-        List<Analytic> result = AnalyticObjectValidationComponent.filterFailedRecords(null);
+        List<Analytic> result = AnalyticRulesValidation.filterFailedRecords(null);
 
         // Assert
         assertTrue(result.isEmpty());

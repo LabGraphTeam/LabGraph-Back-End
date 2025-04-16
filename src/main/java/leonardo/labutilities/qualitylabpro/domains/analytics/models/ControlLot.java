@@ -10,17 +10,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
 @Getter
 @Setter
 @EqualsAndHashCode
-@Table(name = "control_lots")
+@Entity(name = "control_lots")
 public class ControlLot {
 
     @Id

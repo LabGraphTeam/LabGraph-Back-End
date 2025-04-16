@@ -13,19 +13,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.helpers.AnalyticsHelperUtility;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticStatisticsService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.IAnalyticHelperService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.IAnalyticStatisticsService;
 
-public class AnalyticsHelperController {
+public class AnalyticHelperController {
 
 	protected final IAnalyticHelperService analyticHelperService;
 	protected final IAnalyticStatisticsService analyticsStatisticsService;
 
-	protected AnalyticsHelperController(AnalyticHelperService analyticHelperService,
+	protected AnalyticHelperController(AnalyticHelperService analyticHelperService,
 			AnalyticStatisticsService analyticsStatisticsService) {
 		this.analyticHelperService = analyticHelperService;
 		this.analyticsStatisticsService = analyticsStatisticsService;

@@ -6,7 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
@@ -22,7 +23,7 @@ class AnalyticTests {
 		this.user = new User();
 		this.user.setId(1L);
 
-        this.analytic = AnalyticMapper.toEntity(createSampleRecord());
+		this.analytic = AnalyticMapper.toEntity(createSampleRecord());
 		this.analyticsDTO = new AnalyticsDTO(this.analytic);
 	}
 

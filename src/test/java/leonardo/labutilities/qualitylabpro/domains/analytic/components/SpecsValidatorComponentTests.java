@@ -6,19 +6,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import leonardo.labutilities.qualitylabpro.domains.analytics.components.SpecsValidatorComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.ThresholdAnalyticsRules;
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.ValidationAnalyticsDescriptions;
+import leonardo.labutilities.qualitylabpro.domains.analytics.utils.SpecsValidatorUtility;
 
 class SpecsValidatorComponentTests {
 
-    private SpecsValidatorComponent specsValidator;
+    private SpecsValidatorUtility specsValidator;
     private final double MEAN = 100.0;
     private final double SD = 10.0;
 
     @BeforeEach
     void setUp() {
-        specsValidator = new SpecsValidatorComponent();
+        specsValidator = new SpecsValidatorUtility();
     }
 
     @Test

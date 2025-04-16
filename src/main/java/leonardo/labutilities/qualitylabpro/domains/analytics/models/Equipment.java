@@ -15,7 +15,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.EquipmentDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.enums.WorkSectorEnum;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.EquipmentMapper;
@@ -23,11 +22,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Table(name = "equipments")
 @Getter
 @Setter
 @EqualsAndHashCode
+@Entity(name = "equipments")
 public class Equipment {
 
         @Id

@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.validation.Valid;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDateRangeParamsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsLevelDateRangeParamsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsNameAndLevelDateRangeParamsDTO;
@@ -41,11 +41,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Validated
-class AnalyticsController extends AnalyticsHelperController {
+class AnalyticController extends AnalyticHelperController {
 
 	private final List<String> names;
 
-	protected AnalyticsController(AnalyticHelperService analyticHelperService,
+	protected AnalyticController(AnalyticHelperService analyticHelperService,
 			AnalyticStatisticsService analyticsStatisticsService, List<String> names) {
 		super(analyticHelperService, analyticsStatisticsService);
 		this.names = names;

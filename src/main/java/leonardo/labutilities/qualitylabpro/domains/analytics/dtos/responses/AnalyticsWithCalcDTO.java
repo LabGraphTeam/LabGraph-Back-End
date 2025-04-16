@@ -2,7 +2,7 @@ package leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses;
 
 import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 
 @Schema(description = "Data Transfer Object combining analytics measurements with their statistical calculations")
 public record AnalyticsWithCalcDTO(

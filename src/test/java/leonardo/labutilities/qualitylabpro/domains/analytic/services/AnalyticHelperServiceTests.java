@@ -38,9 +38,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticFailedNotificationComponent;
-import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticObjectValidationComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesProviderComponent;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.UpdateAnalyticsMeanDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
@@ -51,6 +50,7 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.Analyt
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticHelperService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticStatisticsService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticValidationService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.utils.AnalyticRulesValidation;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
@@ -152,8 +152,8 @@ class AnalyticHelperServiceTests {
 
 		try (MockedStatic<SecurityContextHolder> securityContextHolder =
 				Mockito.mockStatic(SecurityContextHolder.class);
-				MockedStatic<AnalyticObjectValidationComponent> validationComponent =
-						Mockito.mockStatic(AnalyticObjectValidationComponent.class)) {
+				MockedStatic<AnalyticRulesValidation> validationComponent =
+						Mockito.mockStatic(AnalyticRulesValidation.class)) {
 
 			securityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
 			when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -163,7 +163,7 @@ class AnalyticHelperServiceTests {
 			when(this.analyticsValidationService.isNewAnalyticRecord(any())).thenReturn(true);
 			when(this.analyticsRepository.saveAll(any())).thenReturn(analytics);
 
-			validationComponent.when(() -> AnalyticObjectValidationComponent.filterFailedRecords(anyList()))
+			validationComponent.when(() -> AnalyticRulesValidation.filterFailedRecords(anyList()))
 					.thenReturn(List.of());
 			doNothing().when(this.analyticFailedNotificationComponent).processFailedRecordsNotification(anyList());
 

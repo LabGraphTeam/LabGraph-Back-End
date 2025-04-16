@@ -31,8 +31,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import leonardo.labutilities.qualitylabpro.configs.TestSecurityConfig;
-import leonardo.labutilities.qualitylabpro.domains.analytics.controllers.BiochemistryAnalyticsController;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.controllers.BiochemistryAnalyticController;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.UpdateAnalyticsMeanDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
@@ -46,7 +46,7 @@ import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenSe
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 import leonardo.labutilities.qualitylabpro.domains.users.repositories.UserRepository;
 
-@WebMvcTest(BiochemistryAnalyticsController.class)
+@WebMvcTest(BiochemistryAnalyticController.class)
 @Import(TestSecurityConfig.class)
 @AutoConfigureMockMvc
 @AutoConfigureJsonTesters

@@ -9,15 +9,15 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
-import leonardo.labutilities.qualitylabpro.domains.analytics.controllers.AnalyticsHelperController;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.controllers.AnalyticHelperController;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 
 public class AnalyticsHelperUtility {
 
 	private AnalyticsHelperUtility() {}
 
 	public static EntityModel<AnalyticsDTO> createEntityModel(AnalyticsDTO analyticsRecord,
-			AnalyticsHelperController controller) {
+			AnalyticHelperController controller) {
 		return EntityModel.of(analyticsRecord, Link.of(ServletUriComponentsBuilder
 				.fromCurrentContextPath().path("/backend")
 				.path(linkTo(methodOn(controller.getClass()).getAnalyticsById(analyticsRecord.id()))

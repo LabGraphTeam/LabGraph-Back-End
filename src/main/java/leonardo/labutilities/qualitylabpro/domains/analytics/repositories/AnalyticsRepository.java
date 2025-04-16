@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.QueryHint;
 import jakarta.transaction.Transactional;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 
 @Repository

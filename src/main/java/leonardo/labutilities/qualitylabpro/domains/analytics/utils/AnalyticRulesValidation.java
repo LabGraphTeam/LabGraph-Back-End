@@ -1,18 +1,15 @@
-package leonardo.labutilities.qualitylabpro.domains.analytics.components;
+package leonardo.labutilities.qualitylabpro.domains.analytics.utils;
 
 import java.util.List;
 import java.util.Optional;
-
-import org.springframework.stereotype.Component;
 
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.ThresholdAnalyticsRules;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.shared.blacklist.AnalyticsBlackList;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
 
-@Component
-public final class AnalyticObjectValidationComponent {
-    private AnalyticObjectValidationComponent() {}
+public final class AnalyticRulesValidation {
+    private AnalyticRulesValidation() {}
 
     public static void validateResultsNotEmpty(List<?> results, final String message) {
 

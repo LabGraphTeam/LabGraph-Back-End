@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.ControlLotDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.ControlLotService;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 
+@SecurityRequirement(name = "bearer-key")
 @RequestMapping("/control-lot")
 @RestController
 public class ControlLotController {

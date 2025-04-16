@@ -13,10 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticFailedNotificationComponent;
-import leonardo.labutilities.qualitylabpro.domains.analytics.components.AnalyticObjectValidationComponent;
-import leonardo.labutilities.qualitylabpro.domains.analytics.components.StatisticsCalculatorComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.AnalyticErrorMessages;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedMeanAndStdByLevelDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.GroupedResultsByLevelDTO;
@@ -24,7 +22,9 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.Grou
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.MeanAndStdDeviationDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
+import leonardo.labutilities.qualitylabpro.domains.analytics.utils.AnalyticRulesValidation;
 import leonardo.labutilities.qualitylabpro.domains.analytics.utils.AuthenticatedUserProvider;
+import leonardo.labutilities.qualitylabpro.domains.analytics.utils.StatisticsCalculatorUtility;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
@@ -79,7 +79,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
 
                 List<Analytic> persistedRecords = analyticsRepository.saveAll(newAnalyticsRecords);
 
-                List<AnalyticsDTO> failedRecords = AnalyticObjectValidationComponent
+                List<AnalyticsDTO> failedRecords = AnalyticRulesValidation
                                 .filterFailedRecords(persistedRecords).stream()
                                 .map(AnalyticMapper::toRecord)
                                 .toList();
@@ -124,7 +124,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                                 .map(AnalyticMapper::toRecord)
                                 .toList();
 
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(results,
+                AnalyticRulesValidation.validateResultsNotEmpty(results,
                                 AnalyticErrorMessages.NO_ANALYTICS_FOR_DATE_RANGE);
                 return results;
         }
@@ -148,7 +148,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                                 .map(AnalyticMapper::toRecord)
                                 .toList();
 
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(analyticsList,
+                AnalyticRulesValidation.validateResultsNotEmpty(analyticsList,
                                 "No analytics found with the given name");
                 return analyticsList;
         }
@@ -160,7 +160,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 Page<AnalyticsDTO> analytics = analyticsRepository.findByNameInAndDateBetweenPaged(
                                 names, dateStart, dateEnd, pageable);
 
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(
+                AnalyticRulesValidation.validateResultsNotEmpty(
                                 analytics.getContent(), AnalyticErrorMessages.NO_ANALYTICS_FOR_PAGINATION);
 
                 return analytics;
@@ -173,7 +173,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 Page<AnalyticsDTO> analytics = analyticsRepository.findUnvalidByNameInAndDateBetweenPaged(
                                 names, dateStart, dateEnd, pageable);
 
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(
+                AnalyticRulesValidation.validateResultsNotEmpty(
                                 analytics.getContent(), AnalyticErrorMessages.NO_ANALYTICS_FOR_PAGINATION);
 
                 return analytics;
@@ -193,7 +193,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                                 .map(AnalyticMapper::toRecord)
                                 .toList();
 
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(analyticsList,
+                AnalyticRulesValidation.validateResultsNotEmpty(analyticsList,
                                 AnalyticErrorMessages.NO_ANALYTICS_FOR_NAME_LEVEL);
                 return analyticsList;
         }
@@ -206,7 +206,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 Page<AnalyticsDTO> results = analyticsRepository.findByNameInAndLevelAndDateBetween(
                                 names, level, startDate, endDate, pageable);
 
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(
+                AnalyticRulesValidation.validateResultsNotEmpty(
                                 results.getContent(), AnalyticErrorMessages.NO_ANALYTICS_FOR_PAGINATION);
 
                 return results;
@@ -220,7 +220,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 Page<AnalyticsDTO> results = analyticsRepository.findUnValidByNameInAndLevelAndDateBetween(
                                 names, level, startDate, endDate, pageable);
 
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(
+                AnalyticRulesValidation.validateResultsNotEmpty(
                                 results.getContent(), AnalyticErrorMessages.NO_ANALYTICS_FOR_PAGINATION);
 
                 return results;
@@ -236,12 +236,12 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                                 .map(AnalyticMapper::toRecord)
                                 .toList();
 
-                MeanAndStdDeviationDTO calcSdAndMean = StatisticsCalculatorComponent
+                MeanAndStdDeviationDTO calcSdAndMean = StatisticsCalculatorUtility
                                 .calculateMeanAndStandardDeviation(results);
 
                 AnalyticsWithCalcDTO analyticsWithCalcDTO = new AnalyticsWithCalcDTO(results, calcSdAndMean);
 
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(results,
+                AnalyticRulesValidation.validateResultsNotEmpty(results,
                                 AnalyticErrorMessages.NO_ANALYTICS_FOR_PARAMETERS);
                 return analyticsWithCalcDTO;
         }
@@ -256,7 +256,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                                 .map(AnalyticMapper::toRecord)
                                 .toList();
 
-                AnalyticObjectValidationComponent.validateResultsNotEmpty(records,
+                AnalyticRulesValidation.validateResultsNotEmpty(records,
                                 AnalyticErrorMessages.NO_ANALYTICS_FOR_NAME_DATE);
 
                 return records.stream()
@@ -277,7 +277,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 Map<String, MeanAndStdDeviationDTO> statsByLevel = analytics.stream()
                                 .collect(Collectors.toMap(
                                                 GroupedValuesByLevelDTO::level,
-                                                group -> StatisticsCalculatorComponent
+                                                group -> StatisticsCalculatorUtility
                                                                 .calculateMeanAndStandardDeviation(group.values())));
 
                 return analytics.stream()

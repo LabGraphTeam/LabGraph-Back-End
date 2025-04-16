@@ -4,8 +4,10 @@ import static leonardo.labutilities.qualitylabpro.utils.AnalyticsHelperMocks.cre
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,13 +20,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.event.annotation.BeforeTestExecution;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Transient;
-import leonardo.labutilities.qualitylabpro.domains.analytics.components.SpecsValidatorComponent;
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.AvailableAnalyticsNames;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
+import leonardo.labutilities.qualitylabpro.domains.analytics.utils.SpecsValidatorUtility;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 
 @DataJpaTest
@@ -35,7 +38,7 @@ class AnalyticRepositoryTests {
 	@Transient
 	static Flyway flyway;
 	@Transient
-	final SpecsValidatorComponent rulesValidatorComponent = new SpecsValidatorComponent();
+	final SpecsValidatorUtility rulesValidatorComponent = new SpecsValidatorUtility();
 	@Transient
 	final LocalDateTime testDate = LocalDateTime.of(2024, 12, 16, 7, 53);
 	@Autowired

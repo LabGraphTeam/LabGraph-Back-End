@@ -7,21 +7,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import leonardo.labutilities.qualitylabpro.domains.analytics.constants.AvailableHematologyAnalytics;
+import leonardo.labutilities.qualitylabpro.domains.analytics.constants.AvailableCoagulationAnalytics;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticStatisticsService;
-import leonardo.labutilities.qualitylabpro.domains.analytics.services.HematologyAnalyticService;
+import leonardo.labutilities.qualitylabpro.domains.analytics.services.CoagulationAnalyticService;
 
 @Validated
 @SecurityRequirement(name = "bearer-key")
-@RequestMapping("/hematology-analytics")
+@RequestMapping("/coagulation-analytics")
 @RestController
-public class HematologyAnalyticsController extends AnalyticsController {
+public class CoagulationAnalyticController extends AnalyticController {
 
-	private static final List<String> names = AvailableHematologyAnalytics.DEFAULT_HEMATO_ANALYTICS;
+	private static final List<String> names = AvailableCoagulationAnalytics.DEFAULT_COAG_ANALYTICS;
 
-	public HematologyAnalyticsController(HematologyAnalyticService hematologyAnalyticsService,
+	public CoagulationAnalyticController(CoagulationAnalyticService coagulationAnalyticsService,
 			AnalyticStatisticsService analyticsStatisticsService) {
-		super(hematologyAnalyticsService, analyticsStatisticsService, names);
+		super(coagulationAnalyticsService, analyticsStatisticsService, names);
 	}
-
 }
