@@ -1,13 +1,23 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests;
 
-import leonardo.labutilities.qualitylabpro.domains.analytics.models.Equipment;
-import leonardo.labutilities.qualitylabpro.domains.users.models.User;
-import java.util.SortedMap;
+import java.time.LocalDate;
+
+import leonardo.labutilities.qualitylabpro.domains.analytics.models.ControlLot;
 
 public record ControlLotDTO(
-        Integer id,
-        User createdBy,
-        String lotCode,
-        SortedMap<Long, Equipment> equipments,
-        String manufactureDate,
-        String expirationTime) {}
+                Integer id,
+                String createdBy,
+                String lotCode,
+                LocalDate manufactureDate,
+                LocalDate expirationTime,
+                Integer equipmentId) {
+        public ControlLotDTO(ControlLot controlLot) {
+                this(
+                                controlLot.getId().intValue(),
+                                controlLot.getUser().getUsername(),
+                                controlLot.getLotCode(),
+                                controlLot.getManufactureDate(),
+                                controlLot.getExpirationTime(),
+                                controlLot.getEquipmentId().getId());
+        }
+}

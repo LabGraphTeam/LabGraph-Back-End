@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
+import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling.UserNotFoundException;
 
 @Schema(description = "Data Transfer Object for Analytics information and measurements")
 public record AnalyticsDTO(
@@ -70,7 +71,7 @@ public record AnalyticsDTO(
                         return analytic.getValidatorUserId() != null ? analytic.getValidatorUserId().getUsername()
                                         : "Not validated";
                 } catch (Exception e) {
-                        throw new RuntimeException("Error getting validator username", e);
+                        throw new UserNotFoundException("Error getting validator username");
                 }
         }
 
@@ -79,7 +80,7 @@ public record AnalyticsDTO(
                         return analytic.getOwnerUserId() != null ? analytic.getOwnerUserId().getUsername()
                                         : "Not validated";
                 } catch (Exception e) {
-                        throw new RuntimeException("Error getting validator username", e);
+                        throw new UserNotFoundException("Error getting creator username");
                 }
         }
 }

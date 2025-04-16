@@ -1,8 +1,6 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.models;
 
 import java.time.LocalDate;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,8 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapKey;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 import lombok.EqualsAndHashCode;
@@ -31,22 +27,22 @@ public class ControlLot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_user")
     private User user;
 
     @Column(name = "lot_code", nullable = false, length = 50)
     private String lotCode;
 
-    @OneToMany(mappedBy = "id", fetch = FetchType.EAGER)
-    @MapKey(name = "id")
-    private SortedMap<Long, Equipment> equipments = new TreeMap<>();
-
     @Column(name = "manufacture_date", nullable = false)
     private LocalDate manufactureDate;
 
     @Column(name = "expiration_time", nullable = false)
     private LocalDate expirationTime;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_equipment")
+    private Equipment equipmentId;
 
     public ControlLot() {}
 

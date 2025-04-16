@@ -1,23 +1,33 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.models;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import org.springframework.beans.BeanUtils;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.EquipmentDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.enums.WorkSectorEnum;
+import leonardo.labutilities.qualitylabpro.domains.shared.mappers.EquipmentMapper;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "equipments")
 @Getter
 @Setter
-@NoArgsConstructor
+@EqualsAndHashCode
 public class Equipment {
 
         @Id
@@ -33,35 +43,14 @@ public class Equipment {
 
         @Column(name = "serial_number", length = 150)
         private String serialNumber;
+        @JsonIgnore
+        @OneToMany(mappedBy = "equipmentId", fetch = FetchType.EAGER)
+        private List<ControlLot> controlLots;
 
-        public Equipment(String commercialName, WorkSectorEnum workSector, String serialNumber) {
-                this.commercialName = commercialName;
-                this.workSector = workSector;
-                this.serialNumber = serialNumber;
-        }
+        public Equipment() {}
 
-        @Override
-        public boolean equals(Object o) {
-                if (this == o)
-                        return true;
-                if (o == null || getClass() != o.getClass())
-                        return false;
-                Equipment equipment = (Equipment) o;
-                return id != null && id.equals(equipment.id);
-        }
-
-        @Override
-        public int hashCode() {
-                return getClass().hashCode();
-        }
-
-        @Override
-        public String toString() {
-                return "Equipment{" +
-                                "id=" + id +
-                                ", commercialName='" + commercialName + '\'' +
-                                ", workSector=" + workSector +
-                                ", serialNumber='" + serialNumber + '\'' +
-                                '}';
+        public Equipment(EquipmentDTO equipmentDTO) {
+                Equipment mappedEquipment = EquipmentMapper.toEntity(equipmentDTO);
+                BeanUtils.copyProperties(mappedEquipment, this);
         }
 }

@@ -30,7 +30,7 @@ public class EquipmentService {
 
     public Equipment saveEquipment(EquipmentDTO createEquipmentDTO) {
 
-        var equipment = EquipmentMapper.mapToEquipment(createEquipmentDTO);
+        var equipment = EquipmentMapper.toEntity(createEquipmentDTO);
         return equipmentRepository.save(equipment);
     }
 
@@ -45,7 +45,7 @@ public class EquipmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
         Equipment updatedEquipment =
-                MergeEquipmentsObjects.merge(equipment, EquipmentMapper.mapToEquipment(updateEquipmentDTO));
+                MergeEquipmentsObjects.merge(equipment, EquipmentMapper.toEntity(updateEquipmentDTO));
 
         return equipmentRepository.save(updatedEquipment);
     }
