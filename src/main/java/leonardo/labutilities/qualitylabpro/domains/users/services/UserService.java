@@ -10,8 +10,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
-import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenService;
-import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.responses.TokenJwtDTO;
+import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.TokenJwtDTO;
+import leonardo.labutilities.qualitylabpro.domains.shared.authentication.services.TokenService;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.EmailDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.RecoveryEmailDTO;

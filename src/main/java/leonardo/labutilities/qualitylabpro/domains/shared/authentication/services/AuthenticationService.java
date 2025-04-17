@@ -1,4 +1,4 @@
-package leonardo.labutilities.qualitylabpro.domains.shared.authentication;
+package leonardo.labutilities.qualitylabpro.domains.shared.authentication.services;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

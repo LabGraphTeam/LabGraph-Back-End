@@ -11,11 +11,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +31,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-
 import leonardo.labutilities.qualitylabpro.configs.TestSecurityConfig;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
@@ -44,7 +41,7 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.Mean
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticStatisticsService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.HematologyAnalyticService;
-import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenService;
+import leonardo.labutilities.qualitylabpro.domains.shared.authentication.services.TokenService;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 import leonardo.labutilities.qualitylabpro.domains.users.repositories.UserRepository;
 

@@ -41,7 +41,7 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.Mean
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticStatisticsService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.CoagulationAnalyticService;
-import leonardo.labutilities.qualitylabpro.domains.shared.authentication.TokenService;
+import leonardo.labutilities.qualitylabpro.domains.shared.authentication.services.TokenService;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 import leonardo.labutilities.qualitylabpro.domains.users.repositories.UserRepository;
 

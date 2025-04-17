@@ -143,7 +143,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 }
 
                 List<AnalyticsDTO> analyticsList = analyticsRepository
-                                .findByTestName(name.toUpperCase(), pageable)
+                                .findByName(name.toUpperCase(), pageable)
                                 .stream()
                                 .map(AnalyticMapper::toRecord)
                                 .toList();
@@ -188,7 +188,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         @Override
         public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable, String name, String level) {
                 List<AnalyticsDTO> analyticsList = analyticsRepository
-                                .findByNameAndLevel(pageable, name.toUpperCase(), level)
+                                .findByNameAndLevel(name.toUpperCase(), level, pageable)
                                 .stream()
                                 .map(AnalyticMapper::toRecord)
                                 .toList();

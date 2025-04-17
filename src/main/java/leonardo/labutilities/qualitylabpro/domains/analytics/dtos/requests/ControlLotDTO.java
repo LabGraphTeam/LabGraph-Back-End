@@ -13,7 +13,7 @@ public record ControlLotDTO(
                 Integer equipmentId) {
         public ControlLotDTO(ControlLot controlLot) {
                 this(
-                                controlLot.getId().intValue(),
+                                controlLot.getId(),
                                 controlLot.getUser().getUsername(),
                                 controlLot.getLotCode(),
                                 controlLot.getManufactureDate(),

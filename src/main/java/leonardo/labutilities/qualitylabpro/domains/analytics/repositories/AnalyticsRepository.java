@@ -27,7 +27,7 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 
 	// Fetch Analytics by Name
 	@Query("SELECT ga FROM analytics ga WHERE ga.testName = :testName")
-	List<Analytic> findByTestName(@Param("testName") String testName, Pageable pageable);
+	List<Analytic> findByName(@Param("testName") String testName, Pageable pageable);
 
 	// Fetch Latest Analytics
 	@Query(value = """
@@ -54,7 +54,7 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 	@Query(value = """
 			SELECT ga FROM analytics ga WHERE ga.testName = :name AND ga.controlLevel = :level
 			""")
-	List<Analytic> findByNameAndLevel(Pageable pageable, @Param("name") String name, @Param("level") String level);
+	List<Analytic> findByNameAndLevel(@Param("name") String name, @Param("level") String level, Pageable pageable);
 
 	@Query(value = """
 			SELECT ga FROM analytics ga WHERE ga.testName = :name AND ga.controlLevel = :level AND ga.controlLevelLot = :levelLot
@@ -62,10 +62,11 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 	List<Analytic> findByNameAndLevelAndLevelLot(Pageable pageable, @Param("name") String name,
 			@Param("level") String level, @Param("levelLot") String levelLot);
 
-	@QueryHints({@QueryHint(name = "org.hibernate.readOnly", value = "true"),
+	@QueryHints({
+			@QueryHint(name = "org.hibernate.readOnly", value = "true"),
 			@QueryHint(name = "org.hibernate.fetchSize", value = "100"),
-			@QueryHint(name = "org.hibernate.cacheable", value = "true")})
-
+			@QueryHint(name = "org.hibernate.cacheable", value = "true")
+	})
 	@Query("""
 			SELECT ga FROM analytics ga WHERE ga.testName = :name
 			AND ga.controlLevel = :level AND ga.measurementDate BETWEEN :startDate AND :endDate ORDER BY ga.measurementDate ASC
@@ -74,9 +75,11 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 	// Fetch Analytics by Multiple Names and Date
-	@QueryHints({@QueryHint(name = "org.hibernate.readOnly", value = "true"),
+	@QueryHints({
+			@QueryHint(name = "org.hibernate.readOnly", value = "true"),
 			@QueryHint(name = "org.hibernate.fetchSize", value = "100"),
-			@QueryHint(name = "org.hibernate.cacheable", value = "true")})
+			@QueryHint(name = "org.hibernate.cacheable", value = "true")
+	})
 	@Query(value = """
 			SELECT ga FROM analytics ga WHERE
 			 ga.testName IN (:names) AND ga.controlLevel = :level AND ga.measurementDate BETWEEN

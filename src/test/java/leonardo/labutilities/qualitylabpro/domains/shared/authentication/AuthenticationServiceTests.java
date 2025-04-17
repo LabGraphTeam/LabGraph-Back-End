@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import leonardo.labutilities.qualitylabpro.domains.shared.authentication.services.AuthenticationService;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 import leonardo.labutilities.qualitylabpro.domains.users.repositories.UserRepository;
 
