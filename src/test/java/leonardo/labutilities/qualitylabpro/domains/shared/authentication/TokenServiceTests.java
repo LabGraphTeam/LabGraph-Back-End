@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+
+import leonardo.labutilities.qualitylabpro.domains.shared.authentication.services.TokenService;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 
 @ExtendWith(SpringExtension.class)

@@ -1,4 +1,4 @@
-package leonardo.labutilities.qualitylabpro.domains.shared.authentication;
+package leonardo.labutilities.qualitylabpro.domains.shared.authentication.services;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -9,7 +9,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.responses.TokenJwtDTO;
+
+import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 
 @Service

@@ -1,6 +1,8 @@
-package leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.responses;
+package leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos;
 
 import java.time.Instant;
+
+
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Data Transfer Object for JWT authentication token response")
