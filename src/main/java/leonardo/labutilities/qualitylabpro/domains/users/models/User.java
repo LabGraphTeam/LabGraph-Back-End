@@ -64,7 +64,7 @@ public class User implements UserDetails {
     private UserConfig userConfig;
 
     @Column(name = "user_roles", nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private final UserRoles userRoles;
 
     @Column(name = "enabled")

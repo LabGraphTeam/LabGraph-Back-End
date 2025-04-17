@@ -75,7 +75,7 @@ public class Analytic extends RepresentationModel<Analytic> {
 	@Column(nullable = false, length = 15)
 	private String controlRules;
 
-	@Column(nullable = false, length = 50)
+	@Column(nullable = false, length = 75)
 	private String description;
 
 	@CreationTimestamp

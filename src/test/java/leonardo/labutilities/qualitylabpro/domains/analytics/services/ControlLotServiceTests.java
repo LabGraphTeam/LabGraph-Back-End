@@ -80,7 +80,7 @@ class ControlLotServiceTests {
                 equipment.getId());
 
         controlLot = new ControlLot();
-        controlLot.setId(1L);
+        controlLot.setId(1);
         controlLot.setUser(user);
         controlLot.setLotCode("LOT-123");
         controlLot.setManufactureDate(manufactureDate);
