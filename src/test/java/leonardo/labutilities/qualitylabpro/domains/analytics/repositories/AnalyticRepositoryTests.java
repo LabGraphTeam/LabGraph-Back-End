@@ -107,7 +107,7 @@ class AnalyticRepositoryTests {
 	@DisplayName("Should return paginated analytics when searching by name")
 	void testFindAllByName() {
 		PageRequest pageable = PageRequest.of(0, 10);
-		List<AnalyticsDTO> results = this.repository.findByTestName("ALB2", pageable).stream()
+		List<AnalyticsDTO> results = this.repository.findByName("ALB2", pageable).stream()
 				.map(AnalyticMapper::toRecord).toList();
 		assertThat(results).isNotEmpty();
 		assertThat(results.getFirst().name()).isEqualTo("ALB2");
@@ -127,7 +127,7 @@ class AnalyticRepositoryTests {
 	void testFindAllByNameAndLevel() {
 		PageRequest pageable = PageRequest.of(0, 10);
 
-		List<AnalyticsDTO> results = this.repository.findByNameAndLevel(pageable, "ALB2", "PCCC1")
+		List<AnalyticsDTO> results = this.repository.findByNameAndLevel("ALB2", "PCCC1", pageable)
 				.stream().map(AnalyticMapper::toRecord).toList();
 
 		assertThat(results).isNotEmpty();

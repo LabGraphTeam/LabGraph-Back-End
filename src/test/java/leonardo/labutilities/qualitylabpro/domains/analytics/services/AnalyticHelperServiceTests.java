@@ -85,7 +85,7 @@ class AnalyticHelperServiceTests {
 				public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable,
 						String name, String level) {
 					return AnalyticHelperServiceTests.this.analyticsRepository
-							.findByNameAndLevel(pageable, name, level).stream()
+							.findByNameAndLevel(name, level, pageable).stream()
 							.map(AnalyticMapper::toRecord).toList();
 				}
 
@@ -261,14 +261,15 @@ class AnalyticHelperServiceTests {
 				.filter(r -> r.name().equals(name) && r.level().equals(level)).toList().stream()
 				.map(AnalyticMapper::toNewEntity).toList();
 
-		when(this.analyticsRepository.findByNameAndLevel(pageable, name, level))
-				.thenReturn(expectedRecords);
+		when(this.analyticsRepository.findByNameAndLevel(name, level,
+				pageable))
+						.thenReturn(expectedRecords);
 
 		List<AnalyticsDTO> result =
 				this.analyticHelperService.findAnalyticsByNameAndLevel(pageable, name, level);
 
 		assertEquals(expectedRecords.size(), result.size());
-		verify(this.analyticsRepository).findByNameAndLevel(pageable, name, level);
+		verify(this.analyticsRepository).findByNameAndLevel(name, level, pageable);
 	}
 
 	@Test
