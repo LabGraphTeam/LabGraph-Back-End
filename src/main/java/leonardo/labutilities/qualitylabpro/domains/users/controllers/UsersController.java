@@ -39,13 +39,7 @@ public class UsersController {
 
     @GetMapping("/validated-analytics")
     public ResponseEntity<Page<AnalyticsDTO>> getAnalyticsValidatedByUserId(Pageable pageable) {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof User user) {
-            var id = user.getId();
-            return ResponseEntity.ok(this.userService.findAnalyticsByUserValidated(id, pageable));
-        }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.ok(this.userService.findAnalyticsByUserValidated(pageable));
     }
 
     @Transactional

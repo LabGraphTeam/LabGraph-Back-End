@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.services.TokenService;
+import leonardo.labutilities.qualitylabpro.domains.shared.authentication.utils.AuthenticatedUserProvider;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.EmailDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.dto.RecoveryEmailDTO;
@@ -35,8 +36,9 @@ public class UserService {
 	private final AuthenticationManager authenticationManager;
 	private final TokenService tokenService;
 
-	public Page<AnalyticsDTO> findAnalyticsByUserValidated(Long id, Pageable pageable) {
-		return this.userRepository.findAnalyticsByUserValidatedId(id, pageable);
+	public Page<AnalyticsDTO> findAnalyticsByUserValidated(Pageable pageable) {
+		var authenticatedUser = AuthenticatedUserProvider.getCurrentAuthenticatedUser().getId();
+		return this.userRepository.findAnalyticsByUserValidatedId(authenticatedUser, pageable);
 
 	}
 

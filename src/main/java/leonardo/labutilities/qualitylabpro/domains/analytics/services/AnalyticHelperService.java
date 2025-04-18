@@ -23,8 +23,8 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.Mean
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.domains.analytics.utils.AnalyticRulesValidation;
-import leonardo.labutilities.qualitylabpro.domains.analytics.utils.AuthenticatedUserProvider;
 import leonardo.labutilities.qualitylabpro.domains.analytics.utils.StatisticsCalculatorUtility;
+import leonardo.labutilities.qualitylabpro.domains.shared.authentication.utils.AuthenticatedUserProvider;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;

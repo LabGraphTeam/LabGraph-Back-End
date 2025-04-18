@@ -1,4 +1,4 @@
-package leonardo.labutilities.qualitylabpro.domains.analytics.utils;
+package leonardo.labutilities.qualitylabpro.domains.shared.authentication.utils;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;

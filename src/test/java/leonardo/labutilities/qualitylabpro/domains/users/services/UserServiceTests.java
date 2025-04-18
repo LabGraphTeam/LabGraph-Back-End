@@ -21,6 +21,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,6 +34,7 @@ import org.springframework.security.core.Authentication;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.dtos.TokenJwtDTO;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.services.TokenService;
+import leonardo.labutilities.qualitylabpro.domains.shared.authentication.utils.AuthenticatedUserProvider;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling;
 import leonardo.labutilities.qualitylabpro.domains.users.components.PasswordRecoveryTokenManager;
@@ -139,14 +142,24 @@ class UserServiceTests {
 	void testFindAnalyticsByUserValidated() {
 		Pageable pageable = Pageable.unpaged();
 		List<AnalyticsDTO> expectedList = createSampleRecordList();
-
 		Page<AnalyticsDTO> expectedPage = new PageImpl<>(expectedList);
+		User mockUser = new User();
+		mockUser.setId(1L);
 
-		when(this.userRepository.findAnalyticsByUserValidatedId(1L, pageable)).thenReturn(expectedPage);
+		try (MockedStatic<AuthenticatedUserProvider> mockedStatic =
+				Mockito.mockStatic(AuthenticatedUserProvider.class)) {
+			mockedStatic.when(AuthenticatedUserProvider::getCurrentAuthenticatedUser).thenReturn(mockUser);
 
-		Page<AnalyticsDTO> result = this.userService.findAnalyticsByUserValidated(1L, pageable);
-		assertNotNull(result);
-		assertEquals(4, result.getSize());
+			when(this.userRepository.findAnalyticsByUserValidatedId(eq(1L), any(Pageable.class)))
+					.thenReturn(expectedPage);
+
+			Page<AnalyticsDTO> result = this.userService.findAnalyticsByUserValidated(pageable);
+
+			assertNotNull(result);
+			assertEquals(expectedList.size(), result.getContent().size());
+
+			verify(this.userRepository).findAnalyticsByUserValidatedId(1L, pageable);
+		}
 	}
 
 	@Test
