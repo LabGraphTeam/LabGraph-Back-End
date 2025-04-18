@@ -98,7 +98,9 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                                 AuthenticatedUserProvider.getCurrentAuthenticatedUser())
                                 .ifPresent(analytic::setValidatorUserId);
 
-                return AnalyticMapper.toRecord(analytic);
+                Analytic savedAnalytic = analyticsRepository.save(analytic);
+
+                return AnalyticMapper.toRecord(savedAnalytic);
         }
 
         @Override
