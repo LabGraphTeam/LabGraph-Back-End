@@ -61,4 +61,6 @@ public interface IAnalyticHelperService {
 
 	AnalyticsDTO validateAnalyticByUser(Long id);
 
+	List<AnalyticsDTO> validateAnalyticListByUser(List<Long> id);
+
 }

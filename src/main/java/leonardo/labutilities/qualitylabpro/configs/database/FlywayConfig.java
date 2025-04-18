@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile({"dev", "local"})
+@Profile({"dev", "local", "test"})
 public class FlywayConfig {
 
 	@Bean

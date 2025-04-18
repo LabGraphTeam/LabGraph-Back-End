@@ -24,11 +24,9 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.components.RulesPro
 import leonardo.labutilities.qualitylabpro.domains.analytics.constants.AvailableAnalyticsNames;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.responses.AnalyticsWithCalcDTO;
-import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.AnalyticsRepository;
 import leonardo.labutilities.qualitylabpro.domains.analytics.utils.AnalyticRulesValidation;
 import leonardo.labutilities.qualitylabpro.domains.shared.email.EmailService;
-import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 
 @ExtendWith(MockitoExtension.class)
 class AnalyticServiceTests {
@@ -86,8 +84,7 @@ class AnalyticServiceTests {
         @Test
         void findAnalyticsByNameAndLevel_ShouldReturnAnalyticsList() {
                 String name = "ALB2";
-                List<Analytic> analytics = createSampleRecordList().stream()
-                                .map(AnalyticMapper::toEntity).toList();
+                List<AnalyticsDTO> analytics = createSampleRecordList();
 
                 when(this.analyticsRepository.findByNameAndLevel(any(), any(), any()))
                                 .thenReturn(analytics);
@@ -102,8 +99,7 @@ class AnalyticServiceTests {
         void findAnalyticsByNameLevelDate_ShouldReturnAnalyticsWithCalcDTO() {
 
                 String name = "ALB2";
-                List<Analytic> mockAnalytics = createSampleRecordList().stream()
-                                .map(AnalyticMapper::toEntity).toList();
+                List<AnalyticsDTO> mockAnalytics = createSampleRecordList();
 
                 when(this.analyticsRepository.findByNameAndLevelAndDateBetween(name, "PCCC1",
                                 this.startDate, this.endDate, this.pageable))

@@ -70,7 +70,6 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                                 .toList();
 
                 if (newAnalyticsRecords.isEmpty()) {
-                        log.warn("No new analytics records to save.");
                         throw new CustomGlobalErrorHandling.AnalyticsDataIntegrityViolationException();
                 }
 
@@ -104,6 +103,26 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         }
 
         @Override
+        public List<AnalyticsDTO> validateAnalyticListByUser(List<Long> ids) {
+
+                List<Analytic> analytics = analyticsRepository.findAllById(ids);
+                if (analytics.isEmpty()) {
+                        throw new CustomGlobalErrorHandling.ResourceNotFoundException(
+                                        AnalyticErrorMessages.ANALYTICS_NOT_FOUND_BY_ID);
+                }
+
+                User currentUser = AuthenticatedUserProvider.getCurrentAuthenticatedUser();
+
+                analytics.forEach(analytic -> analytic.setValidatorUserId(currentUser));
+
+                List<Analytic> savedAnalytics = analyticsRepository.saveAll(analytics);
+
+                return savedAnalytics.stream()
+                                .map(AnalyticMapper::toRecord)
+                                .toList();
+        }
+
+        @Override
         public AnalyticsDTO updateDescription(Long id, String description) {
                 return analyticsRepository.findById(id)
                                 .map(analytic -> {
@@ -122,10 +141,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
 
         @Override
         public List<AnalyticsDTO> findAnalyticsByDate(LocalDateTime dateStart, LocalDateTime dateEnd) {
-                List<AnalyticsDTO> results = analyticsRepository.findByDateBetween(dateStart, dateEnd).stream()
-                                .map(AnalyticMapper::toRecord)
-                                .toList();
-
+                List<AnalyticsDTO> results = analyticsRepository.findByDateBetween(dateStart, dateEnd);
                 AnalyticRulesValidation.validateResultsNotEmpty(results,
                                 AnalyticErrorMessages.NO_ANALYTICS_FOR_DATE_RANGE);
                 return results;
@@ -145,10 +161,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                 }
 
                 List<AnalyticsDTO> analyticsList = analyticsRepository
-                                .findByName(name.toUpperCase(), pageable)
-                                .stream()
-                                .map(AnalyticMapper::toRecord)
-                                .toList();
+                                .findByName(name.toUpperCase(), pageable);
 
                 AnalyticRulesValidation.validateResultsNotEmpty(analyticsList,
                                 "No analytics found with the given name");
@@ -190,10 +203,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
         @Override
         public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable, String name, String level) {
                 List<AnalyticsDTO> analyticsList = analyticsRepository
-                                .findByNameAndLevel(name.toUpperCase(), level, pageable)
-                                .stream()
-                                .map(AnalyticMapper::toRecord)
-                                .toList();
+                                .findByNameAndLevel(name.toUpperCase(), level, pageable);
 
                 AnalyticRulesValidation.validateResultsNotEmpty(analyticsList,
                                 AnalyticErrorMessages.NO_ANALYTICS_FOR_NAME_LEVEL);
@@ -233,10 +243,7 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                         String name, String level, LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
 
                 List<AnalyticsDTO> results = analyticsRepository
-                                .findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd, pageable)
-                                .stream()
-                                .map(AnalyticMapper::toRecord)
-                                .toList();
+                                .findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd, pageable);
 
                 MeanAndStdDeviationDTO calcSdAndMean = StatisticsCalculatorUtility
                                 .calculateMeanAndStandardDeviation(results);
@@ -297,4 +304,5 @@ public class AnalyticHelperService implements IAnalyticHelperService {
                         String name, String level, String levelLot, double mean) {
                 analyticsRepository.updateMeanByNameAndLevelAndLevelLot(name, level, levelLot, mean);
         }
+
 }

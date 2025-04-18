@@ -33,15 +33,15 @@ public class Analytic extends RepresentationModel<Analytic> {
 	@EqualsAndHashCode.Include
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "owner_user_id")
 	private User ownerUserId;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "validator_user_id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "validator_user_id", nullable = true)
 	private User validatorUserId;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "equipment_id")
 	private Equipment equipmentId;
 

@@ -1,5 +1,6 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -22,6 +23,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Entity representing laboratory equipment.
+ */
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -41,10 +45,20 @@ public class Equipment {
 
         @Column(name = "serial_number", length = 150)
         private String serialNumber;
-        @JsonIgnore
-        @OneToMany(mappedBy = "equipmentId", fetch = FetchType.EAGER)
-        private List<ControlLot> controlLots;
 
+        @Column(length = 500)
+        private String description;
+
+        @JsonIgnore
+        @OneToMany(mappedBy = "equipmentId", fetch = FetchType.LAZY)
+        private List<ControlLot> controlLots = new ArrayList<>();
+
+        @JsonIgnore
+        @OneToMany(mappedBy = "equipmentId", fetch = FetchType.LAZY)
+        private List<Analytic> analytics = new ArrayList<>();
+
+        /**
+         */
         public Equipment() {}
 
         public Equipment(EquipmentDTO equipmentDTO) {

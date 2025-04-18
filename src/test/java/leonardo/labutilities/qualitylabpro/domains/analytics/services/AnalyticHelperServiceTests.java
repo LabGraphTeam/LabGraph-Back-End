@@ -85,8 +85,7 @@ class AnalyticHelperServiceTests {
 				public List<AnalyticsDTO> findAnalyticsByNameAndLevel(Pageable pageable,
 						String name, String level) {
 					return AnalyticHelperServiceTests.this.analyticsRepository
-							.findByNameAndLevel(name, level, pageable).stream()
-							.map(AnalyticMapper::toRecord).toList();
+							.findByNameAndLevel(name, level, pageable);
 				}
 
 				@Override
@@ -100,8 +99,7 @@ class AnalyticHelperServiceTests {
 					List<AnalyticsDTO> analyticsList =
 							AnalyticHelperServiceTests.this.analyticsRepository
 									.findByNameAndLevelAndDateBetween(name, level, dateStart,
-											dateEnd, pageable)
-									.stream().map(AnalyticMapper::toRecord).toList();
+											dateEnd, pageable);
 
 					MeanAndStdDeviationDTO calcSdAndMean = new MeanAndStdDeviationDTO(10.0, 0.5);
 
@@ -257,9 +255,8 @@ class AnalyticHelperServiceTests {
 		String name = "Glucose";
 		String level = "Normal";
 		Pageable pageable = PageRequest.of(0, 10);
-		List<Analytic> expectedRecords = createSampleRecordList().stream()
-				.filter(r -> r.name().equals(name) && r.level().equals(level)).toList().stream()
-				.map(AnalyticMapper::toNewEntity).toList();
+		List<AnalyticsDTO> expectedRecords = createSampleRecordList().stream()
+				.filter(r -> r.name().equals(name) && r.level().equals(level)).toList();
 
 		when(this.analyticsRepository.findByNameAndLevel(name, level,
 				pageable))
@@ -279,8 +276,8 @@ class AnalyticHelperServiceTests {
 		String level = "1";
 		LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
 		LocalDateTime endDate = LocalDateTime.of(2024, 1, 2, 0, 0);
-		List<Analytic> mockResultRepository =
-				createDateRangeRecords().stream().map(AnalyticMapper::toNewEntity).toList();
+		List<AnalyticsDTO> mockResultRepository =
+				createDateRangeRecords();
 
 		when(this.analyticsRepository.findByNameAndLevelAndDateBetween(eq(name), eq(level),
 				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockResultRepository);
@@ -492,8 +489,8 @@ class AnalyticHelperServiceTests {
 		// Arrange
 		LocalDateTime startDate = LocalDateTime.now().minusDays(7);
 		LocalDateTime endDate = LocalDateTime.now();
-		List<Analytic> expectedAnalytics =
-				createDateRangeRecords().stream().map(AnalyticMapper::toNewEntity).toList();
+		List<AnalyticsDTO> expectedAnalytics =
+				createDateRangeRecords();
 
 		when(this.analyticsRepository.findByDateBetween(startDate, endDate))
 				.thenReturn(expectedAnalytics);

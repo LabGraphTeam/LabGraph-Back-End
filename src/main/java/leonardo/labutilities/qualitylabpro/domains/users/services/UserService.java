@@ -124,7 +124,6 @@ public class UserService {
 		boolean oldPasswordMatches = BCryptEncoder.decrypt(password, oldPass.getPassword());
 		boolean newPasswordMatches = BCryptEncoder.decrypt(newPassword, oldPass.getPassword());
 		if (!oldPasswordMatches || newPasswordMatches) {
-			log.error("PasswordNotMatches. {}, {}", name, email);
 			throw new CustomGlobalErrorHandling.PasswordNotMatchesException();
 		} else {
 			this.userRepository.setPasswordWhereByUsername(oldPass.getUsername(),

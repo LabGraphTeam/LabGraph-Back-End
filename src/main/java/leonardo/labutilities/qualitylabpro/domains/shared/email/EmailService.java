@@ -7,13 +7,11 @@ import static leonardo.labutilities.qualitylabpro.domains.shared.email.constants
 import static leonardo.labutilities.qualitylabpro.domains.shared.email.constants.EmailTemplate.TABLE_ROW;
 import static leonardo.labutilities.qualitylabpro.domains.shared.email.constants.EmailTemplate.TABLE_STYLE;
 
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -23,7 +21,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
-
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -61,10 +58,6 @@ public class EmailService {
 		this.emailList = (this.emailListString != null && !this.emailListString.isEmpty())
 				? List.of(this.emailListString.split(","))
 				: List.of();
-
-		if (this.emailList.isEmpty()) {
-			log.warn("No identifier recipients configured in identifier.to.send.list");
-		}
 	}
 
 	@Async
@@ -89,10 +82,8 @@ public class EmailService {
 			helper.setText(buildEmailBody(emailDTO.body()), true);
 
 			this.javaMailSender.send(mimeMessage);
-			log.info("HTML identifier sent successfully to {} client", emailDTO.to());
 
 		} catch (MessagingException e) {
-			log.error("Failed to send HTML identifier: {}", e.getMessage(), e);
 			throw new EmailSendingException("Email sending failed", e);
 		}
 	}
@@ -110,13 +101,11 @@ public class EmailService {
 						try {
 							return new InternetAddress(emailAddress);
 						} catch (AddressException e) {
-							log.error("Invalid identifier address: {}", emailAddress, e);
 							return null;
 						}
 					}).filter(Objects::nonNull).toArray(InternetAddress[]::new);
 
 			if (internetAddresses.length == 0) {
-				log.error("No valid identifier addresses found");
 				return;
 			}
 
@@ -138,7 +127,6 @@ public class EmailService {
 	public void sendFailedAnalyticsNotification(List<AnalyticsDTO> failedRecords,
 			String validationResults) {
 		if (failedRecords == null || failedRecords.isEmpty()) {
-			log.warn("No failed analytics records to send notification for");
 			return;
 		}
 		log.info(validationResults);
@@ -163,9 +151,7 @@ public class EmailService {
 			helper.setText(buildEmailBody(emailBody), true);
 			this.javaMailSender.send(mimeMessage);
 
-			log.info("Failed analytics notification sent for {} records", failedRecords.size());
 		} catch (MessagingException e) {
-			log.error("Failed to send analytics notification identifier", e);
 			throw new EmailSendingException("Failed to send analytics notification", e);
 		}
 	}

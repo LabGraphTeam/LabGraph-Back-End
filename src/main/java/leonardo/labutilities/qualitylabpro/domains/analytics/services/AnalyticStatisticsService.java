@@ -48,7 +48,7 @@ public class AnalyticStatisticsService implements IAnalyticStatisticsService {
                         LocalDateTime dateStart, LocalDateTime dateEnd, Pageable pageable) {
                 List<AnalyticsDTO> values = analyticsRepository
                                 .findByNameAndLevelAndDateBetween(name, level, dateStart, dateEnd, pageable).stream()
-                                .map(AnalyticMapper::toRecord).filter(analyticsValidationService::isNotThreeSigma)
+                                .filter(analyticsValidationService::isNotThreeSigma)
                                 .toList();
                 return StatisticsCalculatorUtility.calculateMeanAndStandardDeviation(values);
         }
@@ -107,14 +107,12 @@ public class AnalyticStatisticsService implements IAnalyticStatisticsService {
                 List<AnalyticsDTO> firstAnalytic =
                                 analyticsRepository
                                                 .findByNameAndLevelAndDateBetween(analyticName, level, firstStartDate,
-                                                                firstEndDate, Pageable.unpaged())
-                                                .stream().map(AnalyticMapper::toRecord).toList();
+                                                                firstEndDate, Pageable.unpaged());
 
                 List<AnalyticsDTO> secondAnalytic =
                                 analyticsRepository
                                                 .findByNameAndLevelAndDateBetween(analyticName, level, secondStartDate,
-                                                                secondEndDate, Pageable.unpaged())
-                                                .stream().map(AnalyticMapper::toRecord).toList();
+                                                                secondEndDate, Pageable.unpaged());
 
                 if (firstAnalytic.isEmpty() || secondAnalytic.isEmpty()) {
                         throw new ResourceNotFoundException("No data found for the given parameters");

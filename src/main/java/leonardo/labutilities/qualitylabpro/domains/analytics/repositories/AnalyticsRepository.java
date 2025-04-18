@@ -23,43 +23,58 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 	// Existence Checks
 	boolean existsByTestName(String name);
 
-	boolean existsByMeasurementDateAndControlLevelAndTestName(LocalDateTime date, String level, String name);
+	boolean existsByMeasurementDateAndControlLevelAndTestName(LocalDateTime date,
+			String level, String name);
 
 	// Fetch Analytics by Name
 	@Query("SELECT ga FROM analytics ga WHERE ga.testName = :testName")
-	List<Analytic> findByName(@Param("testName") String testName, Pageable pageable);
+	List<AnalyticsDTO> findByName(@Param("testName") String testName, Pageable pageable);
 
 	// Fetch Latest Analytics
 	@Query(value = """
-			SELECT ga FROM analytics ga WHERE ga.testName = :name AND ga.controlLevel = :level ORDER BY ga.measurementDate DESC LIMIT 10
+			SELECT ga FROM analytics ga
+			WHERE ga.testName = :name AND ga.controlLevel = :level
+			ORDER BY ga.measurementDate DESC LIMIT 10
 			""")
-	List<AnalyticsDTO> findLast10ByTestNameAndControlLevel(@Param("name") String name, @Param("level") String level);
+	List<AnalyticsDTO> findLast10ByTestNameAndControlLevel(@Param("name") String name,
+			@Param("level") String level);
 
 	@Query(value = """
-			SELECT ga FROM analytics ga WHERE ga.testName = :name AND ga.controlLevel = :level ORDER BY ga.measurementDate DESC LIMIT 1
+			SELECT ga FROM analytics ga
+			WHERE ga.testName = :name AND ga.controlLevel = :level
+			ORDER BY ga.measurementDate DESC LIMIT 1
 			""")
-	List<AnalyticsDTO> findLastByTestNameAndControlLevel(@Param("name") String name, @Param("level") String level);
+	List<AnalyticsDTO> findLastByTestNameAndControlLevel(@Param("name") String name,
+			@Param("level") String level);
 
 	// Update Operations
 	@Transactional
 	@Modifying
 	@Query(value = """
-			UPDATE analytics ga SET ga.targetMean = :mean WHERE
-			 ga.testName = :name AND ga.controlLevel = :level AND ga.controlLevelLot = :levelLot
+			UPDATE analytics ga SET ga.targetMean = :mean
+			WHERE ga.testName = :name AND ga.controlLevel = :level
+			AND ga.controlLevelLot = :levelLot
 			""")
-	void updateMeanByNameAndLevelAndLevelLot(@Param("name") String name, @Param("level") String level,
+	void updateMeanByNameAndLevelAndLevelLot(@Param("name") String name,
+			@Param("level") String level,
 			@Param("levelLot") String levelLot, @Param("mean") double mean);
 
 	// Fetch Analytics by Name and Level
 	@Query(value = """
-			SELECT ga FROM analytics ga WHERE ga.testName = :name AND ga.controlLevel = :level
+			SELECT ga FROM analytics ga
+			WHERE ga.testName = :name AND ga.controlLevel = :level
 			""")
-	List<Analytic> findByNameAndLevel(@Param("name") String name, @Param("level") String level, Pageable pageable);
+	List<AnalyticsDTO> findByNameAndLevel(@Param("name") String name,
+			@Param("level") String level, Pageable pageable);
 
 	@Query(value = """
-			SELECT ga FROM analytics ga WHERE ga.testName = :name AND ga.controlLevel = :level AND ga.controlLevelLot = :levelLot
+			SELECT ga FROM analytics ga
+			LEFT JOIN FETCH ga.ownerUserId
+			LEFT JOIN FETCH ga.validatorUserId
+			WHERE ga.testName = :name AND ga.controlLevel = :level
+			AND ga.controlLevelLot = :levelLot
 			""")
-	List<Analytic> findByNameAndLevelAndLevelLot(Pageable pageable, @Param("name") String name,
+	List<AnalyticsDTO> findByNameAndLevelAndLevelLot(Pageable pageable, @Param("name") String name,
 			@Param("level") String level, @Param("levelLot") String levelLot);
 
 	@QueryHints({
@@ -67,12 +82,17 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 			@QueryHint(name = "org.hibernate.fetchSize", value = "100"),
 			@QueryHint(name = "org.hibernate.cacheable", value = "true")
 	})
+
 	@Query("""
-			SELECT ga FROM analytics ga WHERE ga.testName = :name
-			AND ga.controlLevel = :level AND ga.measurementDate BETWEEN :startDate AND :endDate ORDER BY ga.measurementDate ASC
+			SELECT ga FROM analytics ga
+			WHERE ga.testName = :name
+			AND ga.controlLevel = :level AND ga.measurementDate
+			BETWEEN :startDate AND :endDate ORDER BY ga.measurementDate ASC
 			""")
-	List<Analytic> findByNameAndLevelAndDateBetween(@Param("name") String name, @Param("level") String level,
-			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
+	List<AnalyticsDTO> findByNameAndLevelAndDateBetween(@Param("name") String name,
+			@Param("level") String level,
+			@Param("startDate") LocalDateTime startDate,
+			@Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 	// Fetch Analytics by Multiple Names and Date
 	@QueryHints({
@@ -81,9 +101,11 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 			@QueryHint(name = "org.hibernate.cacheable", value = "true")
 	})
 	@Query(value = """
-			SELECT ga FROM analytics ga WHERE
-			 ga.testName IN (:names) AND ga.controlLevel = :level AND ga.measurementDate BETWEEN
-			  :startDate AND :endDate
+			SELECT ga FROM analytics ga
+			LEFT JOIN FETCH ga.ownerUserId
+			LEFT JOIN FETCH ga.validatorUserId
+			WHERE ga.testName IN (:names) AND ga.controlLevel = :level AND ga.measurementDate
+			BETWEEN :startDate AND :endDate
 			""")
 	Page<AnalyticsDTO> findByNameInAndLevelAndDateBetween(@Param("names") List<String> names,
 			@Param("level") String level, @Param("startDate") LocalDateTime startDate,
@@ -91,34 +113,55 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 
 	@Query(value = """
 			SELECT ga FROM analytics ga
+			LEFT JOIN FETCH ga.ownerUserId
+			LEFT JOIN FETCH ga.validatorUserId
 			WHERE ga.testName IN (:names)
 			AND ga.controlLevel = :level
 			AND ga.validatorUserId IS NULL
 			AND ga.measurementDate BETWEEN :startDate AND :endDate
 			""")
-	Page<AnalyticsDTO> findUnValidByNameInAndLevelAndDateBetween(@Param("names") List<String> names,
-			@Param("level") String level, @Param("startDate") LocalDateTime startDate,
+	Page<AnalyticsDTO> findUnValidByNameInAndLevelAndDateBetween(
+			@Param("names") List<String> names,
+			@Param("level") String level,
+			@Param("startDate") LocalDateTime startDate,
 			@Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 	@Query(value = """
-			SELECT ga FROM analytics ga WHERE ga.testName IN (:names) AND ga.measurementDate BETWEEN :startDate AND :endDate
+			SELECT ga FROM analytics ga
+			LEFT JOIN FETCH ga.ownerUserId
+			LEFT JOIN FETCH ga.validatorUserId
+			WHERE ga.testName IN (:names)
+			AND ga.measurementDate BETWEEN :startDate AND :endDate
 			""")
 	Page<AnalyticsDTO> findByNameInAndDateBetweenPaged(@Param("names") List<String> names,
-			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
+			@Param("startDate") LocalDateTime startDate,
+			@Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 	@Query(value = """
-			SELECT ga FROM analytics ga WHERE ga.testName IN (:names) AND ga.validatorUserId IS NULL AND ga.measurementDate BETWEEN :startDate AND :endDate
+			SELECT ga FROM analytics ga
+			LEFT JOIN FETCH ga.ownerUserId
+			LEFT JOIN FETCH ga.validatorUserId
+			WHERE ga.testName IN (:names)
+			AND ga.validatorUserId IS NULL AND ga.measurementDate BETWEEN :startDate AND :endDate
 			""")
 	Page<AnalyticsDTO> findUnvalidByNameInAndDateBetweenPaged(@Param("names") List<String> names,
-			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
+			@Param("startDate") LocalDateTime startDate,
+			@Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 	@Query(value = """
-			SELECT ga FROM analytics ga WHERE ga.testName IN (:names) ORDER BY ga.measurementDate ASC
+			SELECT ga FROM analytics ga
+			LEFT JOIN FETCH ga.ownerUserId
+			LEFT JOIN FETCH ga.validatorUserId
+			WHERE ga.testName IN (:names)
+			ORDER BY ga.measurementDate ASC
 			""")
-	List<Analytic> findByNameIn(@Param("names") List<String> names, Pageable pageable);
+	List<AnalyticsDTO> findByNameIn(@Param("names") List<String> names, Pageable pageable);
 
 	@Query(value = """
-			SELECT ga FROM analytics ga WHERE ga.testName IN (:names)
+			SELECT ga FROM analytics ga
+			LEFT JOIN FETCH ga.ownerUserId
+			LEFT JOIN FETCH ga.validatorUserId
+			WHERE ga.testName IN (:names)
 			""")
 	Page<AnalyticsDTO> findByNameInPaged(@Param("names") List<String> names, Pageable pageable);
 
@@ -129,8 +172,13 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 	Page<AnalyticsDTO> findPaged(Pageable pageable);
 
 	// Analytics by Date Range
-	@Query("SELECT ga FROM analytics ga WHERE ga.measurementDate BETWEEN :startDate AND :endDate")
-	List<Analytic> findByDateBetween(@Param("startDate") LocalDateTime startDate,
+	@Query("""
+			SELECT ga FROM analytics ga
+			LEFT JOIN FETCH ga.ownerUserId
+			LEFT JOIN FETCH ga.validatorUserId
+			WHERE ga.measurementDate BETWEEN :startDate AND :endDate
+			""")
+	List<AnalyticsDTO> findByDateBetween(@Param("startDate") LocalDateTime startDate,
 			@Param("endDate") LocalDateTime endDate);
 
 	// Grouped Analytics
@@ -139,5 +187,6 @@ public interface AnalyticsRepository extends JpaRepository<Analytic, Long> {
 			AND ga.measurementDate BETWEEN :startDate AND :endDate
 			""")
 	List<Analytic> findByNameAndDateBetweenGroupByLevel(@Param("name") String name,
-			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
+			@Param("startDate") LocalDateTime startDate,
+			@Param("endDate") LocalDateTime endDate, Pageable pageable);
 }

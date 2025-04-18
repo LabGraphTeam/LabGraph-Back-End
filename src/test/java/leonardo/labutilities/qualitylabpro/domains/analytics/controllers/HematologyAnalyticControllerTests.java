@@ -42,7 +42,6 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.Analyt
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.AnalyticStatisticsService;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.HematologyAnalyticService;
 import leonardo.labutilities.qualitylabpro.domains.shared.authentication.services.TokenService;
-import leonardo.labutilities.qualitylabpro.domains.shared.mappers.AnalyticMapper;
 import leonardo.labutilities.qualitylabpro.domains.users.repositories.UserRepository;
 
 @WebMvcTest(HematologyAnalyticController.class)
@@ -156,7 +155,7 @@ class HematologyAnalyticControllerTests {
 		LocalDateTime startDate = this.parse("2025-01-01 00:00:00");
 		LocalDateTime endDate = this.parse("2025-01-05 00:00:00");
 
-		var mockList = createSampleRecordList().stream().map(AnalyticMapper::toEntity).toList();
+		var mockList = createSampleRecordList();
 
 		when(analyticsRepository.findByNameAndLevelAndDateBetween(eq("ALB2"), eq("PCCC1"),
 				eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockList);

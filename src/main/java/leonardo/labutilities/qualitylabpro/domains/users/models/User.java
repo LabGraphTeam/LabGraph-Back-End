@@ -27,6 +27,7 @@ import jakarta.persistence.MapKey;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Analytic;
+import leonardo.labutilities.qualitylabpro.domains.analytics.models.ControlLot;
 import leonardo.labutilities.qualitylabpro.domains.users.enums.UserRoles;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -59,8 +60,12 @@ public class User implements UserDetails {
     @MapKey(name = "id")
     private SortedMap<Long, Analytic> validatedAnalytics = new TreeMap<>();
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @MapKey(name = "id")
+    private SortedMap<Long, ControlLot> controlAnalytics = new TreeMap<>();
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,
-            fetch = FetchType.EAGER)
+            fetch = FetchType.LAZY)
     private UserConfig userConfig;
 
     @Column(name = "user_roles", nullable = false)

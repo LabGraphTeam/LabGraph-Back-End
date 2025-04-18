@@ -28,16 +28,13 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws IOException {
         try {
-            log.info("Starting security filter for request to: {}", request.getRequestURI());
             var tokenJWT = this.getToken(request);
             if (tokenJWT != null) {
-                log.debug("JWT token found in request");
                 var subject = this.tokenService.getSubject(tokenJWT);
                 var users = this.userRepository.getReferenceOneByUsername(subject)
-                        .orElseThrow(() -> new RuntimeException("User not found: " + subject));
+                        .orElseThrow(() -> new RuntimeException("User not found or invalid: " + subject));
 
                 if (!users.isAccountNonLocked() || !users.isEnabled()) {
-                    log.warn("User account is locked or disabled, {}", users.getUsername());
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     response.setCharacterEncoding("UTF-8");
                     response.getWriter().println("User account is locked or disabled");
@@ -49,7 +46,6 @@ public class SecurityFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response);
         } catch (Exception exception) {
-            log.error("Authentication error: {}", exception.getMessage());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setCharacterEncoding("UTF-8");
             response.getWriter().println(exception.getLocalizedMessage());

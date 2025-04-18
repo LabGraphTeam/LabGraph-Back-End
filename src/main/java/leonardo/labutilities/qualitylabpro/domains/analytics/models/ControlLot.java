@@ -2,6 +2,8 @@ package leonardo.labutilities.qualitylabpro.domains.analytics.models;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -27,6 +29,7 @@ public class ControlLot {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_user")
+    @JsonIgnoreProperties({"analytics", "controlLots"})
     private User user;
 
     @Column(name = "lot_code", nullable = false, length = 50)
@@ -38,7 +41,7 @@ public class ControlLot {
     @Column(name = "expiration_time", nullable = false)
     private LocalDate expirationTime;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_equipment")
     private Equipment equipmentId;
 

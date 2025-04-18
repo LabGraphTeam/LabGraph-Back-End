@@ -1,8 +1,10 @@
 package leonardo.labutilities.qualitylabpro.domains.users.models;
 
 import java.time.LocalDateTime;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import leonardo.labutilities.qualitylabpro.domains.users.enums.ChartType;
 import leonardo.labutilities.qualitylabpro.domains.users.enums.QualityControlRulesApplied;
@@ -28,8 +31,9 @@ public class UserConfig {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @MapsId
     private User user;
 
     @Column(name = "default_chart_type", nullable = false)

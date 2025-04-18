@@ -26,6 +26,7 @@ import jakarta.validation.Valid;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.AnalyticsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsDateRangeParamsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsLevelDateRangeParamsDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsListValidationByUserDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.AnalyticsNameAndLevelDateRangeParamsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.ComparativeErrorStatisticsParamsDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.UpdateAnalyticsMeanDTO;
@@ -65,11 +66,21 @@ class AnalyticController extends AnalyticHelperController {
 		return ResponseEntity.status(HttpStatus.OK).body(respose);
 	}
 
+	@PatchMapping("/validate")
+	@Transactional
+	public ResponseEntity<List<AnalyticsDTO>> patchValidateAnalyticListByUser(
+			@RequestBody AnalyticsListValidationByUserDTO analyticsListValidationByUserDTO) {
+		var respose = analyticHelperService.validateAnalyticListByUser(analyticsListValidationByUserDTO.ids());
+
+		return ResponseEntity.status(HttpStatus.OK).body(respose);
+	}
+
 	@PatchMapping("/{id}/description")
 	@Transactional
 	public ResponseEntity<AnalyticsDTO> patchDescriptionAnalyticByUser(@PathVariable Long id,
 			@RequestBody String description) {
 		var respose = analyticHelperService.updateDescription(id, description);
+
 		return ResponseEntity.status(HttpStatus.OK).body(respose);
 	}
 
@@ -104,8 +115,6 @@ class AnalyticController extends AnalyticHelperController {
 		var result = analyticHelperService.findAnalyticsByNameInAndDateBetween(names,
 				params.startDate(), params.endDate(), pageable);
 
-		log.debug("Found {} analytics entries in date range", result.getTotalElements());
-
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 
@@ -132,9 +141,6 @@ class AnalyticController extends AnalyticHelperController {
 				analyticHelperService.convertLevel(params.level()), params.startDate(),
 				params.endDate(), pageable);
 
-		log.debug("Found {} analytics entries for level {}", result.getTotalElements(),
-				params.level());
-
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 
@@ -146,9 +152,6 @@ class AnalyticController extends AnalyticHelperController {
 		var result = analyticHelperService.findUnvalidAnalyticsByNameInByLevel(names,
 				analyticHelperService.convertLevel(params.level()), params.startDate(),
 				params.endDate(), pageable);
-
-		log.debug("Found {} analytics entries for level {}", result.getTotalElements(),
-				params.level());
 
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
@@ -163,9 +166,6 @@ class AnalyticController extends AnalyticHelperController {
 		var result = analyticsStatisticsService.calculateMeanAndStandardDeviation(name,
 				analyticHelperService.convertLevel(level), startDate, endDate, pageable);
 
-		log.debug("Calculated statistics: mean={}, stdDev={}", result.mean(),
-				result.standardDeviation());
-
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 
@@ -177,9 +177,6 @@ class AnalyticController extends AnalyticHelperController {
 		var result = analyticHelperService.findAnalyticsByNameLevelDate(params.name(),
 				analyticHelperService.convertLevel(params.level()), params.startDate(),
 				params.endDate(), pageable);
-
-		log.debug("Retrieved analytics with calculated values: analytics={}, calcs={}",
-				result.analyticsDTO(), result.calcMeanAndStdDTO());
 
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}

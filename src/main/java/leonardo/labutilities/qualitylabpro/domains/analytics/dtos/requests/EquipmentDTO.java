@@ -4,7 +4,7 @@ import leonardo.labutilities.qualitylabpro.domains.analytics.enums.WorkSectorEnu
 
 public record EquipmentDTO(
 
-                String commercialName,
-                WorkSectorEnum workSector,
-                String serialNumber,
-                String Equipments) {}
+        String commercialName,
+        WorkSectorEnum workSector,
+        String serialNumber,
+        String Equipments) {}
