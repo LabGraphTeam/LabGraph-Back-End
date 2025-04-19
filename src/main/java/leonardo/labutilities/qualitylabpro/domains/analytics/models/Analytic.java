@@ -43,7 +43,7 @@ public class Analytic extends RepresentationModel<Analytic> {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "equipment_id")
-	private Equipment equipmentId;
+	private Equipment equipment;
 
 	@Column(name = "measurement_date", nullable = false)
 	private LocalDateTime measurementDate;

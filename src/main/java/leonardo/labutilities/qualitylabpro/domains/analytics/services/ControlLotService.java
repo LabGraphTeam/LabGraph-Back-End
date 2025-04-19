@@ -2,14 +2,14 @@ package leonardo.labutilities.qualitylabpro.domains.analytics.services;
 
 import java.util.List;
 
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.ControlLotDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.ControlLotDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.CreateControlLotDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.ControlLot;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Equipment;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.ControlLotRepository;
+import leonardo.labutilities.qualitylabpro.domains.shared.authentication.utils.AuthenticatedUserProvider;
 import leonardo.labutilities.qualitylabpro.domains.shared.exception.CustomGlobalErrorHandling.ResourceNotFoundException;
 import leonardo.labutilities.qualitylabpro.domains.users.models.User;
 
@@ -23,15 +23,11 @@ public class ControlLotService {
         this.equipmentService = equipmentService;
     }
 
-    public ControlLot createControlLot(ControlLotDTO controlLot) {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()
-                || !(authentication.getPrincipal() instanceof User)) {
-            throw new BadCredentialsException("User not authenticated");
-        }
+    public ControlLot createControlLot(CreateControlLotDTO controlLot) {
 
-        User user = (User) authentication.getPrincipal();
-        Equipment equipment = equipmentService.findById(controlLot.equipmentId());
+        User user = AuthenticatedUserProvider.getCurrentAuthenticatedUser();
+
+        Equipment equipment = equipmentService.findById(controlLot.equipment());
 
         var controlLotToSave = new ControlLot();
 
@@ -39,7 +35,7 @@ public class ControlLotService {
         controlLotToSave.setLotCode(controlLot.lotCode());
         controlLotToSave.setManufactureDate(controlLot.manufactureDate());
         controlLotToSave.setExpirationTime(controlLot.expirationTime());
-        controlLotToSave.setEquipmentId(equipment);
+        controlLotToSave.setEquipment(equipment);
 
         return controlLotRepository.save(controlLotToSave);
     }

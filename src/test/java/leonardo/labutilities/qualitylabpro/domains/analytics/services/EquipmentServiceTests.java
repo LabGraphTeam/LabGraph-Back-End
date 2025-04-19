@@ -51,8 +51,7 @@ class EquipmentServiceTests {
         testEquipmentDTO = new EquipmentDTO(
                 "Test Equipment",
                 WorkSectorEnum.BIOCHEMISTRY,
-                "SN12345",
-                null);
+                "SN12345");
     }
 
     @Test
@@ -180,8 +179,7 @@ class EquipmentServiceTests {
         EquipmentDTO updateDTO = new EquipmentDTO(
                 "Updated Equipment",
                 WorkSectorEnum.COAGULATION,
-                "SN-UPDATED",
-                null);
+                "SN-UPDATED");
 
         Equipment updatedEquipment = new Equipment();
         updatedEquipment.setId(id);

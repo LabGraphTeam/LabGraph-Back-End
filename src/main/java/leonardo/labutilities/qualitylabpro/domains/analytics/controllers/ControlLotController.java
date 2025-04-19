@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.ControlLotDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.ControlLotDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.CreateControlLotDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.services.ControlLotService;
 
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class ControlLotController {
     }
 
     @PostMapping()
-    public ResponseEntity<ControlLotDTO> postControlLot(@RequestBody ControlLotDTO controlLot) {
+    public ResponseEntity<CreateControlLotDTO> postControlLot(@RequestBody CreateControlLotDTO controlLot) {
         controlLotService.createControlLot(controlLot);
 
         return ResponseEntity.created(URI.create("/control-lot/")).body(controlLot);

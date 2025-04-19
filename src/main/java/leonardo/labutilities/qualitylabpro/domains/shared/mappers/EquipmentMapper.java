@@ -1,46 +1,48 @@
 package leonardo.labutilities.qualitylabpro.domains.shared.mappers;
 
-import java.util.List;
-
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.EquipmentDTO;
-import leonardo.labutilities.qualitylabpro.domains.analytics.models.ControlLot;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Equipment;
 
+/**
+ * Mapper for converting between Equipment entity and EquipmentDTO.
+ */
 public class EquipmentMapper {
 
     private EquipmentMapper() {}
 
+    /**
+     * Converts EquipmentDTO to Equipment entity.
+     *
+     * @param equipmentDTO The DTO to convert
+     * @return The converted Equipment entity
+     */
     public static Equipment toEntity(EquipmentDTO equipmentDTO) {
-
-        var controlLots = List.of(new ControlLot());
+        if (equipmentDTO == null) {
+            return null;
+        }
 
         Equipment equipment = new Equipment();
-
         equipment.setCommercialName(equipmentDTO.commercialName());
         equipment.setWorkSector(equipmentDTO.workSector());
         equipment.setSerialNumber(equipmentDTO.serialNumber());
-        equipment.setControlLots(controlLots);
+
         return equipment;
     }
 
+    /**
+     * Converts Equipment entity to EquipmentDTO.
+     *
+     * @param equipment The entity to convert
+     * @return The converted EquipmentDTO
+     */
     public static EquipmentDTO toDTO(Equipment equipment) {
+        if (equipment == null) {
+            return null;
+        }
+
         return new EquipmentDTO(
                 equipment.getCommercialName(),
                 equipment.getWorkSector(),
-                equipment.getSerialNumber(),
-                getControlLots(equipment));
-    }
-
-    private static String getControlLots(Equipment equipment) {
-        try {
-            return equipment.getControlLots() != null
-                    ? equipment.getControlLots().stream()
-                            .map(ControlLot::getLotCode)
-                            .reduce((first, second) -> first + ", " + second)
-                            .orElse("-")
-                    : "-";
-        } catch (Exception e) {
-            throw new IllegalStateException("Error while retrieving the control's lotCode", e);
-        }
+                equipment.getSerialNumber());
     }
 }

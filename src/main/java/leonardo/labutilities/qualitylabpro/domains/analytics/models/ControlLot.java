@@ -41,9 +41,9 @@ public class ControlLot {
     @Column(name = "expiration_time", nullable = false)
     private LocalDate expirationTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_equipment")
-    private Equipment equipmentId;
+    private Equipment equipment;
 
     public ControlLot() {}
 

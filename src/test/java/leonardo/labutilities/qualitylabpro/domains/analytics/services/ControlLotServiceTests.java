@@ -27,7 +27,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.ControlLotDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.common.ControlLotDTO;
+import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.CreateControlLotDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.ControlLot;
 import leonardo.labutilities.qualitylabpro.domains.analytics.models.Equipment;
 import leonardo.labutilities.qualitylabpro.domains.analytics.repositories.ControlLotRepository;
@@ -54,7 +55,7 @@ class ControlLotServiceTests {
 
     private User user;
     private Equipment equipment;
-    private ControlLotDTO controlLotDTO;
+    private CreateControlLotDTO controlLotDTO;
     private ControlLot controlLot;
     private MockedStatic<SecurityContextHolder> mockedSecurityContext;
 
@@ -71,7 +72,7 @@ class ControlLotServiceTests {
         LocalDate manufactureDate = LocalDate.of(2025, 1, 1);
         LocalDate expirationDate = LocalDate.of(2026, 1, 1);
 
-        controlLotDTO = new ControlLotDTO(
+        controlLotDTO = new CreateControlLotDTO(
                 null,
                 null,
                 "LOT-123",
@@ -85,7 +86,7 @@ class ControlLotServiceTests {
         controlLot.setLotCode("LOT-123");
         controlLot.setManufactureDate(manufactureDate);
         controlLot.setExpirationTime(expirationDate);
-        controlLot.setEquipmentId(equipment);
+        controlLot.setEquipment(equipment);
 
         // Mock the security context
         mockedSecurityContext = Mockito.mockStatic(SecurityContextHolder.class);
@@ -107,7 +108,7 @@ class ControlLotServiceTests {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getPrincipal()).thenReturn(user);
-        when(equipmentService.findById(controlLotDTO.equipmentId())).thenReturn(equipment);
+        when(equipmentService.findById(controlLotDTO.equipment())).thenReturn(equipment);
         when(controlLotRepository.save(any(ControlLot.class))).thenReturn(controlLot);
 
         // Act
@@ -121,7 +122,7 @@ class ControlLotServiceTests {
         assertEquals(user, result.getUser());
 
         // Verify interactions
-        verify(equipmentService).findById(controlLotDTO.equipmentId());
+        verify(equipmentService).findById(controlLotDTO.equipment());
         verify(controlLotRepository).save(any(ControlLot.class));
     }
 

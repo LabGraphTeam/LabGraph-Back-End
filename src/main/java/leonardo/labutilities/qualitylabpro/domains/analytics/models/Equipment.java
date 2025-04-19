@@ -1,21 +1,14 @@
 package leonardo.labutilities.qualitylabpro.domains.analytics.models;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import org.springframework.beans.BeanUtils;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import leonardo.labutilities.qualitylabpro.domains.analytics.dtos.requests.EquipmentDTO;
 import leonardo.labutilities.qualitylabpro.domains.analytics.enums.WorkSectorEnum;
 import leonardo.labutilities.qualitylabpro.domains.shared.mappers.EquipmentMapper;
@@ -45,17 +38,6 @@ public class Equipment {
 
         @Column(name = "serial_number", length = 150)
         private String serialNumber;
-
-        @Column(length = 500)
-        private String description;
-
-        @JsonIgnore
-        @OneToMany(mappedBy = "equipmentId", fetch = FetchType.LAZY)
-        private List<ControlLot> controlLots = new ArrayList<>();
-
-        @JsonIgnore
-        @OneToMany(mappedBy = "equipmentId", fetch = FetchType.LAZY)
-        private List<Analytic> analytics = new ArrayList<>();
 
         /**
          */
